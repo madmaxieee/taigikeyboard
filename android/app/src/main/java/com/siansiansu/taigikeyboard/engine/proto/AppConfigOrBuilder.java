@@ -135,4 +135,15 @@ public interface AppConfigOrBuilder extends
    * @return The syllableSeparator.
    */
   com.siansiansu.taigikeyboard.engine.proto.SyllableSeparator getSyllableSeparator();
+
+  /**
+   * <pre>
+   * Opt-in literal preview: apply each tone digit to the preceding last
+   * vowel cluster without requiring a valid syllable or a typed separator.
+   * </pre>
+   *
+   * <code>bool permissive_tone_placement = 15;</code>
+   * @return The permissiveTonePlacement.
+   */
+  boolean getPermissiveTonePlacement();
 }

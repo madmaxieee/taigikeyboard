@@ -205,6 +205,8 @@
     <string name="i18n_settings_syllableSeparatorNone">なし</string>
     <string name="i18n_settings_syllableSeparatorInfo">音節の区切り：ハイフン（tâi-uân）、スペース（tâi uân）、なし（tâiuân）。後の二つでは軽声 -- は · になります。</string>
     <string name="i18n_settings_literalRomanCandidate">入力中の文字を先頭に表示</string>
+    <string name="i18n_settings_permissiveTonePlacement">柔軟な声調記号の配置</string>
+    <string name="i18n_settings_permissiveTonePlacementInfo">空白やハイフンがなくても声調数字を声調記号に変換します：tai5gi2 → tâigí。プレビューと入力文字の確定に適用されます。</string>
     <string name="i18n_settings_literalRomanCandidateInfo">入力したローマ字を候補バーの先頭に表示し、タップか Enter で確定できます。オフの場合は Enter でのみ確定できます。</string>
     <string name="i18n_settings_autoCapitalization">自動大文字化</string>
     <string name="i18n_settings_autoSpace">自動スペース</string>

@@ -85,6 +85,7 @@ fun InputSettingsScreen(
     // Annotate in Brackets binds the STORED flag; it is only disabled (not cleared) while roman-only.
     var outputBoth by remember(resetCounter) { mutableStateOf(prefs.storedOutputBothScripts) }
     var literalRomanCandidate by remember(resetCounter) { mutableStateOf(prefs.literalRomanCandidateEnabled) }
+    var permissiveTonePlacement by remember(resetCounter) { mutableStateOf(prefs.permissiveTonePlacementEnabled) }
     var syllableSeparator by remember(resetCounter) { mutableStateOf(prefs.syllableSeparator) }
     var autoCap by remember(resetCounter) { mutableStateOf(prefs.autoCapitalizationEnabled) }
     var autoSpace by remember(resetCounter) { mutableStateOf(prefs.isAutoSpaceEnabled) }
@@ -224,6 +225,16 @@ fun InputSettingsScreen(
                         onCheckedChange = {
                             literalRomanCandidate = it
                             prefs.literalRomanCandidateEnabled = it
+                        },
+                    )
+                    SettingsDivider()
+                    SwitchRow(
+                        label = L10n.settingsPermissiveTonePlacement,
+                        checked = permissiveTonePlacement,
+                        infoText = L10n.settingsPermissiveTonePlacementInfo,
+                        onCheckedChange = {
+                            permissiveTonePlacement = it
+                            prefs.permissiveTonePlacementEnabled = it
                         },
                     )
                     SettingsDivider()

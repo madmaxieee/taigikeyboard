@@ -131,6 +131,16 @@
       "scope": { "platforms": ["android", "ios", "macos", "windows", "linux"], "surfaces": ["host", "extension"] },
       "values": { "hanji": "拍 ê 羅馬字囥第一格", "tailo": "Phah ê lô-má-jī khǹg tē-it keh", "poj": "Phah ê lô-má-jī khǹg tē-it keh", "en": "Show Typed Text First", "ja": "入力中の文字を先頭に表示" }
     },
+    "permissiveTonePlacement": {
+      "comment": "Opt-in tone placement for literal TL/POJ previews and commits, without requiring syllable separators. Default off.",
+      "scope": {"platforms": ["android", "ios", "macos", "windows", "linux"], "surfaces": ["host", "extension"]},
+      "values": {"hanji": "寬鬆 ê 聲調位置", "tailo": "Khuan-sang ê siann-tiāu uī-tì", "poj": "Khuan-sang ê siaⁿ-tiāu ūi-tì", "en": "Permissive Tone Placement", "ja": "柔軟な声調記号の配置"}
+    },
+    "permissiveTonePlacementInfo": {
+      "comment": "Help text for Permissive Tone Placement. This changes literal output, not dictionary lookup or spelling.",
+      "scope": {"platforms": ["android", "ios", "macos", "windows", "linux"], "surfaces": ["host"]},
+      "values": {"hanji": "毋免拍空格抑是連字符，就會當共聲調數字變做聲調符號：tai5gi2 → tâigí。預覽佮送出 ê 羅馬字攏會套用。", "tailo": "M̄-bián phah khang-keh ah-sī liân-jī-hû, tō ē-tàng kā siann-tiāu sòo-jī piàn-tsò siann-tiāu hû-hō: tai5gi2 → tâigí. Ī-lám kah sàng-tshut ê lô-má-jī lóng ē thò-iōng.", "poj": "M̄-bián phah khang-keh ah-sī liân-jī-hû, tō ē-tàng kā siaⁿ-tiāu sò͘-jī piàn-chò siaⁿ-tiāu hû-hō: tai5gi2 → tâigí. Ī-lám kah sàng-chhut ê lô-má-jī lóng ē thò-iōng.", "en": "Applies tone marks without requiring spaces or hyphens: tai5gi2 → tâigí. Affects the preview and committed typed text.", "ja": "空白やハイフンがなくても声調数字を声調記号に変換します：tai5gi2 → tâigí。プレビューと入力文字の確定に適用されます。"}
+    },
     "literalRomanCandidateInfo": {
       "comment": "Help text for the Show Typed Text First toggle.",
       "scope": { "platforms": ["android", "ios"], "surfaces": ["host"] },

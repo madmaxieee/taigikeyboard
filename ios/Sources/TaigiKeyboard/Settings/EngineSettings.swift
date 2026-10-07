@@ -39,6 +39,9 @@ protocol EngineSettings {
     // Drift causes silent divergence (one platform shows the §34 candidate, the other does not).
     var isLiteralRomanCandidateEnabled: Bool { get }
 
+    // CROSS-PLATFORM INVARIANT — mirrors android/app/src/main/java/com/siansiansu/taigikeyboard/ime/settings/EngineSettings.kt:isPermissiveTonePlacementEnabled.
+    var isPermissiveTonePlacementEnabled: Bool { get }
+
     /// Syllable Separator (`behavioral-invariants.md` §49) as stored. Forwarded verbatim
     /// as `AppConfig.syllable_separator`; the engine exempts the TPS layout itself.
     // CROSS-PLATFORM INVARIANT — mirrors android/app/src/main/java/com/siansiansu/taigikeyboard/ime/settings/EngineSettings.kt:syllableSeparator.

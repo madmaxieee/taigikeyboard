@@ -18,6 +18,7 @@ struct SettingsSelectionOverlay: View {
 
     @State private var candidateDisplayMode: CandidateDisplayMode
     @State private var isOutputBothScripts: Bool
+    @State private var isPermissiveTonePlacementEnabled: Bool
     @State private var literalRomanCandidateEnabled: Bool
     @State private var autoCapitalizationEnabled: Bool
     @State private var autoSpaceEnabled: Bool
@@ -59,6 +60,7 @@ struct SettingsSelectionOverlay: View {
         // Toggle binds the STORED flag: it keeps showing the user's choice while disabled under Romanization Only.
         _isOutputBothScripts = State(initialValue: s.storedIsOutputBothScripts)
         _literalRomanCandidateEnabled = State(initialValue: s.isLiteralRomanCandidateEnabled)
+        _isPermissiveTonePlacementEnabled = State(initialValue: s.isPermissiveTonePlacementEnabled)
         _autoCapitalizationEnabled = State(
             initialValue: KeyboardSettings.store.bool(forKey: Self.autoCapKey),
         )
@@ -97,6 +99,9 @@ struct SettingsSelectionOverlay: View {
                     )
                     settingsToggle(lang.string(.settingsLiteralRomanCandidate), isOn: $literalRomanCandidateEnabled) {
                         SharedSettings.shared.isLiteralRomanCandidateEnabled = $0
+                    }
+                    settingsToggle(lang.string(.settingsPermissiveTonePlacement), isOn: $isPermissiveTonePlacementEnabled) {
+                        SharedSettings.shared.isPermissiveTonePlacementEnabled = $0
                     }
                     settingsToggle(lang.string(.settingsOutputBothScripts), isOn: $isOutputBothScripts) {
                         SharedSettings.shared.storedIsOutputBothScripts = $0
@@ -167,6 +172,7 @@ struct SettingsSelectionOverlay: View {
             candidateDisplayMode = s.candidateDisplayMode
             isOutputBothScripts = s.storedIsOutputBothScripts
             literalRomanCandidateEnabled = s.isLiteralRomanCandidateEnabled
+            isPermissiveTonePlacementEnabled = s.isPermissiveTonePlacementEnabled
             autoCapitalizationEnabled = KeyboardSettings.store.bool(forKey: Self.autoCapKey)
             autoSpaceEnabled = s.isAutoSpaceEnabled
             toolbarAutoCollapse = s.isToolbarAutoCollapse

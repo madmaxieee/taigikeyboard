@@ -82,6 +82,8 @@ pub(crate) fn tps_slice_display(tps_slice: &str) -> String {
 ///   marker have no display counterpart, so a raw character that does not
 ///   match the next display letter is one the chain dropped and maps right
 ///   after the display character before it;
+///   permissive tone digits use explicit renderer decisions because a later
+///   identical literal digit could otherwise match the hidden one;
 /// - it folds a POJ double tap, `oo` → `o\u{0358}` / `nn` → `ⁿ` (`ᴺ` after a
 ///   capital vowel). Both taps
 ///   are the same letter, so the second one cannot be told from a later
@@ -100,11 +102,21 @@ pub(crate) fn tps_slice_display(tps_slice: &str) -> String {
 ///
 /// The "never adds a base letter" premise is pinned where it can break, in
 /// `phonetics::api` (`normalize_tone_never_adds_a_base_letter`).
-pub(crate) fn display_caret_utf16(raw: &str, display: &str, caret: usize) -> usize {
+pub(crate) fn display_caret_utf16(
+    raw: &str,
+    display: &str,
+    caret: usize,
+    config: &AppConfig,
+) -> usize {
     if caret >= raw.len() {
         return display.encode_utf16().count();
     }
     let mut display_chars = display.chars().peekable();
+    let consumed_digits = if phonetics::api::contains_tps(raw) {
+        Vec::new()
+    } else {
+        phonetics::api::consumed_tone_digit_offsets(raw, config)
+    };
     let mut display_utf16 = 0;
     let mut raw_chars = raw.char_indices().peekable();
     while let Some((raw_offset, raw_char)) = raw_chars.next() {
@@ -112,6 +124,9 @@ pub(crate) fn display_caret_utf16(raw: &str, display: &str, caret: usize) -> usi
             break;
         }
         display_utf16 += absorb_marks(&mut display_chars).utf16_len;
+        if consumed_digits.binary_search(&raw_offset).is_ok() {
+            continue;
+        }
         let Some(&display_char) = display_chars.peek() else {
             continue;
         };
@@ -192,6 +207,7 @@ mod tests {
             force_lowercase_nasal_marker: false,
             tps_or_maps_to_er: false,
             hanji_conversion: None,
+            permissive_tone_placement: false,
         }
     }
 
@@ -217,7 +233,7 @@ mod tests {
             .char_indices()
             .map(|(offset, _)| offset)
             .chain(std::iter::once(raw.len()))
-            .map(|offset| display_caret_utf16(raw, &display, offset))
+            .map(|offset| display_caret_utf16(raw, &display, offset, config))
             .collect();
         (display, boundaries)
     }
@@ -249,6 +265,81 @@ mod tests {
         let (display, boundaries) = caret_map("ka2i", &config_tl());
         assert_eq!(display, "ka2i");
         assert_eq!(boundaries, vec![0, 1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn display_caret_permissive_tones_map_each_dropped_digit() {
+        let config = AppConfig {
+            permissive_tone_placement: true,
+            ..config_tl()
+        };
+        let (display, boundaries) = caret_map("tai5gi2", &config);
+        assert_eq!(display, "tâigí");
+        assert_eq!(boundaries, vec![0, 1, 2, 3, 3, 4, 5, 5]);
+        let (display, boundaries) = caret_map("ka2i", &config);
+        assert_eq!(display, "kái");
+        assert_eq!(boundaries, vec![0, 1, 2, 2, 3]);
+        let (display, boundaries) = caret_map("a22", &config);
+        assert_eq!(display, "á2");
+        assert_eq!(boundaries, vec![0, 1, 1, 2]);
+        let (display, boundaries) = caret_map("2a2", &config);
+        assert_eq!(display, "2á");
+        assert_eq!(boundaries, vec![0, 1, 2, 2]);
+        let poj = AppConfig {
+            permissive_tone_placement: true,
+            ..config_poj_doubletap()
+        };
+        let (display, boundaries) = caret_map("hoo22", &poj);
+        assert_eq!(display, "hó͘2");
+        assert_eq!(boundaries, vec![0, 1, 3, 3, 3, 4]);
+    }
+
+    #[test]
+    fn permissive_tones_keep_earlier_marks_while_typing_and_backspacing() {
+        use crate::api::{Engine, Intent};
+        let config = AppConfig {
+            permissive_tone_placement: true,
+            ..config_tl()
+        };
+        let mut engine = Engine::new();
+        engine.apply(
+            Intent::Start {
+                text: "tai5".into(),
+            },
+            &config,
+        );
+        for (ch, expected) in [("g", "tâig"), ("i", "tâigi"), ("2", "tâigí")] {
+            let response = engine.apply(Intent::Append { ch: ch.into() }, &config);
+            assert_eq!(response.preedit.unwrap().display_text, expected);
+        }
+        for expected in ["tâigi", "tâig", "tâi", "tai"] {
+            let response = engine.apply(Intent::DeleteBackward, &config);
+            assert_eq!(response.preedit.unwrap().display_text, expected);
+        }
+    }
+
+    #[test]
+    fn permissive_repeated_digit_caret_matches_insertion() {
+        use crate::api::{CaretDirection, Engine, Intent};
+        let config = AppConfig {
+            permissive_tone_placement: true,
+            ..config_tl()
+        };
+        let mut engine = Engine::new();
+        engine.apply(Intent::Start { text: "a22".into() }, &config);
+        let response = engine.apply(
+            Intent::MoveCaret {
+                direction: Some(CaretDirection::Left),
+            },
+            &config,
+        );
+        let preedit = response.preedit.unwrap();
+        assert_eq!(preedit.display_text, "á2");
+        assert_eq!(preedit.caret_utf16, 1);
+        let response = engine.apply(Intent::Append { ch: "t".into() }, &config);
+        let preedit = response.preedit.unwrap();
+        assert_eq!(preedit.display_text, "át2");
+        assert_eq!(preedit.caret_utf16, 2);
     }
 
     #[test]
@@ -301,15 +392,15 @@ mod tests {
 
     #[test]
     fn display_caret_past_the_end_clamps_and_off_boundary_lands_after_the_char() {
-        assert_eq!(display_caret_utf16("tai5", "t\u{e2}i", 99), 3);
+        assert_eq!(display_caret_utf16("tai5", "t\u{e2}i", 99, &config_tl()), 3);
         // Byte 1 sits inside the 3-byte ㄉ: the walk consumes ㄉ (boundary 0
         // is below the caret) and stops at ㄞ (boundary 3 is not), so the
         // caret lands after ㄉ.
         assert_eq!(
-            display_caret_utf16("\u{3109}\u{311e}", "\u{3109}\u{311e}", 1),
+            display_caret_utf16("\u{3109}\u{311e}", "\u{3109}\u{311e}", 1, &config_tl()),
             1
         );
-        assert_eq!(display_caret_utf16("", "", 0), 0);
+        assert_eq!(display_caret_utf16("", "", 0, &config_tl()), 0);
     }
 
     #[test]

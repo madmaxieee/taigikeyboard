@@ -93,6 +93,14 @@ pub fn view(
                 Message::SetSwitch(keys::IS_LITERAL_ROMAN_CANDIDATE_ENABLED, is_on)
             }),
         ),
+        cards::switch_row(
+            strings.resolve(StringKey::SettingsPermissiveTonePlacement),
+            document.bool(&keys::IS_PERMISSIVE_TONE_PLACEMENT_ENABLED),
+            true,
+            context.callback(|is_on| {
+                Message::SetSwitch(keys::IS_PERMISSIVE_TONE_PLACEMENT_ENABLED, is_on)
+            }),
+        ),
         // Which script a commit writes (USER 2026-09-18): the same stored
         // swap the backtick shortcut toggles, so the two never disagree.
         // Disabled exactly where the shortcut is inert — Candidate Display = Romanization Only

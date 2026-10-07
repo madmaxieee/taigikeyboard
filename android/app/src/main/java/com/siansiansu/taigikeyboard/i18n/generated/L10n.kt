@@ -410,6 +410,10 @@ object L10n {
         @Composable get() = stringRes(StringKey.SETTINGS_SYLLABLE_SEPARATOR_INFO)
     val settingsLiteralRomanCandidate: String
         @Composable get() = stringRes(StringKey.SETTINGS_LITERAL_ROMAN_CANDIDATE)
+    val settingsPermissiveTonePlacement: String
+        @Composable get() = stringRes(StringKey.SETTINGS_PERMISSIVE_TONE_PLACEMENT)
+    val settingsPermissiveTonePlacementInfo: String
+        @Composable get() = stringRes(StringKey.SETTINGS_PERMISSIVE_TONE_PLACEMENT_INFO)
     val settingsLiteralRomanCandidateInfo: String
         @Composable get() = stringRes(StringKey.SETTINGS_LITERAL_ROMAN_CANDIDATE_INFO)
     val settingsAutoCapitalization: String

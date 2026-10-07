@@ -167,6 +167,9 @@ message AppConfig {
   HanjiConversion hanji_conversion = 13;
   // Syllable Separator as stored, without the TPS fold.
   SyllableSeparator syllable_separator = 14;
+  // Opt-in literal preview: apply each tone digit to the preceding last
+  // vowel cluster without requiring a valid syllable or a typed separator.
+  bool permissive_tone_placement = 15;
 }
 
 // Hanji conversion in the preedit

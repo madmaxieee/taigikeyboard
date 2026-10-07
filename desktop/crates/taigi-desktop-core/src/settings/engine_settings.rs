@@ -297,6 +297,8 @@ pub struct EngineSettings {
     /// (`ios/.../SharedSettings.swift`) and `literalRomanCandidateEnabled`
     /// (`android/.../PrefHelper.kt`), both default OFF (USER 2026-10-02).
     pub is_literal_roman_candidate_enabled: bool,
+    /// Opt-in literal last-cluster tone placement, shared with mobile.
+    pub is_permissive_tone_placement_enabled: bool,
     /// Syllable Separator (`behavioral-invariants.md` §49) —
     /// `AppConfig.syllable_separator` on the base config, sent as stored.
     /// CROSS-PLATFORM INVARIANT — default Hyphen on every platform; mirrored by
@@ -339,6 +341,7 @@ impl EngineSettings {
             is_full_width_punctuation: MODE.effective_full_width_punctuation(STORED_SWAP),
             candidate_display_mode: MODE,
             is_literal_roman_candidate_enabled: false,
+            is_permissive_tone_placement_enabled: false,
             syllable_separator: SyllableSeparator::Hyphen,
             is_nasal_marker_uppercase_enabled: true,
             is_custom_dict_enabled: true,

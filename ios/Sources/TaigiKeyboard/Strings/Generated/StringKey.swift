@@ -204,6 +204,8 @@ enum StringKey: String {
     case settingsSyllableSeparatorNone = "i18n_settings_syllableSeparatorNone"
     case settingsSyllableSeparatorInfo = "i18n_settings_syllableSeparatorInfo"
     case settingsLiteralRomanCandidate = "i18n_settings_literalRomanCandidate"
+    case settingsPermissiveTonePlacement = "i18n_settings_permissiveTonePlacement"
+    case settingsPermissiveTonePlacementInfo = "i18n_settings_permissiveTonePlacementInfo"
     case settingsLiteralRomanCandidateInfo = "i18n_settings_literalRomanCandidateInfo"
     case settingsAutoCapitalization = "i18n_settings_autoCapitalization"
     case settingsAutoSpace = "i18n_settings_autoSpace"

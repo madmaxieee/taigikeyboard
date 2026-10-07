@@ -60,6 +60,10 @@ pub const IS_LITERAL_ROMAN_CANDIDATE_ENABLED: SettingsKey<bool> = SettingsKey::n
     "literalRomanCandidateEnabled",
     ENGINE_DEFAULTS.is_literal_roman_candidate_enabled,
 );
+pub const IS_PERMISSIVE_TONE_PLACEMENT_ENABLED: SettingsKey<bool> = SettingsKey::new(
+    "permissiveTonePlacementEnabled",
+    ENGINE_DEFAULTS.is_permissive_tone_placement_enabled,
+);
 pub const SYLLABLE_SEPARATOR: SettingsKey<SyllableSeparator> =
     SettingsKey::new("syllableSeparator", ENGINE_DEFAULTS.syllable_separator);
 /// RETIRED 2026-10-06: the No Hyphens switch, replaced by `SYLLABLE_SEPARATOR`.
@@ -275,7 +279,7 @@ pub const CLEARED_COMPOSING_CHORD: &str = "";
 /// user), not the update bookkeeping, not the remembered pane. macOS keeps a
 /// Swift twin: `SettingsStore.swift` `resetGeneralSettings`. The input mode
 /// takes the romanization TPS returns to and the TPS key panel with it.
-pub const GENERAL_KEYS: [&str; 11] = [
+pub const GENERAL_KEYS: [&str; 12] = [
     INPUT_MODE.name,
     KEYBOARD_LAYOUT.name,
     LAST_ROMANIZATION_MODE.name,
@@ -285,6 +289,7 @@ pub const GENERAL_KEYS: [&str; 11] = [
     IS_AUTO_SPACE_ENABLED.name,
     IS_CANDIDATE_WINDOW_ENABLED.name,
     IS_LITERAL_ROMAN_CANDIDATE_ENABLED.name,
+    IS_PERMISSIVE_TONE_PLACEMENT_ENABLED.name,
     SYLLABLE_SEPARATOR.name,
     IS_NASAL_MARKER_UPPERCASE_ENABLED.name,
 ];

@@ -3799,6 +3799,42 @@
         }
       }
     },
+    "i18n_settings_permissiveTonePlacement": {
+      "comment": "Opt-in tone placement for literal TL/POJ previews and commits, without requiring syllable separators. Default off.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissive Tone Placement"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "柔軟な声調記号の配置"
+          }
+        }
+      }
+    },
+    "i18n_settings_permissiveTonePlacementInfo": {
+      "comment": "Help text for Permissive Tone Placement. This changes literal output, not dictionary lookup or spelling.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applies tone marks without requiring spaces or hyphens: tai5gi2 → tâigí. Affects the preview and committed typed text."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空白やハイフンがなくても声調数字を声調記号に変換します：tai5gi2 → tâigí。プレビューと入力文字の確定に適用されます。"
+          }
+        }
+      }
+    },
     "i18n_settings_pojMode": {
       "comment": "Input-mode option: Pe̍h-ōe-jī (POJ) romanization. Also the iOS smartbar input-mode button a11y label (extension surface). Also the Pe̍h-ōe-jī settings section header (pojSettingsSectionTitle merged 2026-09-20).",
       "extractionState": "manual",

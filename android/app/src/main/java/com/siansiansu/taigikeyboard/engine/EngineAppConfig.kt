@@ -38,6 +38,7 @@ internal fun appConfig(
     candidateDisplayMode: CandidateDisplayMode = CandidateDisplayMode.SIDE_BY_SIDE,
     syllableSeparator: SyllableSeparator = SyllableSeparator.HYPHEN,
     isTpsOrMappedToER: Boolean = false,
+    isPermissiveTonePlacementEnabled: Boolean = false,
 ): AppConfig =
     AppConfig
         .newBuilder()
@@ -55,6 +56,7 @@ internal fun appConfig(
         .setCandidateDisplayMode(candidateDisplayMode.toProto())
         .setSyllableSeparator(syllableSeparator.toProto())
         .setTpsOrMapsToEr(isTpsOrMappedToER)
+        .setPermissiveTonePlacement(isPermissiveTonePlacementEnabled)
         .build()
 
 /**
@@ -91,6 +93,7 @@ internal fun continuousAppConfig(settings: EngineSettings): AppConfig =
         candidateDisplayMode = settings.candidateDisplayMode,
         syllableSeparator = settings.syllableSeparator,
         isTpsOrMappedToER = settings.isTpsOrMappedToER,
+        isPermissiveTonePlacementEnabled = settings.isPermissiveTonePlacementEnabled,
     )
 
 /**

@@ -536,6 +536,47 @@ public  final class AppConfig extends
     syllableSeparator_ = 0;
   }
 
+  public static final int PERMISSIVE_TONE_PLACEMENT_FIELD_NUMBER = 15;
+  private boolean permissiveTonePlacement_;
+  /**
+   * <pre>
+   * Opt-in literal preview: apply each tone digit to the preceding last
+   * vowel cluster without requiring a valid syllable or a typed separator.
+   * </pre>
+   *
+   * <code>bool permissive_tone_placement = 15;</code>
+   * @return The permissiveTonePlacement.
+   */
+  @java.lang.Override
+  public boolean getPermissiveTonePlacement() {
+    return permissiveTonePlacement_;
+  }
+  /**
+   * <pre>
+   * Opt-in literal preview: apply each tone digit to the preceding last
+   * vowel cluster without requiring a valid syllable or a typed separator.
+   * </pre>
+   *
+   * <code>bool permissive_tone_placement = 15;</code>
+   * @param value The permissiveTonePlacement to set.
+   */
+  private void setPermissiveTonePlacement(boolean value) {
+
+    permissiveTonePlacement_ = value;
+  }
+  /**
+   * <pre>
+   * Opt-in literal preview: apply each tone digit to the preceding last
+   * vowel cluster without requiring a valid syllable or a typed separator.
+   * </pre>
+   *
+   * <code>bool permissive_tone_placement = 15;</code>
+   */
+  private void clearPermissiveTonePlacement() {
+
+    permissiveTonePlacement_ = false;
+  }
+
   public static com.siansiansu.taigikeyboard.engine.proto.AppConfig parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1182,6 +1223,49 @@ public  final class AppConfig extends
       return this;
     }
 
+    /**
+     * <pre>
+     * Opt-in literal preview: apply each tone digit to the preceding last
+     * vowel cluster without requiring a valid syllable or a typed separator.
+     * </pre>
+     *
+     * <code>bool permissive_tone_placement = 15;</code>
+     * @return The permissiveTonePlacement.
+     */
+    @java.lang.Override
+    public boolean getPermissiveTonePlacement() {
+      return instance.getPermissiveTonePlacement();
+    }
+    /**
+     * <pre>
+     * Opt-in literal preview: apply each tone digit to the preceding last
+     * vowel cluster without requiring a valid syllable or a typed separator.
+     * </pre>
+     *
+     * <code>bool permissive_tone_placement = 15;</code>
+     * @param value The permissiveTonePlacement to set.
+     * @return This builder for chaining.
+     */
+    public Builder setPermissiveTonePlacement(boolean value) {
+      copyOnWrite();
+      instance.setPermissiveTonePlacement(value);
+      return this;
+    }
+    /**
+     * <pre>
+     * Opt-in literal preview: apply each tone digit to the preceding last
+     * vowel cluster without requiring a valid syllable or a typed separator.
+     * </pre>
+     *
+     * <code>bool permissive_tone_placement = 15;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearPermissiveTonePlacement() {
+      copyOnWrite();
+      instance.clearPermissiveTonePlacement();
+      return this;
+    }
+
     // @@protoc_insertion_point(builder_scope:taigi.engine.AppConfig)
   }
   @java.lang.Override
@@ -1210,11 +1294,12 @@ public  final class AppConfig extends
             "tpsOrMapsToEr_",
             "hanjiConversion_",
             "syllableSeparator_",
+            "permissiveTonePlacement_",
           };
           java.lang.String info =
-              "\u0000\u000b\u0000\u0001\u0002\u000e\u000b\u0000\u0000\u0000\u0002\u0208\u0003\u0007" +
-              "\u0004\u0007\u0005\u0007\u0007\f\b\u0007\t\f\u000b\u0007\f\u0007\r\u1009\u0000\u000e" +
-              "\f";
+              "\u0000\f\u0000\u0001\u0002\u000f\f\u0000\u0000\u0000\u0002\u0208\u0003\u0007\u0004" +
+              "\u0007\u0005\u0007\u0007\f\b\u0007\t\f\u000b\u0007\f\u0007\r\u1009\u0000\u000e\f" +
+              "\u000f\u0007";
           return newMessageInfo(DEFAULT_INSTANCE, info, objects);
       }
       case GET_DEFAULT_INSTANCE: {

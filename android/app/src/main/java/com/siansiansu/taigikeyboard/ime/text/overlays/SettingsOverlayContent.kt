@@ -81,6 +81,7 @@ fun SettingsOverlayContent(
     // Annotate in Brackets binds the STORED flag; it is only disabled (not cleared) while roman-only.
     var outputBoth by remember(refreshTrigger) { mutableStateOf(prefs.storedOutputBothScripts) }
     var literalRomanCandidate by remember(refreshTrigger) { mutableStateOf(prefs.literalRomanCandidateEnabled) }
+    var permissiveTonePlacement by remember(refreshTrigger) { mutableStateOf(prefs.permissiveTonePlacementEnabled) }
     var autoCap by remember(refreshTrigger) { mutableStateOf(prefs.autoCapitalizationEnabled) }
     var autoSpace by remember(refreshTrigger) { mutableStateOf(prefs.isAutoSpaceEnabled) }
     var toolbarAutoCollapse by remember(refreshTrigger) { mutableStateOf(prefs.isToolbarAutoCollapse) }
@@ -142,6 +143,18 @@ fun SettingsOverlayContent(
             onCheckedChange = {
                 literalRomanCandidate = it
                 prefs.literalRomanCandidateEnabled = it
+                autoDismissIfNeeded()
+            },
+            labelColor = labelColor,
+            fontFamily = fontFamily,
+            switchColors = switchColors,
+        )
+        SwitchRow(
+            label = L10n.settingsPermissiveTonePlacement,
+            checked = permissiveTonePlacement,
+            onCheckedChange = {
+                permissiveTonePlacement = it
+                prefs.permissiveTonePlacementEnabled = it
                 autoDismissIfNeeded()
             },
             labelColor = labelColor,

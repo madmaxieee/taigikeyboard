@@ -203,6 +203,7 @@ public enum RustEngineBridge {
         candidateDisplayMode: CandidateDisplayMode = .sideBySide,
         syllableSeparator: SyllableSeparator = .hyphen,
         isTpsOrMappedToER: Bool = false,
+        isPermissiveTonePlacementEnabled: Bool = false,
     ) -> Taigi_Engine_AppConfig {
         var cfg = Taigi_Engine_AppConfig()
         cfg.platformID = .ios
@@ -219,6 +220,7 @@ public enum RustEngineBridge {
         cfg.candidateDisplayMode = candidateDisplayMode.engineValue
         cfg.syllableSeparator = syllableSeparator.engineValue
         cfg.tpsOrMapsToEr = isTpsOrMappedToER
+        cfg.permissiveTonePlacement = isPermissiveTonePlacementEnabled
         return cfg
     }
 }

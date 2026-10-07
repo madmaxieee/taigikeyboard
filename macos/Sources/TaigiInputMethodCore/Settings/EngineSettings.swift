@@ -145,6 +145,7 @@ struct EngineSettings: Sendable {
     /// every platform defaults it OFF (USER 2026-10-02).
     /// Drift changes which candidate leads the list on a fresh install.
     let isLiteralRomanCandidateEnabled: Bool
+    let isPermissiveTonePlacementEnabled: Bool
 
     /// Syllable Separator (`behavioral-invariants.md` §49) — sent as
     /// `AppConfig.syllable_separator` on every request.
@@ -185,6 +186,7 @@ struct EngineSettings: Sendable {
         isHanjiFirst: true,
         candidateDisplayMode: .sideBySide,
         isLiteralRomanCandidateEnabled: false,
+        isPermissiveTonePlacementEnabled: false,
         syllableSeparator: .hyphen,
         isNasalMarkerUppercaseEnabled: true,
         isCustomDictEnabled: true,

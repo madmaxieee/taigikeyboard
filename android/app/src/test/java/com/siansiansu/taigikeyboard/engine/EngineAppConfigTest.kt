@@ -19,6 +19,14 @@ import com.siansiansu.taigikeyboard.engine.proto.SyllableSeparator as ProtoSylla
  * engine is needed.
  */
 class EngineAppConfigTest {
+    @Test
+    fun continuousAppConfig_permissiveTonePlacement_readsEachSnapshot() {
+        val settings = StubEngineSettings()
+        assertFalse(continuousAppConfig(settings).permissiveTonePlacement)
+        settings.isPermissiveTonePlacementEnabled = true
+        assertTrue(continuousAppConfig(settings).permissiveTonePlacement)
+    }
+
     // The TPS layout goes out as "tps" with the swap and Syllable Separator as stored — the engine
     // applies the TPS fold itself (`AppConfig::renders_hanji_first` / `rendered_syllable_joiner`).
     @Test

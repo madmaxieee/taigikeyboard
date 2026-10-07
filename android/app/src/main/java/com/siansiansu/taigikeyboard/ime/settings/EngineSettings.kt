@@ -75,6 +75,9 @@ interface EngineSettings {
      */
     val isLiteralRomanCandidateEnabled: Boolean
 
+    // CROSS-PLATFORM INVARIANT — mirrors ios/Sources/TaigiKeyboard/Settings/EngineSettings.swift:isPermissiveTonePlacementEnabled.
+    val isPermissiveTonePlacementEnabled: Boolean
+
     // CROSS-PLATFORM INVARIANT — mirrors ios/Sources/TaigiKeyboard/Settings/EngineSettings.swift:syllableSeparator.
     // Drift causes silent divergence (one platform still shows hyphens).
 

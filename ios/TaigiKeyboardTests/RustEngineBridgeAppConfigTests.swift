@@ -4,6 +4,13 @@ import XCTest
 // The wire config every request carries: what `RustEngineBridge.appConfig` and the composing
 // projection `continuousAppConfig` put on each field. Mirrors Android `EngineAppConfigTest`.
 final class RustEngineBridgeAppConfigTests: XCTestCase {
+    func testContinuousAppConfig_permissiveTonePlacement_readsEachSnapshot() {
+        var settings = StubEngineSettings()
+        XCTAssertFalse(RustEngineBridge.continuousAppConfig(settings).permissiveTonePlacement)
+        settings.isPermissiveTonePlacementEnabled = true
+        XCTAssertTrue(RustEngineBridge.continuousAppConfig(settings).permissiveTonePlacement)
+    }
+
     /// The TPS layout goes out as `"tps"` with the swap and Syllable Separator as stored — the engine
     /// applies the TPS fold itself (`AppConfig::renders_hanji_first` / `rendered_syllable_joiner`).
     func testContinuousAppConfig_tpsLayout_sendsTpsWithTheStoredFlags() {

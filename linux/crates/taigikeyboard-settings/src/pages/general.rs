@@ -53,6 +53,11 @@ pub fn build<'a>(mut context: PageContext<'a>, page: &adw::PreferencesPage) -> P
         StringKey::SettingsLiteralRomanCandidate,
         keys::IS_LITERAL_ROMAN_CANDIDATE_ENABLED,
     );
+    context.switch_row(
+        &group,
+        StringKey::SettingsPermissiveTonePlacement,
+        keys::IS_PERMISSIVE_TONE_PLACEMENT_ENABLED,
+    );
     // Which script a commit writes: the same stored swap the backtick
     // shortcut toggles. Disabled exactly where the shortcut is inert
     // (`allows_swap_toggle`).

@@ -79,6 +79,10 @@ final class SettingsStore: @unchecked Sendable {
             name: "literalRomanCandidateEnabled",
             defaultValue: EngineSettings.defaults.isLiteralRomanCandidateEnabled,
         )
+        static let isPermissiveTonePlacementEnabled = SettingsKey(
+            name: "permissiveTonePlacementEnabled",
+            defaultValue: EngineSettings.defaults.isPermissiveTonePlacementEnabled,
+        )
         /// Stored as the enum's raw value like `candidateDisplayMode`.
         static let syllableSeparator = SettingsKey(
             name: "syllableSeparator",
@@ -579,6 +583,7 @@ final class SettingsStore: @unchecked Sendable {
             Keys.isAutoSpaceEnabled.name,
             Keys.isCandidateWindowEnabled.name,
             Keys.isLiteralRomanCandidateEnabled.name,
+            Keys.isPermissiveTonePlacementEnabled.name,
             Keys.syllableSeparator.name,
             Keys.isNasalMarkerUppercaseEnabled.name,
         )

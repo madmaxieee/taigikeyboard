@@ -50,6 +50,7 @@ final class SharedSettings {
     private static let candidateDisplayModeKey: SettingsKey<CandidateDisplayMode> = .rawRep("candidateDisplayMode", default: .sideBySide)
     private static let isFullAccessEnabledKey: SettingsKey<Bool> = .bool("fullAccessEnabled", default: false)
     private static let isAutoSpaceEnabledKey: SettingsKey<Bool> = .bool("autoSpaceEnabled", default: false)
+    private static let isPermissiveTonePlacementEnabledKey: SettingsKey<Bool> = .bool("permissiveTonePlacementEnabled", default: false)
     private static let isLiteralRomanCandidateEnabledKey: SettingsKey<Bool> = .bool("literalRomanCandidateEnabled", default: false)
     // Raw string key shared by every platform; unknown / malformed → `.hyphen`.
     private static let syllableSeparatorKey: SettingsKey<SyllableSeparator> = .rawRep("syllableSeparator", default: .hyphen)
@@ -292,7 +293,13 @@ final class SharedSettings {
         set { userDefaults.set(newValue, for: Self.isOutputBothScriptsKey) }
     }
 
-    // MARK: - Literal-Roman Candidate (§34/S22, default: off)
+    // MARK: - Literal Romanization
+
+    // Opt-in last-cluster tone placement for the literal TL/POJ preview and output.
+    var isPermissiveTonePlacementEnabled: Bool {
+        get { userDefaults.value(for: Self.isPermissiveTonePlacementEnabledKey) }
+        set { userDefaults.set(newValue, for: Self.isPermissiveTonePlacementEnabledKey) }
+    }
 
     // Show Typed Text First: put the literal roman candidate first while composing in TL/POJ.
     var isLiteralRomanCandidateEnabled: Bool {
@@ -677,6 +684,7 @@ final class SharedSettings {
         storedIsOutputBothScripts = false
         candidateDisplayMode = .sideBySide
         isLiteralRomanCandidateEnabled = false
+        isPermissiveTonePlacementEnabled = false
         syllableSeparator = .hyphen
         fontType = .keyboardDefault
         isAutoSpaceEnabled = false

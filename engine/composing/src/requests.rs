@@ -363,9 +363,12 @@ fn adopt_collapsed_dict_identity(literal: &mut RawCandidate, candidates: &[RawCa
 /// with `roman == display_text ==` the preedit literal (except the identity
 /// it inherits under a single-script display — `adopt_collapsed_dict_identity`)
 /// — WYSIWYG with the underline (§30 literal-no-fold: tone marks only, no spelling fold). It
-/// mirrors the preedit EXACTLY, so a tone-1/4 syllable or an unhyphenated
+/// mirrors the preedit EXACTLY. With Permissive Tone Placement off, a tone-1/4
+/// syllable or an unhyphenated
 /// multi-syllable blob keeps its raw digits as the underline shows them
-/// (`tai1`, `goa2ai3li2` — the engine does not auto-syllabify, §10.2). It
+/// (`tai1`, `goa2ai3li2` — the engine does not auto-syllabify, §10.2). With
+/// the option on, the same display primitive consumes tone digits without
+/// validating a whole syllable (`tai5gi2` → `tâigí`). It
 /// carries `canonical_tl` via `canonical_tl_form` so the frequency / association records learn the
 /// canonical `(∅, TL)` identity on commit (Core Principle #7; §24/§28).
 fn literal_roman_candidate(
@@ -644,6 +647,7 @@ mod tests {
             force_lowercase_nasal_marker: false,
             tps_or_maps_to_er: false,
             hanji_conversion: None,
+            permissive_tone_placement: false,
         }
     }
 
@@ -733,7 +737,27 @@ mod tests {
         let cfg = config_tl();
         for raw in ["tai1", "goa2ai3li2", "tai5gi2"] {
             let cand = literal_roman_candidate(raw, &cfg, phonetics::InputMode::Tl).unwrap();
+            assert_eq!(cand.roman, raw);
             assert_eq!(cand.roman, crate::derived::derived_display(raw, &cfg));
+        }
+    }
+
+    #[test]
+    fn literal_roman_candidate_permissive_tones_mirror_preview() {
+        let cfg = AppConfig {
+            permissive_tone_placement: true,
+            ..config_tl()
+        };
+        for (raw, expected) in [
+            ("tai5gi2", "tâigí"),
+            ("goa2ai3li2", "goáàilí"),
+            ("tai1", "tai"),
+            ("taigi2", "taigí"),
+        ] {
+            let cand = literal_roman_candidate(raw, &cfg, phonetics::InputMode::Tl).unwrap();
+            assert_eq!(cand.roman, expected, "{raw}");
+            assert_eq!(cand.roman, crate::derived::derived_display(raw, &cfg));
+            assert_eq!(cand.consumed_span, (0, raw.len() as u32));
         }
     }
 

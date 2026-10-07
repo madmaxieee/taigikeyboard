@@ -212,6 +212,8 @@ enum class StringKey(
     SETTINGS_SYLLABLE_SEPARATOR_NONE(R.string.i18n_settings_syllableSeparatorNone),
     SETTINGS_SYLLABLE_SEPARATOR_INFO(R.string.i18n_settings_syllableSeparatorInfo),
     SETTINGS_LITERAL_ROMAN_CANDIDATE(R.string.i18n_settings_literalRomanCandidate),
+    SETTINGS_PERMISSIVE_TONE_PLACEMENT(R.string.i18n_settings_permissiveTonePlacement),
+    SETTINGS_PERMISSIVE_TONE_PLACEMENT_INFO(R.string.i18n_settings_permissiveTonePlacementInfo),
     SETTINGS_LITERAL_ROMAN_CANDIDATE_INFO(R.string.i18n_settings_literalRomanCandidateInfo),
     SETTINGS_AUTO_CAPITALIZATION(R.string.i18n_settings_autoCapitalization),
     SETTINGS_AUTO_SPACE(R.string.i18n_settings_autoSpace),

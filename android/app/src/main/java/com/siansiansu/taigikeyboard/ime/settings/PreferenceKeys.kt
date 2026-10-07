@@ -58,6 +58,7 @@ object PreferenceKeys {
 
     // Raw value = CandidateDisplayMode.storageValue ("sideBySide" / "romanOnly" / "combined").
     val CANDIDATE_DISPLAY_MODE = stringPreferencesKey("keyboard__candidate_display_mode")
+    val PERMISSIVE_TONE_PLACEMENT = booleanPreferencesKey("keyboard__permissive_tone_placement")
     val LITERAL_ROMAN_CANDIDATE = booleanPreferencesKey("keyboard__literal_roman_candidate")
 
     // Raw value = SyllableSeparator.storageValue ("hyphen" / "space" / "none").

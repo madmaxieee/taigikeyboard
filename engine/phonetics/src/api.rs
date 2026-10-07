@@ -177,8 +177,37 @@ fn convert_nasal_double_n(input: &str) -> String {
 pub fn normalize_tone(input: &str, config: &AppConfig) -> String {
     let mode = composing_mode(config);
     let preprocessed = preprocess_for_normalize_tone(input, mode, config);
-    let tone_marked = to_tone_marks(&preprocessed, mode);
+    let tone_marked = if uses_permissive_tone_placement(config, mode) {
+        crate::permissive_tone::apply(&preprocessed, mode)
+    } else {
+        to_tone_marks(&preprocessed, mode)
+    };
     apply_nasal_marker_case(&tone_marked, config.force_lowercase_nasal_marker).into_owned()
+}
+
+fn uses_permissive_tone_placement(config: &AppConfig, mode: InputMode) -> bool {
+    config.permissive_tone_placement
+        && !config.is_tps_layout()
+        && matches!(mode, InputMode::Tl | InputMode::Poj)
+}
+
+/// Raw byte offsets of tone digits consumed by permissive normalization.
+/// Caret projection uses the renderer's decisions rather than matching a
+/// hidden tone digit to an identical digit that remains visible (`a22` → `á2`).
+pub fn consumed_tone_digit_offsets(input: &str, config: &AppConfig) -> Vec<usize> {
+    let mode = composing_mode(config);
+    if !uses_permissive_tone_placement(config, mode) {
+        return Vec::new();
+    }
+    let preprocessed = preprocess_for_normalize_tone(input, mode, config);
+    // POJ preprocessing folds letters only: digit order is preserved, while
+    // their byte offsets can change. Project each decision back to raw input.
+    input
+        .char_indices()
+        .filter(|&(_, ch)| matches!(ch, '1'..='9'))
+        .zip(crate::permissive_tone::consumed_digits(&preprocessed, mode))
+        .filter_map(|((offset, _), consumed)| consumed.then_some(offset))
+        .collect()
 }
 
 /// `true` if the text contains TPS (Taiwanese Phonetic Symbols / Zhuyin)

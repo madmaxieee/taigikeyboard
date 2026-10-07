@@ -330,6 +330,32 @@ fn literal_roman_candidate_is_absent_under_the_shipped_defaults() {
 }
 
 #[test]
+fn permissive_tones_follow_the_live_desktop_snapshot() {
+    let _engine = engine();
+    for platform in [
+        DesktopPlatform::MacOS,
+        DesktopPlatform::Windows,
+        DesktopPlatform::Linux,
+    ] {
+        let generation = fresh_generation();
+        let mut settings = EngineSettings {
+            is_literal_roman_candidate_enabled: true,
+            ..EngineSettings::default()
+        };
+        let mut last = None;
+        for character in "tai5gi2".chars() {
+            last = engine::append(&character.to_string(), &settings, platform, generation);
+        }
+        assert_eq!(last.unwrap().display_text, "tai5gi2");
+        settings.is_permissive_tone_placement_enabled = true;
+        let snapshot = engine::fetch_at_pos(&settings, platform, generation, 0).unwrap();
+        assert_eq!(snapshot.transition.display_text, "tâigí");
+        assert_eq!(snapshot.candidates.unwrap()[0].roman, "tâigí");
+        engine::reset(generation);
+    }
+}
+
+#[test]
 fn poj_mode_renders_poj_display_and_keeps_canonical_tl() {
     let _engine = engine();
     let generation = fresh_generation();

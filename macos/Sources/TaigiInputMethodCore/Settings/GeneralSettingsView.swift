@@ -58,6 +58,9 @@ struct GeneralSettingsView: View {
     @AppStorage(SettingsStore.Keys.isLiteralRomanCandidateEnabled.name)
     private var isLiteralRomanCandidateEnabled = SettingsStore.Keys.isLiteralRomanCandidateEnabled.defaultValue
 
+    @AppStorage(SettingsStore.Keys.isPermissiveTonePlacementEnabled.name)
+    private var isPermissiveTonePlacementEnabled = SettingsStore.Keys.isPermissiveTonePlacementEnabled.defaultValue
+
     @AppStorage(SettingsStore.Keys.syllableSeparator.name)
     private var syllableSeparator = SettingsStore.Keys.syllableSeparator.defaultValue
     @AppStorage(SettingsStore.Keys.isNasalMarkerUppercaseEnabled.name)
@@ -127,6 +130,7 @@ struct GeneralSettingsView: View {
                 // §34/S22. On means candidate slot 0 is the preedit literal,
                 // so Return writes the typed romanization.
                 Toggle(language.string(.settingsLiteralRomanCandidate), isOn: $isLiteralRomanCandidateEnabled)
+                Toggle(language.string(.settingsPermissiveTonePlacement), isOn: $isPermissiveTonePlacementEnabled)
 
                 // Which script a commit writes (USER 2026-09-18): the same
                 // stored swap the `` ` `` shortcut toggles, so the two never

@@ -502,6 +502,7 @@ public extension RustEngineBridge {
             candidateDisplayMode: settings.candidateDisplayMode,
             syllableSeparator: settings.syllableSeparator,
             isTpsOrMappedToER: settings.isTpsOrMappedToER,
+            isPermissiveTonePlacementEnabled: settings.isPermissiveTonePlacementEnabled,
         )
     }
 

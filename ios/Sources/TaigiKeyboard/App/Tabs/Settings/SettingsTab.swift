@@ -18,6 +18,7 @@ struct SettingsTab: View {
     @State private var isNasalMarkerUppercaseEnabled: Bool
     @State private var candidateDisplayMode: CandidateDisplayMode
     @State private var isOutputBothScripts: Bool
+    @State private var isPermissiveTonePlacementEnabled: Bool
     @State private var literalRomanCandidateEnabled: Bool
     @State private var syllableSeparator: SyllableSeparator
     @State private var isTpsOrMappedToER: Bool
@@ -60,6 +61,7 @@ struct SettingsTab: View {
         // Toggle binds the STORED flag: it keeps showing the user's choice while disabled under Romanization Only.
         _isOutputBothScripts = State(initialValue: settings.storedIsOutputBothScripts)
         _literalRomanCandidateEnabled = State(initialValue: settings.isLiteralRomanCandidateEnabled)
+        _isPermissiveTonePlacementEnabled = State(initialValue: settings.isPermissiveTonePlacementEnabled)
         _syllableSeparator = State(initialValue: settings.syllableSeparator)
         _isTpsOrMappedToER = State(initialValue: settings.isTpsOrMappedToER)
         _toolbarAutoCollapse = State(initialValue: settings.isToolbarAutoCollapse)
@@ -127,6 +129,16 @@ struct SettingsTab: View {
                     }
                     .onChange(of: literalRomanCandidateEnabled) { _, newValue in
                         settings.isLiteralRomanCandidateEnabled = newValue
+                    }
+
+                    Toggle(isOn: $isPermissiveTonePlacementEnabled) {
+                        HStack {
+                            Text(lang.string(.settingsPermissiveTonePlacement))
+                            SettingInfoButton(description: lang.string(.settingsPermissiveTonePlacementInfo))
+                        }
+                    }
+                    .onChange(of: isPermissiveTonePlacementEnabled) { _, newValue in
+                        settings.isPermissiveTonePlacementEnabled = newValue
                     }
 
                     Toggle(isOn: $isOutputBothScripts) {
@@ -375,6 +387,7 @@ struct SettingsTab: View {
         candidateDisplayMode = settings.candidateDisplayMode
         isOutputBothScripts = settings.storedIsOutputBothScripts
         literalRomanCandidateEnabled = settings.isLiteralRomanCandidateEnabled
+        isPermissiveTonePlacementEnabled = settings.isPermissiveTonePlacementEnabled
         syllableSeparator = settings.syllableSeparator
         isTpsOrMappedToER = settings.isTpsOrMappedToER
         toolbarAutoCollapse = settings.isToolbarAutoCollapse

@@ -122,6 +122,7 @@ fn wire_platform(platform: DesktopPlatform) -> Platform {
 pub(super) fn app_config(settings: &EngineSettings, platform: DesktopPlatform) -> AppConfig {
     AppConfig {
         input_mode: settings.input_mode.wire().to_owned(),
+        permissive_tone_placement: settings.is_permissive_tone_placement_enabled,
         oo_doubletap_enabled: true,
         nn_doubletap_enabled: true,
         is_hanji_first: settings.is_hanji_first,

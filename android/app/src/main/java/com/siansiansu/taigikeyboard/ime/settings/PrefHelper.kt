@@ -330,6 +330,9 @@ class PrefHelper(
     // App UI display language tag (i18n). Default = system (Automatic) — fresh install follows device OS locale.
     var displayLanguageTag: String by preference(PreferenceKeys.DISPLAY_LANGUAGE, DisplayLanguage.DEFAULT_TAG)
 
+    // Opt-in literal tone placement; always read through the composing snapshot.
+    var permissiveTonePlacementEnabled: Boolean by preference(PreferenceKeys.PERMISSIVE_TONE_PLACEMENT, false)
+
     // §34/S22 — Show Typed Text First toggle. Default false (off; USER 2026-10-02).
     var literalRomanCandidateEnabled: Boolean by preference(PreferenceKeys.LITERAL_ROMAN_CANDIDATE, false)
 
@@ -568,6 +571,9 @@ class PrefHelper(
     // CROSS-PLATFORM INVARIANT — mirrors ios SharedSettings.isFullWidthPunctuation (tps || …).
     val isFullWidthPunctuation: Boolean
         get() = isTpsLayout || candidateDisplayMode.effectiveFullWidthPunctuation(storedIsHanjiFirst)
+
+    override val isPermissiveTonePlacementEnabled: Boolean
+        get() = permissiveTonePlacementEnabled
 
     // §34/S22: engine-facing alias for the Android `literalRomanCandidateEnabled`
     // pref (kept un-renamed because the settings UI reads it directly).

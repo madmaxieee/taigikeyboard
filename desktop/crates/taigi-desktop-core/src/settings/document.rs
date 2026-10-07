@@ -339,6 +339,8 @@ impl SettingsDocument {
             // composes as TL there) and every TPS cell keeps its key.
             is_literal_roman_candidate_enabled: input_mode != InputMode::Tps
                 && self.bool(&keys::IS_LITERAL_ROMAN_CANDIDATE_ENABLED),
+            is_permissive_tone_placement_enabled: self
+                .bool(&keys::IS_PERMISSIVE_TONE_PLACEMENT_ENABLED),
             syllable_separator: self.choice(&keys::SYLLABLE_SEPARATOR),
             is_nasal_marker_uppercase_enabled: self.bool(&keys::IS_NASAL_MARKER_UPPERCASE_ENABLED),
             is_custom_dict_enabled: self.bool(&keys::IS_CUSTOM_DICT_ENABLED),
@@ -806,6 +808,26 @@ mod tests {
         assert!(sources.lkk);
     }
 
+    #[test]
+    fn permissive_tone_placement_is_opt_in_and_resettable() {
+        let mut doc = SettingsDocument::default();
+        assert!(!doc.engine_settings().is_permissive_tone_placement_enabled);
+        doc.set_bool(&keys::IS_PERMISSIVE_TONE_PLACEMENT_ENABLED, true);
+        assert!(doc.engine_settings().is_permissive_tone_placement_enabled);
+        let mut restored = SettingsDocument::from_json(&doc.to_json()).unwrap();
+        assert!(
+            restored
+                .engine_settings()
+                .is_permissive_tone_placement_enabled
+        );
+        restored.reset_general();
+        assert!(
+            !restored
+                .engine_settings()
+                .is_permissive_tone_placement_enabled
+        );
+    }
+
     /// A stored value that differs from its default reaches the field
     /// `engine_settings()` maps it to: a default-on setting switched off reads
     /// as off, a default-off one switched on reads as on. Ported from the
@@ -832,6 +854,7 @@ mod tests {
             is_full_width_punctuation: false,
             candidate_display_mode: CandidateDisplayMode::SideBySide,
             is_literal_roman_candidate_enabled: true,
+            is_permissive_tone_placement_enabled: false,
             syllable_separator: SyllableSeparator::None,
             is_nasal_marker_uppercase_enabled: false,
             is_custom_dict_enabled: false,
