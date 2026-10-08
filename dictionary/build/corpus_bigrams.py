@@ -362,28 +362,31 @@ def units_moe_kautian() -> Iterator[Unit]:
 
 _JS_TOKEN = re.compile(
     r"""(?P<ws>\s+)|(?P<comment>//[^\n]*)|(?P<backtick>`[^`]*`)|(?P<string>"(?:[^"\\]|\\.)*")
-      |(?P<word>[A-Za-z_][A-Za-z0-9_]*|-?\d+(?:\.\d+)?)|(?P<punct>[\[\]{}:,])""",
+      |(?P<word>[A-Za-z_][A-Za-z0-9_]*|-?\d+(?:\.\d+)?)|(?P<punct>[\[\]{}:,])|(?P<end>;)""",
     re.VERBOSE,
 )
 
 
 def js_array_to_json(source: str) -> list:
-    """Parse `const articles = [ ... ];` — the object-literal subset articles.js uses
-    (unquoted keys, backtick strings, trailing commas, `//` comments); anything else raises."""
-    body = source[source.index("=") + 1 :].strip().rstrip(";")
+    """Parse `const name = [ ... ];` — the object-literal subset the taigi-typing data files use
+    (unquoted keys, backtick strings, trailing commas, `//` comments); anything after the
+    statement's `;` is ignored, anything else unsupported raises."""
+    body = source[source.index("=") + 1 :]
     out: list[str] = []
     pos = 0
     while pos < len(body):
         match = _JS_TOKEN.match(body, pos)
         if not match:
-            raise ValueError(f"articles.js: unsupported syntax at offset {pos}: {body[pos : pos + 40]!r}")
+            raise ValueError(f"js_array_to_json: unsupported syntax at offset {pos}: {body[pos : pos + 40]!r}")
         pos = match.end()
         kind, text = match.lastgroup, match.group()
+        if kind == "end":
+            break
         if kind in ("ws", "comment"):
             continue
         if kind == "backtick":
             if "${" in text:
-                raise ValueError("articles.js: template interpolation is not supported")
+                raise ValueError("js_array_to_json: template interpolation is not supported")
             out.append(json.dumps(text[1:-1], ensure_ascii=False))
         elif kind == "word" and not text[0].isdigit() and text[0] != "-" and text not in ("true", "false", "null"):
             out.append(json.dumps(text))
@@ -394,7 +397,8 @@ def js_array_to_json(source: str) -> list:
     return json.loads("".join(out))
 
 
-def units_taigi_typing() -> Iterator[Unit]:
+def typing_article_lines() -> Iterator[tuple[int, int, str, str]]:
+    """(article id, line index, text, TL) per line of a `mapped` taigi-typing article."""
     if not TAIGI_TYPING_ARTICLES.exists():
         raise FileNotFoundError(
             f"{TAIGI_TYPING_ARTICLES} missing: run `git submodule update --init corpus/taigi-typing`."
@@ -403,8 +407,14 @@ def units_taigi_typing() -> Iterator[Unit]:
         if article.get("type") != "mapped":
             continue
         origin = f"articles.js#{article['id']}"
-        for text, tl in paired_lines(article["hanji"].strip(), article["tailo"].strip(), origin):
-            yield Unit(text, tl, "tl")
+        lines = paired_lines(article["hanji"].strip(), article["tailo"].strip(), origin)
+        for index, (text, tl) in enumerate(lines):
+            yield article["id"], index, text, tl
+
+
+def units_taigi_typing() -> Iterator[Unit]:
+    for _, _, text, tl in typing_article_lines():
+        yield Unit(text, tl, "tl")
 
 
 SOURCES: dict[str, Callable[[], Iterator[Unit]]] = {
