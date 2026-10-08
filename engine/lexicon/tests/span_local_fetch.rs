@@ -20,10 +20,10 @@
 //!    span ≥ 4 — proves the function trusts caller-supplied endings.
 //!
 //! Hermetic: builds a tiny `PrefixIndex` (3-row fst with `tl:` keys
-//! pointing to a tiny `dictionary.bin` v2) per test so we never touch
+//! pointing to a tiny `dictionary.bin` v4) per test so we never touch
 //! the real packaged dictionary. FST builder pattern mirrors
-//! `tests/syllables_fst.rs:186-207`; dict.bin v2 builder is shared
-//! `tests/common/mod.rs::build_tkdb_v4`.
+//! `tests/syllables_fst.rs:186-207`; dict.bin rows come from
+//! `test_support::build_tkdb` (`build_fixture_costed`).
 
 use lexicon::dictionary_reader::DictionaryReader;
 use lexicon::prefix_index::PrefixIndex;
@@ -36,7 +36,9 @@ use lexicon::{
 };
 use phonetics::InputMode;
 use ranking::FrequencyMap;
-use test_support::{fst_entry, write_fst_set, write_temp};
+use test_support::{
+    build_tkdb, fst_entry, walker_cost_from_fixture_frequency, write_fst_set, write_temp, TkdbRow,
+};
 
 /// v3.5.9 D7 — build the shared `ContinuousFetchCtx` at a test site
 /// with explicit `freq_map` / `now_ms` / `custom`. Pins
@@ -82,7 +84,7 @@ fn ctx_neutral<'a>(
     ctx(freq_map, 0, &[], prefix_index, dict)
 }
 
-use crate::common::{build_tkdb_v4, fetch_candidates_for_endings, frequency_map, FrequencyFixture};
+use crate::common::{fetch_candidates_for_endings, frequency_map, FrequencyFixture};
 
 /// Single dictionary fixture row: `(toneless_tl_key, hanji, tl, syllable_count, frequency)`.
 /// `bitmask` is fixed to `1 << 11` (the `lkk` source per
@@ -115,19 +117,41 @@ fn build_fixture(name: &str, rows: &[Row<'_>]) -> (PrefixIndex, DictionaryReader
 /// [`build_fixture`] with an explicit per-row source bitmask, for tests
 /// that exercise the `source_rank` dimension.
 fn build_fixture_sourced(name: &str, rows: &[(u16, &Row<'_>)]) -> (PrefixIndex, DictionaryReader) {
-    // 1. dict.bin v2.
-    let dict_rows: Vec<(u16, u32, u8, &str, &str)> = rows
+    let costed: Vec<(u16, u16, &Row<'_>)> = rows
         .iter()
-        .map(|(bitmask, r)| (*bitmask, r.freq, r.syll, r.hanji, r.tl))
+        .map(|(bitmask, r)| (*bitmask, walker_cost_from_fixture_frequency(r.freq), *r))
         .collect();
-    let dict_bytes = build_tkdb_v4(b"TKDB", &dict_rows);
+    build_fixture_costed(name, &costed)
+}
+
+/// [`build_fixture_sourced`] with an explicit `walker_cost` per row:
+/// `(bitmask, walker_cost, row)`. For the E1 D3 tests, where the corpus
+/// cost and the dictionary frequency disagree on purpose.
+fn build_fixture_costed(
+    name: &str,
+    rows: &[(u16, u16, &Row<'_>)],
+) -> (PrefixIndex, DictionaryReader) {
+    // 1. dict.bin v4.
+    let dict_rows: Vec<TkdbRow<'_>> = rows
+        .iter()
+        .map(|(bitmask, walker_cost, r)| TkdbRow {
+            bitmask: *bitmask,
+            frequency: r.freq,
+            syllable_count: Some(r.syll),
+            kautian_subtag: Some(0),
+            walker_cost: Some(*walker_cost),
+            hanji: r.hanji,
+            tl: r.tl,
+        })
+        .collect();
+    let dict_bytes = build_tkdb(b"TKDB", 4, &dict_rows);
     let dict_path = write_temp(&format!("phase5-{name}.dict.bin"), &dict_bytes);
     let dict = DictionaryReader::open(&dict_path).expect("dict.bin opens");
 
     // 2. dictionary.fst — `tl:<key> + 0xFF + rowid` entries (`write_fst_set`
     // sorts them into the ascending byte order the builder needs).
     let mut fst_keys: Vec<Vec<u8>> = Vec::new();
-    for (idx, (_, r)) in rows.iter().enumerate() {
+    for (idx, (_, _, r)) in rows.iter().enumerate() {
         let rowid = (idx + 1) as u32;
         fst_keys.push(fst_entry(b"tl:", r.toneless_key, rowid));
     }
@@ -1804,7 +1828,9 @@ fn best_candidate_for_key_returns_highest_score_on_collision() {
         &ctx_neutral(&FrequencyMap::new(), &prefix_index, &dict),
     )
     .expect("key has dict hits");
-    assert_eq!(best.span_frequency, 5000, "key's max frequency");
+    // trace: freq 5000 → round(ln(13,056,588 / 5,001) × 1000) = 7,867;
+    // freq 100 → 11,770. The key's cheapest row prices the edge.
+    assert_eq!(best.span_walker_cost, 7_867, "key's min walker cost");
     let best = best.candidate;
     assert_eq!(best.display_text, "臺灣", "highest-score row must win");
     assert_eq!(best.hanji.as_deref(), Some("臺灣"));
@@ -1825,7 +1851,7 @@ fn best_candidate_for_key_breaks_score_tie_by_source_rank_like_the_list() {
     // led with kautian 甲, and the user saw slot 0 disagree with the list.
     // Now both say 甲. (Fixture uses the taigitv bit: the kautian bit is
     // dropped from the effective bitmask when a row has no kautian
-    // subtag, which `build_tkdb_v4` never sets.)
+    // subtag, which `build_fixture_costed` never sets.)
     const TAIGITV_BIT: u16 = 1 << 1;
     let first_unknown = Row {
         toneless_key: "kap",
@@ -1861,11 +1887,11 @@ fn best_candidate_for_key_breaks_score_tie_by_source_rank_like_the_list() {
 }
 
 #[test]
-fn best_candidate_for_key_prefers_selected_row_but_keeps_span_frequency_of_key() {
+fn best_candidate_for_key_prefers_selected_row_but_keeps_span_walker_cost_of_key() {
     // 2026-09-14 更新/敬神 bug: the walker's edge word follows the user's
     // selection ahead of dictionary frequency (one pick of the 50×
-    // rarer 台灣 beats never-selected 臺灣), while `span_frequency`
-    // stays the key's max so the edge's segmentation cost is unchanged.
+    // rarer 台灣 beats never-selected 臺灣), while `span_walker_cost`
+    // stays the key's min so the edge's segmentation cost is unchanged.
     let (prefix_index, dict) = build_fixture(
         "s2-best-selected",
         &[
@@ -1905,9 +1931,110 @@ fn best_candidate_for_key_prefers_selected_row_but_keeps_span_frequency_of_key()
         best.candidate.display_text, "台灣",
         "selected row wins the edge"
     );
+    // trace: 臺灣 freq 5000 → 7,867 (see the collision test above).
     assert_eq!(
-        best.span_frequency, 5000,
-        "segmentation evidence is the key's max"
+        best.span_walker_cost, 7_867,
+        "segmentation evidence is the key's min"
+    );
+}
+
+#[test]
+fn best_candidate_for_key_prices_on_min_walker_cost_not_max_frequency() {
+    // E1 D3: the edge's word follows the dictionary order (臺灣, the
+    // higher frequency) while its cost is the cheapest corpus price under
+    // the key (台灣) — the two disagree on purpose here.
+    let taiuan_frequent = Row {
+        toneless_key: "taiuan",
+        hanji: "臺灣",
+        tl: "tâi-uân",
+        syll: 2,
+        freq: 5000,
+    };
+    let taiuan_cheap = Row {
+        toneless_key: "taiuan",
+        hanji: "台灣",
+        tl: "tâi-uân",
+        syll: 2,
+        freq: 100,
+    };
+    let (prefix_index, dict) = build_fixture_costed(
+        "e1-d3-min-cost",
+        &[
+            (1u16 << 11, 9_000, &taiuan_frequent),
+            (1u16 << 11, 6_000, &taiuan_cheap),
+        ],
+    );
+    let best = best_candidate_for_key_with_barriers(
+        "tl:taiuan",
+        &[],
+        &TonePin::None,
+        (0, 6),
+        &[],
+        &ctx_neutral(&FrequencyMap::new(), &prefix_index, &dict),
+    )
+    .expect("key has dict hits");
+    assert_eq!(best.candidate.display_text, "臺灣");
+    assert_eq!(best.span_walker_cost, 6_000);
+}
+
+#[test]
+fn best_candidate_for_key_min_cost_skips_rows_the_filters_drop() {
+    // E1 D3: the min runs over the rows that pass the source and tone-pin
+    // filters only — a dropped row lends the edge no cost.
+    const TAIGITV_BIT: u16 = 1 << 1;
+    const RANK_NEUTRAL_BIT: u16 = 1 << 11;
+    let si_cheap = Row {
+        toneless_key: "si",
+        hanji: "是",
+        tl: "sī",
+        syll: 1,
+        freq: 100,
+    };
+    let si_costly = Row {
+        toneless_key: "si",
+        hanji: "死",
+        tl: "sí",
+        syll: 1,
+        freq: 100,
+    };
+    let (prefix_index, dict) = build_fixture_costed(
+        "e1-d3-filtered-min",
+        &[
+            (TAIGITV_BIT, 4_000, &si_cheap),
+            (RANK_NEUTRAL_BIT, 9_000, &si_costly),
+        ],
+    );
+    let freq_map = FrequencyMap::new();
+    let edge = |ctx: &ContinuousFetchCtx<'_>, tone_pin: &TonePin| {
+        best_candidate_for_key_with_barriers("tl:si", &[], tone_pin, (0, 2), &[], ctx)
+            .expect("key has dict hits")
+            .span_walker_cost
+    };
+    let all_sources = ctx_neutral(&freq_map, &prefix_index, &dict);
+    assert_eq!(
+        edge(&all_sources, &TonePin::None),
+        4_000,
+        "toneless key borrows the cheapest tone"
+    );
+    let without_taigitv = ContinuousFetchCtx {
+        enabled_sources_bitmask: u32::from(RANK_NEUTRAL_BIT),
+        ..ctx_neutral(&freq_map, &prefix_index, &dict)
+    };
+    assert_eq!(
+        edge(&without_taigitv, &TonePin::None),
+        9_000,
+        "source toggled off"
+    );
+    let si2 = TonePin::TypedTones {
+        mode: InputMode::Tl,
+        typed: "si2".to_owned(),
+        boundaries: Vec::new(),
+        one_syllable_stretches: Vec::new(),
+    };
+    assert_eq!(
+        edge(&all_sources, &si2),
+        9_000,
+        "typed tone stops the borrowing"
     );
 }
 

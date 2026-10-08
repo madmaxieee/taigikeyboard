@@ -747,7 +747,7 @@ pub(crate) fn walk_buffer(
         // custom has in the span-local `(roman,hanji,consumed_span)`
         // dedupe — an unconditional edge-content override, NOT a
         // cost competition (segmentation safety comes from the
-        // `CUSTOM_EFFECTIVE_FREQ` proxy + existing single-syllable
+        // `CUSTOM_EDGE_COST` price + existing single-syllable
         // user-delta damping, not from out-scoring dict here).
         if let Some(entry) = custom_map.get(custom_key.as_str()).and_then(|entries| {
             entries
@@ -801,10 +801,9 @@ pub(crate) fn walk_buffer(
                 // hanji/freq/is_custom.
                 dict_hit: true,
                 is_custom: true,
-                // S6 Q1 (Codex BLOCK): effective-frequency proxy —
-                // custom still pays the same ln(CORPUS)
-                // normalization toll, NOT a cost floor/discount.
-                frequency: crate::lattice::CUSTOM_EFFECTIVE_FREQ,
+                // S6 Q1 (Codex BLOCK): priced as a corpus word — custom
+                // still pays a `−ln p` toll, NOT a cost special-case.
+                walker_cost: crate::lattice::CUSTOM_EDGE_COST,
                 syllable_count,
                 toneless_len: toneless.chars().count(),
                 user_weight_delta,
@@ -819,10 +818,10 @@ pub(crate) fn walk_buffer(
         // Learned phrases (§50) — the rows keyed to this edge, filtered by
         // the same tone pin a custom row answers to. They enter the
         // dictionary's own `CandidateSortKey` pick; when any is present the edge is
-        // priced at least as a `CUSTOM_EFFECTIVE_FREQ` word so the span
-        // the user once composed as one word keeps winning the
-        // segmentation (the #69 span-vs-word decoupling: "is this span a
-        // word" is the floor, "which word" is the pick).
+        // priced at most at `CUSTOM_EDGE_COST` so the span the user once
+        // composed as one word keeps winning the segmentation (the #69
+        // span-vs-word decoupling: "is this span a word" is the cap,
+        // "which word" is the pick).
         let learned_for_edge: Vec<&LearnedEntry> = learned_map
             .get(custom_key.as_str())
             .into_iter()
@@ -840,15 +839,15 @@ pub(crate) fn walk_buffer(
         ) {
             Some(lexicon::EdgeBest {
                 candidate: c,
-                span_frequency,
+                span_walker_cost,
             }) => {
-                let span_frequency = if learned_for_edge.is_empty() {
-                    span_frequency
+                let span_walker_cost = if learned_for_edge.is_empty() {
+                    span_walker_cost
                 } else {
-                    span_frequency.max(crate::lattice::CUSTOM_EFFECTIVE_FREQ)
+                    span_walker_cost.min(crate::lattice::CUSTOM_EDGE_COST)
                 };
                 // Word = the user's pick (`CandidateSortKey` order). Cost =
-                // `span_frequency` (key max) so a rarer preferred
+                // `span_walker_cost` (key min) so a rarer preferred
                 // homophone does not lose the segmentation; the S3
                 // path discount reads the pick's own `user_weight`.
                 Some(crate::lattice::EdgeChoice {
@@ -863,7 +862,7 @@ pub(crate) fn walk_buffer(
                     dict_hit: true,
                     // S6: a `dict.bin` record is not custom.
                     is_custom: false,
-                    frequency: span_frequency,
+                    walker_cost: span_walker_cost,
                     syllable_count: c.syllable_count,
                     // khiin `word_len` for the S5 length
                     // normalization (Codex pre-impl Q1 BLOCK).
@@ -921,7 +920,7 @@ pub(crate) fn walk_buffer(
                     dict_hit: false,
                     // S6: a synthesized OOV roman edge is not custom.
                     is_custom: false,
-                    frequency: 0,
+                    walker_cost: lexicon::dictionary_reader::WALKER_COST_UNPRICED,
                     syllable_count,
                     toneless_len,
                     user_weight_delta: 0.0,

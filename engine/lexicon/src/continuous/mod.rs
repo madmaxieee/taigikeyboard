@@ -62,7 +62,7 @@
 use phonetics::{KeyFamily, HANJI_KEY_PREFIX};
 use unicode_normalization::UnicodeNormalization;
 
-use crate::dictionary_reader::{DictionaryReader, Filter};
+use crate::dictionary_reader::{DictionaryReader, Filter, WALKER_COST_UNPRICED};
 use crate::prefix_index::PrefixIndex;
 use ranking::{
     sort_by_candidate_key, CandidateRankFacts, CandidateSortKey, ContextRanks, FrequencyMap,
@@ -660,10 +660,11 @@ fn reading_passes_space_pin(tps_body: &str, reading: &str) -> bool {
 }
 
 /// Every dictionary candidate for one exact continuous key, in FST rowid
-/// order, handed to `sink` one at a time. The single visitor the span-local
-/// fetch ([`fetch_candidates_for_keys_with_barriers`], collects all) and the
+/// order, handed to `sink` one at a time together with its record's
+/// `walker_cost`. The single visitor the span-local fetch
+/// ([`fetch_candidates_for_keys_with_barriers`], collects all) and the
 /// walker edge provider ([`best_candidate_for_key_with_barriers`], keeps
-/// the max) share, so the two layers cannot drift on which rows qualify —
+/// the min cost) share, so the two layers cannot drift on which rows qualify —
 /// §35: an edge the expanded segmenter admitted must find its dictionary
 /// payload, or the layers split authority (Codex pre-impl BLOCK 3).
 ///
@@ -691,7 +692,7 @@ fn exact_candidates_for_key(
     consumed_span: ConsumedSpan,
     filter: &Filter,
     ctx: &ContinuousFetchCtx<'_>,
-    mut sink: impl FnMut(RawCandidate),
+    mut sink: impl FnMut(RawCandidate, u16),
 ) {
     for_each_exact_reading(
         ctx.prefix_index,
@@ -715,15 +716,19 @@ fn exact_candidates_for_key(
                 record.kautian_subtag,
                 filter,
             );
-            sink(record_to_candidate(
-                record,
-                effective,
-                consumed_span,
-                ctx.freq_map,
-                ctx.now_ms,
-                ctx.context,
-                COVERAGE_KIND_FULL,
-            ));
+            let walker_cost = record.walker_cost;
+            sink(
+                record_to_candidate(
+                    record,
+                    effective,
+                    consumed_span,
+                    ctx.freq_map,
+                    ctx.now_ms,
+                    ctx.context,
+                    COVERAGE_KIND_FULL,
+                ),
+                walker_cost,
+            );
         },
     );
 }
@@ -817,7 +822,7 @@ pub fn fetch_candidates_for_keys_with_barriers(
         // digits / §41 space-closed TPS tail). A short or empty slice
         // means "no pin", the legacy all-tones shape.
         let tone_pin = tone_pins.get(key_index).unwrap_or(&TonePin::None);
-        exact_candidates_for_key(key, final_only, tone_pin, *span, &filter, ctx, |cand| {
+        exact_candidates_for_key(key, final_only, tone_pin, *span, &filter, ctx, |cand, _| {
             out.push(cand)
         });
     }
@@ -1047,7 +1052,7 @@ pub fn fetch_partial_prefix_candidates_unbounded(
 /// `prefix_index.lookup_exact(key)` (user-selected word before
 /// dictionary frequency; NaN coerced low via `CandidateSortKey`; ties keep
 /// the first FST rowid for determinism) together with the key's
-/// max frequency ([`EdgeBest::span_frequency`]), or `None` when the
+/// min walker cost ([`EdgeBest::span_walker_cost`]), or `None` when the
 /// key has no dict hit. PR-9.6 — the walker reads the
 /// SAME `ctx.enabled_sources_bitmask` filter the span-local path
 /// applies (`composing::continuous::assemble_candidates` builds one
@@ -1065,7 +1070,7 @@ pub fn fetch_partial_prefix_candidates_unbounded(
 /// (Codex pre-impl S2 Q1b, 2026-05-16). `consumed_span` is stamped
 /// onto the returned candidate verbatim; the walker reads `roman` /
 /// `hanji` / `syllable_count` / `user_weight` off the candidate and
-/// prices the edge on [`EdgeBest::span_frequency`].
+/// prices the edge on [`EdgeBest::span_walker_cost`].
 ///
 /// `tps_final_only` is the §35 barrier restriction for this edge's key
 /// (byte offsets of Final-only pattern slots, family prefix included).
@@ -1082,14 +1087,10 @@ pub fn best_candidate_for_key_with_barriers(
     ctx: &ContinuousFetchCtx<'_>,
 ) -> Option<EdgeBest> {
     let filter = Filter::from_enabled_bitmask(ctx.enabled_sources_bitmask);
-    let mut span_frequency = 0;
+    // `span_walker_cost` is the dictionary's own minimum — learned rows
+    // join the pick below but carry no corpus probability.
+    let mut span_walker_cost = WALKER_COST_UNPRICED;
     let mut homophones: Vec<RawCandidate> = Vec::new();
-    // `span_frequency` is the dictionary's own maximum — a learned row
-    // carries `frequency = 0`.
-    let mut consider = |cand: RawCandidate| {
-        span_frequency = span_frequency.max(cand.frequency);
-        homophones.push(cand);
-    };
     exact_candidates_for_key(
         key,
         tps_final_only,
@@ -1097,16 +1098,19 @@ pub fn best_candidate_for_key_with_barriers(
         consumed_span,
         &filter,
         ctx,
-        &mut consider,
+        |cand, walker_cost| {
+            span_walker_cost = span_walker_cost.min(walker_cost);
+            homophones.push(cand);
+        },
     );
     // Learned phrases (§50) — the caller matched these rows to this edge's
     // key; they join the SAME pick with `frequency = 0` (score 0, default
     // source rank), so a dictionary homophone wins unless the user's
     // `user_frequency` says otherwise, and the learned row is the edge only
-    // when the dictionary has nothing under the key. The caller floors the
-    // edge's `span_frequency` for segmentation.
+    // when the dictionary has nothing under the key. The caller caps the
+    // edge's `span_walker_cost` for segmentation.
     for entry in learned {
-        consider(learned_entry_to_candidate(
+        homophones.push(learned_entry_to_candidate(
             entry,
             consumed_span,
             ctx.freq_map,
@@ -1118,7 +1122,7 @@ pub fn best_candidate_for_key_with_barriers(
     let candidate = pick_edge_word(homophones, consumed_span.1, ctx.context.is_empty())?;
     Some(EdgeBest {
         candidate,
-        span_frequency,
+        span_walker_cost,
     })
 }
 
@@ -1133,7 +1137,7 @@ pub fn best_candidate_for_key_with_barriers(
 /// found first, and the contextual winner is chosen only among homophones
 /// with its `syllable_count`. `context_rank` sits below `user_weight` in the
 /// key, so the winner keeps the context-free `user_weight` (the span max) —
-/// and `EdgeBest::span_frequency` is the key max regardless of the pick —
+/// and `EdgeBest::span_walker_cost` is the key min regardless of the pick —
 /// which are the pick's only inputs to `lattice::edge_cost`.
 fn pick_edge_word(
     homophones: Vec<RawCandidate>,
@@ -1182,7 +1186,7 @@ pub fn homophone_words_for_key(
         consumed_span,
         &filter,
         ctx,
-        |cand| words.push(cand.display_text),
+        |cand, _| words.push(cand.display_text),
     );
     words
 }
@@ -1195,15 +1199,16 @@ pub struct EdgeBest {
     /// The homophone the user sees for this edge — user-selected word
     /// first, then dictionary frequency (the [`CandidateSortKey`] order).
     pub candidate: RawCandidate,
-    /// Highest `dict.bin` frequency among the key's homophones that
+    /// Lowest `dict.bin` `walker_cost` among the key's homophones that
     /// pass the edge's source / tone-pin / barrier filters — not the
-    /// picked word's own. The walker prices the edge's segmentation on
-    /// this so a rarer preferred homophone does not price its span out
-    /// of the best path: "is this span a word" is decoupled from "which
-    /// word". (`candidate.user_weight` is likewise the span's max, since
-    /// user weight is the leading pick dimension.) Rationale + numbers:
-    /// `docs/engine/continuous-input-ranking.md` §3.2.
-    pub span_frequency: u32,
+    /// picked word's own (E1 D3). The walker prices the edge's
+    /// segmentation on this so a rarer preferred homophone does not price
+    /// its span out of the best path: "is this span a word" is decoupled
+    /// from "which word". (`candidate.user_weight` is likewise the span's
+    /// max, since user weight is the leading pick dimension.)
+    /// [`WALKER_COST_UNPRICED`] when only learned rows sit under the key.
+    /// Rationale + numbers: `docs/engine/continuous-input-ranking.md` §3.2.
+    pub span_walker_cost: u16,
 }
 
 /// Does the exact hanji `hanji` resolve to a dictionary entry of

@@ -13,8 +13,8 @@ Usage (from dictionary/):
   PYTHONPATH=. python3 -m tools.walker_gold resolve    # pointers → resolved.tsv + edge_keys.tsv
   cargo test … --test prod walker_gold -- --ignored     # engine metrics + edge_picks.tsv (see walker_gold.rs)
   PYTHONPATH=. python3 -m tools.walker_gold d3         # runtime edge pick vs corpus winner (plan D3)
-  PYTHONPATH=. python3 -m tools.walker_gold simulate   # current vs A2 cost over the resolved items
-  PYTHONPATH=. python3 -m tools.walker_gold exposure   # current vs A2 over every 2–3 syllable dictionary key
+  PYTHONPATH=. python3 -m tools.walker_gold simulate   # pre-P3 vs A2 cost over the resolved items
+  PYTHONPATH=. python3 -m tools.walker_gold exposure   # pre-P3 vs A2 over every 2–3 syllable dictionary key
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ from dataclasses import dataclass, replace
 from functools import cache
 from pathlib import Path
 
-from build.common import BASE_DIR, MERGED_CSV
+from build.common import BASE_DIR, MERGED_CSV, WALKER_ALPHA
 from build.corpus_bigrams import (
     SOURCES,
     TAIGI_TYPING_ARTICLES,
@@ -53,7 +53,6 @@ RESOLVED_TSV = OUTPUT_DIR / "resolved.tsv"
 EDGE_KEYS_TSV = OUTPUT_DIR / "edge_keys.tsv"
 EDGE_PICKS_TSV = OUTPUT_DIR / "edge_picks.tsv"
 EXAMPLE_SENTENCES = TAIGI_TYPING_ARTICLES.parent / "exampleSentences.js"
-COST_RS = REPO_DIR / "engine" / "composing" / "src" / "lattice" / "cost.rs"
 
 SEED = 20261008
 # Typing articles split by article so no calib line shares an article with a final line.
@@ -460,34 +459,32 @@ def read_edge_picks(bitmask: str = "default") -> dict[str, str]:
         return {row["key"]: row["pick"] for row in csv.DictReader(f, delimiter="\t") if row["sources"] == bitmask}
 
 
-def corpus_total_freq() -> float:
-    """The `CORPUS_TOTAL_FREQ` the engine prices with — read from cost.rs, not from
-    `output/corpus_total_freq.txt`: the two have disagreed since 2026-08-29 (the guard test is
-    skipped), and the simulator must match the engine."""
-    match = re.search(r"CORPUS_TOTAL_FREQ: f64 = ([0-9_.]+);", COST_RS.read_text(encoding="utf-8"))
-    return float(match.group(1).replace("_", ""))
+# The denominator the engine priced `frequency` against until E1 P3 retired it
+# (`CORPUS_TOTAL_FREQ` in engine/composing/src/lattice/cost.rs, last value); the hermetic
+# engine fixtures freeze the same value (engine/test-support/src/tkdb.rs).
+PRE_P3_CORPUS_TOTAL_FREQ = 13_056_588.0
 
 
 class Simulator:
     """The walker over a fully toned syllable sequence: dictionary edges only (no OOV, no user data).
 
-    `current` = today's edge cost (homophone max frequency); `a2` = plan §3 / D2 / D3 (min
-    `walker_cost` over the homophones, `build.walker_lm` at the given α). Both price the length terms on the picked word,
+    `pre-p3` = the edge cost before E1 P3 (homophone max frequency over the frozen corpus total);
+    `a2` = plan §3 / D2 / D3, the engine since P3 (min `walker_cost` over the homophones,
+    `build.walker_lm` at the given α). Both price the length terms on the picked word,
     as `continuous.rs` does; the pick is the engine's own (`read_edge_picks`).
     """
 
     def __init__(self, dictionary: Dictionary, picks: dict[str, str]) -> None:
         self.dictionary = dictionary
         self.picks = picks
-        self.corpus = corpus_total_freq()
 
     def pick(self, key: str, rows: list[Row]) -> Row:
         hanji = self.picks.get(key)
         return next((r for r in rows if r.plain_hanji == hanji), rows[0])
 
     def edge_cost(self, rows: list[Row], pick: Row, model: str, alpha: float) -> float:
-        if model == "current":
-            base = math.log(self.corpus / (1 + max(r.frequency for r in rows)))
+        if model == "pre-p3":
+            base = math.log(PRE_P3_CORPUS_TOTAL_FREQ / (1 + max(r.frequency for r in rows)))
         else:
             # The quantised `walker_cost` dictionary.bin v4 stores, at this α.
             walker_model = replace(self.dictionary.walker_model, alpha=alpha)
@@ -530,7 +527,7 @@ def simulate(args: argparse.Namespace) -> int:
     dictionary = Dictionary()
     simulator = Simulator(dictionary, read_edge_picks())
     resolved = [r for r in resolve_all(dictionary)[0] if r.item.split in args.splits]
-    models = [("current", 0.0), *((f"a2@{a}", a) for a in args.alphas)]
+    models = [("pre-p3", 0.0), *((f"a2@{a}", a) for a in args.alphas)]
     compared = models[1][0]
     # stratum → model → [exact, segmented]; `n` per stratum alongside.
     totals: dict[str, dict[str, list[int]]] = defaultdict(lambda: defaultdict(lambda: [0, 0]))
@@ -549,13 +546,13 @@ def simulate(args: argparse.Namespace) -> int:
             for stratum in strata:
                 totals[stratum][name][0] += is_exact
                 totals[stratum][name][1] += is_segmented
-        if r.item.split != "final" and path_text(results["current"]) != path_text(results[compared]):
+        if r.item.split != "final" and path_text(results["pre-p3"]) != path_text(results[compared]):
             changes.append(
                 (
                     r.item.id,
                     r.item.category,
                     " ".join(gold),
-                    path_text(results["current"]),
+                    path_text(results["pre-p3"]),
                     path_text(results[compared]),
                 )
             )
@@ -568,14 +565,15 @@ def simulate(args: argparse.Namespace) -> int:
         )
     if args.engine_slot0:
         report_engine_agreement(args.engine_slot0, resolved, simulator)
-    print(f"\n{len(changes)} items whose slot 0 changes (current → {compared}; final split never listed):")
+    print(f"\n{len(changes)} items whose slot 0 changes (pre-p3 → {compared}; final split never listed):")
     for change in changes:
         print("\t".join(change))
     return 0
 
 
 def report_engine_agreement(path: Path, resolved: list[Resolved], simulator: Simulator) -> None:
-    """How often the simulator's `current` slot 0 (hanji + displayed word lengths) equals the engine's on tl_full."""
+    """How often the simulator's A2 slot 0 at the shipped α (hanji + displayed word lengths) equals the
+    engine's on tl_full."""
     with path.open(encoding="utf-8", newline="") as f:
         engine = {
             row["id"]: (
@@ -587,12 +585,14 @@ def report_engine_agreement(path: Path, resolved: list[Resolved], simulator: Sim
         }
     agree, disagreements = 0, []
     for r in resolved:
-        simulated = path_shape(simulator.best_path(r.syllables(), "current", 0.0))
+        simulated = path_shape(simulator.best_path(r.syllables(), "a2", WALKER_ALPHA))
         if simulated == engine.get(r.item.id):
             agree += 1
         else:
             disagreements.append(f"{r.item.id}\tengine={engine.get(r.item.id)}\tsimulator={simulated}")
-    print(f"\nsimulator vs engine (current model, tl_full, hanji + word lengths): {agree}/{len(resolved)} agree")
+    print(
+        f"\nsimulator vs engine (a2@{WALKER_ALPHA}, tl_full, hanji + word lengths): {agree}/{len(resolved)} agree"
+    )
     print("\n".join(disagreements[:20]))
 
 
@@ -601,8 +601,8 @@ def exposure(args: argparse.Namespace) -> int:
     dictionary = Dictionary()
     simulator = Simulator(dictionary, read_edge_picks())
     keys = sorted(k for k in dictionary.by_tl_num if 2 <= len(NUMERIC_SYLLABLE.findall(k)) <= 3)
-    losers = {"current": 0, "a2": 0}
-    seen_losers = {"current": 0, "a2": 0}
+    losers = {"pre-p3": 0, "a2": 0}
+    seen_losers = {"pre-p3": 0, "a2": 0}
     flips = defaultdict(list)
     for key in keys:
         syllables = NUMERIC_SYLLABLE.findall(key)
@@ -612,9 +612,9 @@ def exposure(args: argparse.Namespace) -> int:
         for model, kept in keeps_word.items():
             losers[model] += not kept
             seen_losers[model] += not kept and is_seen
-        if keeps_word["current"] != keeps_word["a2"]:
-            word, split = ("current", "a2") if keeps_word["current"] else ("a2", "current")
-            direction = "word→split" if keeps_word["current"] else "split→word"
+        if keeps_word["pre-p3"] != keeps_word["a2"]:
+            word, split = ("pre-p3", "a2") if keeps_word["pre-p3"] else ("a2", "pre-p3")
+            direction = "word→split" if keeps_word["pre-p3"] else "split→word"
             flips[direction].append(f"{key}\t{path_text(paths[word])}\t{path_text(paths[split])}")
     print(f"keys: {len(keys)}  alpha={args.alpha}")
     for model, lost in losers.items():

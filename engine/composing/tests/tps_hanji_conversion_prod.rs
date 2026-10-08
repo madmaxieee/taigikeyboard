@@ -10,8 +10,9 @@ use protos::engine::TpsKey;
 use crate::common::{config_converting, converted_words, production_lexicon_ready, req};
 
 // trace (candidate_dump slot 0, the same neutral walk): `ㄍㄧㄣ ㄚˋ` → roman
-// `kin á`, two edges: 今 (0, 10) with the separator that closes it, and
-// 仔 (10, 15). Closing ㆢㄧㆵ˙ (11 bytes) →
+// `kin-á`, one edge (0, 15): the dictionary word 巾仔 (walker_cost 12,348 →
+// 10.75 with the length terms) beats the 今 / 根 (10,402 → 8.35) + 仔
+// (7,643) split since E1 P3. Closing ㆢㄧㆵ˙ (11 bytes) →
 // `kin-á-ji̍t`, one edge (0, 26): the two words become 今仔日. The rest of
 // the sentence, typed key by key, ends on 今仔日天氣真好; before ㄏㄛ's tone
 // mark the reading is open and shows as glyphs.
@@ -46,7 +47,7 @@ fn a_production_sentence_converts_and_resegments_as_readings_close() {
     );
     assert_eq!(
         converted_words(&engine),
-        vec![((0, 10), "今".to_string()), ((10, 15), "仔".to_string())]
+        vec![((0, 15), "巾仔".to_string())]
     );
 
     let preedit = type_keys(&mut engine, "ㆢㄧㆵ˙");
