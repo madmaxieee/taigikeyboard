@@ -93,7 +93,7 @@ Read-only next-word bigram/phrase table. Sibling to `dictionary.bin` with a dist
 
 - **Producer**: `dictionary/build/create_association_bin.py`.
 - **Header (20 bytes)**: magic `"TKWA"` (4) · `version: u32` (currently `2`) · `key_count: u32` · `entry_count: u32` · `build_ts: u32`.
-- **Cohesion contract**: `build_ts` **must match** `dictionary.bin`. Both writers (`dictionary/build/create_dictionary_bin.py` and `dictionary/build/create_association_bin.py`) fill it with `build.common.build_id()` — the CRC-32 of the `output/dictionary.csv` they are both built from — so one build always matches and an unchanged dictionary rebuilds byte-identical. Readers on both platforms expose `buildTimestamp`.
+- **Cohesion contract**: `build_ts` **must match** `dictionary.bin`. Both writers (`dictionary/build/create_dictionary_bin.py` and `dictionary/build/create_association_bin.py`) fill it with `build.common.build_id()` — the CRC-32 of the `output/dictionary.csv` they are both built from, chained over `word_unigrams.tsv` and the walker α — so one build always matches and unchanged inputs (`dictionary.csv`, the corpus count TSVs, α) rebuild byte-identical. Readers on both platforms expose `buildTimestamp`.
 - **Key offset table**: `key_count × u32` absolute offsets.
 - **Key entry**: `prev_word_len: u8 · prev_word: utf8 · entry_offset: u32 · entry_count: u16`. Keys sorted by UTF-8 byte order for binary search.
 - **Key namespaces (v2)**: one hanji (intra-word pairs from `dictionary.csv`), `hanji\u{1}tl` word keys (corpus pairs from `dictionary/shared/data/word_bigrams.tsv`) — `docs/engine/binary-format.md` §2.1a.
@@ -271,7 +271,7 @@ Dictionary updates today: `dictionary.fst` + `dictionary.bin` + `association.bin
 
 **Invariants the delivery mechanism must preserve**:
 
-1. The two binary artifacts with a header (`dictionary.bin`, `association.bin`) carry a matching `build_ts` — both are the CRC-32 of the same `output/dictionary.csv` (`dictionary/build/common.py::build_id`).
+1. The two binary artifacts with a header (`dictionary.bin`, `association.bin`) carry a matching `build_ts` — both are the CRC-32 of the same `output/dictionary.csv`, chained over `word_unigrams.tsv` and the walker α (`dictionary/build/common.py::build_id`).
 2. `dictionary.fst` has **no timestamp or version in its bytes** — the format is a raw Burntsushi fst. Today the three artifacts' cohesion relies entirely on the build script producing all three in the same run; readers cannot detect a stale fst paired with fresh bins (see `binary-format.md` §5.1 no-checksum acknowledgement).
 3. User-writable SQLite databases (`user_frequency.db`, `user_association.db`, `custom_dictionary.db`, `learned_phrases.db`) are per-install and must not be shipped as read-only assets. They are engine-owned per `docs/contributing/rust-migration-policy.md` §6 (rewritten 2026-09-26); migration status in `user-data-engine-roadmap.md`.
 4. Schema migrations run in the engine on the first open after an app update (`OpenUserData`; roadmap U7); the delivery mechanism does not modify these files directly.

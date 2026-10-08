@@ -20,6 +20,13 @@ a dictionary word breaks the pair chain. Counts are raw per source (one
 column per source, `count` = their sum); any per-source weighting is P3's
 decision. Sentence-end punctuation breaks the chain like any other break.
 
+The corpus is counted twice (E1 P2b, docs/architecture/unified-word-frequency-roadmap.md
+§6). Pass 1 counts only the tokens that are dictionary words as written; an
+out-of-vocabulary word breaks the chain. Pass 2 splits such a word into
+dictionary words — fewest pieces, then the lowest summed walker cost under a
+model frozen from pass 1 — so `DictionaryRecord.frequency` does not steer the
+counts.
+
 Usage (from dictionary/):
   python3 -m build.corpus_bigrams              # all sources
   python3 -m build.corpus_bigrams --sources moe_kautian sinpak_900leku
@@ -42,7 +49,7 @@ from pathlib import Path
 
 from build.common import BASE_DIR, MERGED_CSV, SHARED_DATA_DIR, UNIGRAMS_TSV
 from build.dictionary_records import load_dictionary_records
-from build.walker_lm import model_word
+from build.walker_lm import WalkerModel, model_from_counts, model_word
 from common.abbrev import remove_diacritics
 from common.cjk import is_cjk
 from common.logging_utils import setup_logging
@@ -60,6 +67,9 @@ MIN_PAIR_COUNT = 2
 # Identical sentences beyond this many per source are boilerplate (news
 # bylines, scripture headers) and are not counted again.
 SENTENCE_CAP = 3
+# Lidstone α of the pass-1 tie-break model. Fixed on its own: tuning the
+# walker's α (`build.common.WALKER_ALPHA`, E1 P4) must not regenerate the corpus.
+SUBSEGMENT_ALPHA = 10.0
 
 SENTENCE_END = "。！？!?"
 PUNCTUATION = SENTENCE_END + "，,、；;：:「」『』（）()《》〈〉…—“”\"'‘’‧·．."
@@ -247,36 +257,35 @@ def split_sentences(text: str) -> list[str]:
 @dataclass(frozen=True)
 class Lexicon:
     tl_by_word: dict[Word, str]  # display TL (diacritics) per dictionary word
-    frequency: dict[Word, int]
     hanji_by_romanized_reading: dict[str, str]  # tl_num → hanji, for words written in romanization
 
 
 def load_lexicon(dictionary_csv: Path = MERGED_CSV, readings_tsv: Path = ROMANIZED_READINGS_TSV) -> Lexicon:
     """The words dictionary.bin carries (same filter as the binary writers), plus the reading table."""
     tl_by_word: dict[Word, str] = {}
-    frequency: dict[Word, int] = {}
     for record in load_dictionary_records(dictionary_csv):
         if record.hanzi is None or not record.tl_num:
             continue
-        word = model_word(record)
-        tl_by_word.setdefault(word, record.tl)
-        frequency[word] = max(frequency.get(word, 0), record.frequency or 0)
+        tl_by_word.setdefault(model_word(record), record.tl)
     with readings_tsv.open(encoding="utf-8", newline="") as f:
         readings = {row["tl_num"]: row["hanji"] for row in csv.DictReader(f, delimiter="\t")}
     unknown = [f"{key}→{hanji}" for key, hanji in readings.items() if (hanji, key) not in tl_by_word]
     if unknown:
         raise ValueError(f"{readings_tsv.name}: not dictionary words: {', '.join(unknown)}")
-    return Lexicon(tl_by_word, frequency, readings)
+    return Lexicon(tl_by_word, readings)
 
 
-def subsegment(hanji: str, syllable_keys: list[str], lexicon: Lexicon) -> list[Word] | None:
-    """Split an out-of-vocabulary word into dictionary words: fewest pieces,
-    then highest summed frequency (greedy longest-match gave `新聞報 → 導`)."""
+def subsegment(hanji: str, syllable_keys: list[str], lexicon: Lexicon, model: WalkerModel) -> list[Word] | None:
+    """Split an out-of-vocabulary word into dictionary words: fewest pieces
+    (greedy longest-match gave `新聞報 → 導`), then the lowest sum of the
+    pieces' quantised milli-nat costs under the pass-1 model. On an exact tie
+    the first split found stays: the longest last piece, its prefix decided
+    the same way."""
     chars = list(hanji)
     length = len(chars)
     if length != len(syllable_keys) or length < 2:
         return None
-    # best[end] = (pieces, -summed frequency, start of the last piece)
+    # best[end] = (pieces, summed cost, start of the last piece)
     best: list[tuple[int, int, int] | None] = [None] * (length + 1)
     best[0] = (0, 0, -1)
     for end in range(1, length + 1):
@@ -286,7 +295,7 @@ def subsegment(hanji: str, syllable_keys: list[str], lexicon: Lexicon) -> list[W
             word = ("".join(chars[start:end]), "".join(syllable_keys[start:end]))
             if word not in lexicon.tl_by_word:
                 continue
-            candidate = (best[start][0] + 1, best[start][1] - lexicon.frequency.get(word, 0), start)
+            candidate = (best[start][0] + 1, best[start][1] + model.cost(word), start)
             if best[end] is None or candidate[:2] < best[end][:2]:
                 best[end] = candidate
     if best[length] is None:
@@ -437,8 +446,14 @@ class Counts:
     stats: dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter))
 
 
-def classify(tokens: list[Token], numeric_words: list[str], lexicon: Lexicon, stat: Counter) -> list[Word | None]:
-    """Aligned tokens → dictionary words; `None` breaks the chain."""
+def classify(
+    tokens: list[Token], numeric_words: list[str], lexicon: Lexicon, stat: Counter, model: WalkerModel | None
+) -> list[Word | None]:
+    """Aligned tokens → dictionary words; `None` breaks the chain.
+
+    `model` is the pass-1 tie-break model; `None` (pass 1) leaves every
+    out-of-vocabulary word unsplit.
+    """
     items: list[Word | None] = []
     remaining = iter(numeric_words)
     for token in tokens:
@@ -462,8 +477,9 @@ def classify(tokens: list[Token], numeric_words: list[str], lexicon: Lexicon, st
             items.append(word)
             continue
         pieces = None
-        if "--" not in token.word:
-            pieces = subsegment(token.hanji, [key_of(syllable) for syllable in syllables_of(numeric_word)], lexicon)
+        if model is not None and "--" not in token.word:
+            keys = [key_of(syllable) for syllable in syllables_of(numeric_word)]
+            pieces = subsegment(token.hanji, keys, lexicon, model)
         if pieces:
             stat["tok:subsegmented"] += 1
             stat["tok:in-vocab"] += len(pieces)
@@ -488,7 +504,7 @@ def convert_readings(readings: list[str], system: str) -> list[str]:
     return numeric_words
 
 
-def count_source(name: str, units: Iterable[Unit], lexicon: Lexicon, counts: Counts) -> None:
+def count_source(name: str, units: Iterable[Unit], lexicon: Lexicon, counts: Counts, model: WalkerModel | None) -> None:
     stat = counts.stats[name]
     seen: Counter = Counter()
     for unit in units:
@@ -506,7 +522,7 @@ def count_source(name: str, units: Iterable[Unit], lexicon: Lexicon, counts: Cou
         stat["aligned"] += 1
         readings = [token.word for token in tokens if token.kind in ("word", "latin", "mixed")]
         previous: Word | None = None
-        for item in classify(tokens, convert_readings(readings, unit.system), lexicon, stat):
+        for item in classify(tokens, convert_readings(readings, unit.system), lexicon, stat, model):
             if item is None:
                 previous = None
                 continue
@@ -514,6 +530,22 @@ def count_source(name: str, units: Iterable[Unit], lexicon: Lexicon, counts: Cou
             if previous is not None:
                 counts.bigrams[(previous, item)][name] += 1
             previous = item
+
+
+def count_corpus(source_names: Iterable[str], lexicon: Lexicon, model: WalkerModel | None) -> Counts:
+    counts = Counts()
+    for name in source_names:
+        count_source(name, SOURCES[name](), lexicon, counts, model)
+    return counts
+
+
+def tiebreak_model(pass_one: Counts, lexicon: Lexicon) -> WalkerModel:
+    """Pass-1 unigrams → the frozen subsegment tie-break model (V = the lexicon's words).
+
+    Splits compared by cost have the same piece count, so N and V cancel;
+    only α and the counts decide.
+    """
+    return model_from_counts(pass_one.unigrams, len(lexicon.tl_by_word), SUBSEGMENT_ALPHA)
 
 
 # --------------------------------------------------------------------- output
@@ -582,9 +614,10 @@ def main(argv: list[str] | None = None) -> int:
         len(lexicon.tl_by_word),
         len(lexicon.hanji_by_romanized_reading),
     )
-    counts = Counts()
+    model = tiebreak_model(count_corpus(args.sources, lexicon, None), lexicon)
+    log.info("Pass 1 tie-break model: N=%d V=%d alpha=%r", model.tokens, model.vocabulary, model.alpha)
+    counts = count_corpus(args.sources, lexicon, model)
     for name in args.sources:
-        count_source(name, SOURCES[name](), lexicon, counts)
         log.info("%s: %s", name, dict(sorted(counts.stats[name].items())))
     bigram_count, unigram_count = write_outputs(counts, lexicon)
     log.info("Wrote %d bigram rows → %s", bigram_count, BIGRAMS_TSV)
