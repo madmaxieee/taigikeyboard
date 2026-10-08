@@ -13,7 +13,7 @@ Three read-only binary assets live in the dictionary bundle and are mmap-loaded 
 
 | File | Magic | Purpose | Size |
 |---|---|---|---|
-| `dictionary.bin` | `TKDB` | rowid → {bitmask, frequency, hanzi, tl} | ~4.4 MB |
+| `dictionary.bin` | `TKDB` | rowid → {bitmask, frequency, hanzi, tl, walker_cost} | ~5.8 MB |
 | `association.bin` | `TKWA` | prev_word → list of next-word predictions | ~3.1 MB |
 | `dictionary.fst` | (fst) | prefix key → rowid (for prefix + exact lookup) | ~9.2 MB |
 
@@ -32,7 +32,7 @@ All formats use **little-endian** integers and **strict UTF-8** strings. The Rus
 +---------------------------------------------------+
 | Header (16 bytes)                                 |
 |   "TKDB"                4 bytes                   |
-|   version (u32 LE)      4 bytes  (currently 3)    |
+|   version (u32 LE)      4 bytes  (currently 4)    |
 |   record_count (u32 LE) 4 bytes                   |
 |   build_ts (u32 LE)     4 bytes  (build id)       |
 +---------------------------------------------------+
@@ -47,6 +47,7 @@ All formats use **little-endian** integers and **strict UTF-8** strings. The Rus
 |   tl_len         u8      (1 byte; must be > 0)    |
 |   syllable_count u8      (1 byte; v2; 1..=4)      |
 |   kautian_subtag u16 LE  (2 bytes; v3)           |
+|   walker_cost    u16 LE  (2 bytes; v4)           |
 |   hanzi          hanzi_len bytes UTF-8            |
 |   tl             tl_len   bytes UTF-8             |
 +---------------------------------------------------+
@@ -65,6 +66,18 @@ Records which kautian subcollection(s) a row belongs to (main / accent[10] /
 name) so the engine filter can independently gate them while the kautian
 source bit (bit 0) stays a single badge/ranking signal. `0` for every
 non-kautian row. Layout in §4.5. Reserved bits 12-15 are masked off on read.
+
+**v3 → v4 (E1 unified word frequency P2)**: added per-record `walker_cost`
+u16 between `kautian_subtag` and the `hanzi` payload: the walker model's
+`−ln p` of the record's `(hanzi, tl_num)` in milli-nats, rounded half to even
+(`dictionary/build/walker_lm.py`; Lidstone add-α over the segmented corpus
+counts in `dictionary/shared/data/word_unigrams.tsv`). Records sharing a
+`(hanzi, tl_num)` share the value; a word with no corpus count carries the
+smoothed unseen value. The writer fails the build on a value above
+`u16::MAX`. `frequency` is unchanged and keeps feeding the candidate-list
+sort; the walker prices on `walker_cost` from E1 P3
+(`docs/architecture/unified-word-frequency-roadmap.md`). Model parameters and
+the cost distribution of a build: `dictionary/output/walker_lm_stats.txt`.
 
 Each reader supports exactly ONE version; it will NOT parse older binaries
 — rebuild + redeploy artifacts in lockstep (see `dictionary/build/deploy.sh`).
@@ -88,10 +101,10 @@ The end of a record is determined by the *next* record's offset (or `data.count`
 |---|---|
 | File ≥ 16 bytes | `open` returns `Err(LexiconError::InvalidBinary)` |
 | Magic == `TKDB` | `open` returns `Err(LexiconError::InvalidBinary)` |
-| Version == 3 (v1/v2 surface explicit `v1/v2→v3` rebuild guidance) | `open` returns `Err(LexiconError::InvalidBinary)` |
+| Version == 4 (v1–v3 surface explicit `v1/v2/v3→v4` rebuild guidance) | `open` returns `Err(LexiconError::InvalidBinary)` |
 | File ≥ `header + record_count × 4` | `open` returns `Err(LexiconError::InvalidBinary)` |
 | Per-record bounds (`recordEnd ≤ data.len()`) | `record()` returns `None` |
-| Per-record min size 11 bytes (v3 fixed prefix) | `record()` returns `None` |
+| Per-record min size 13 bytes (v4 fixed prefix) | `record()` returns `None` |
 | `pos + hanzi_len + tl_len ≤ record_end` | `record()` returns `None` |
 | TL UTF-8 valid | `record()` returns `None` |
 
@@ -356,7 +369,7 @@ When ANY of the following changes, ALL listed files MUST be updated in the same 
 | `kautian_subtag` + wire subcollection-enable bit layout (§4.5) | `dictionary/common/source_bits.py` (`encode_kautian_subtag`), `dictionary/build/create_dictionary_bin.py`, Rust `engine/lexicon::dictionary_reader` (`KAUTIAN_SUBTAG_*` / `WIRE_KAUTIAN_SUBCOLL_*`), this doc |
 | Key prefix list (`tl:` / `poj:` / `tps:`, `tl-abbrev:` / `poj-abbrev:` / `tps-abbrev:`, `hanzi:`) | build script (`create_fst.py`), Rust `phonetics::KeyFamily`, this doc |
 | Magic bytes (`TKDB` / `TKWA`) | build script, Rust readers, this doc |
-| File version (`dictionary.bin = 3`, `association.bin = 1`) | build script, Rust readers, this doc |
+| File version (`dictionary.bin = 4`, `association.bin = 2`) | build script, Rust readers, this doc |
 | Endianness (little-endian) | build script, Rust readers |
 
 ### 5.1 No-checksum acknowledgement
@@ -386,7 +399,7 @@ The Python build pipeline lives at `dictionary/build/`. Steps relevant to the fo
 | `merge_csv.py` | `dictionary.csv` | merged per-source CSVs + khiin/dev/lkk supplements |
 | `dictionary_records.py` | (in-memory) | filtered records + rowid 1..N — shared by `create_dictionary_bin` + `create_fst` |
 | `associations.py` | (in-memory) | character-key generator from `dictionary.csv` + word-key generator from `shared/data/word_bigrams.tsv` — shared by `create_association_bin` |
-| `create_dictionary_bin.py` | `dictionary.bin` | TKDB format per §1; `build_ts` = `common.build_id()` (CRC-32 of `dictionary.csv`) |
+| `create_dictionary_bin.py` | `dictionary.bin` | TKDB format per §1; `build_ts` = `common.build_id()` (CRC-32 of `dictionary.csv`, `word_unigrams.tsv` and the walker α); `walker_cost` from `walker_lm.py` |
 | `create_fst.py` | `dictionary.fst` | shells to `engine/build-helpers/fst-builder` (Rust) for fst encoding |
 | `create_association_bin.py` | `association.bin` | TKWA format per §2; same `build_ts` as `dictionary.bin` |
 | `verify_poj_integrity.py` | (exit code) | fatal gate: halts build if `poj`/derived ≠ `convert_tl_to_poj(tl)` |
@@ -400,7 +413,7 @@ The build pipeline must:
 3. Emit fst via `engine/build-helpers/fst-builder` — keys carry the family prefix (`tl:` / `poj:` / `tps:` / `*-abbrev:` / `hanzi:`) and the value packs rowid in the low 32 bits.
 4. Use bit positions exactly per §4.
 5. Set magic bytes per §1, §2.
-6. Use version `3` for `dictionary.bin` (v2 added per-record `syllable_count`; v3 added per-record `kautian_subtag`) and version `2` for `association.bin` (v2 added the word-key namespace, §2.1a).
+6. Use version `4` for `dictionary.bin` (v2 added per-record `syllable_count`; v3 added per-record `kautian_subtag`; v4 added per-record `walker_cost`) and version `2` for `association.bin` (v2 added the word-key namespace, §2.1a).
 7. Include every key form (TL / POJ / TPS num + no-tone under the phonetic family, each abbreviation under its `*-abbrev:` family) plus `hanzi:` keys for reverse lookup.
 
 ---

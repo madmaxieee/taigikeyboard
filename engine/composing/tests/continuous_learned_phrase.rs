@@ -28,7 +28,7 @@ use protos::engine::{CandidateMessage, CommitContinuous, FetchAtPos, Start};
 use crate::common;
 use crate::common::Fetch;
 use crate::common::{
-    build_dictionary_fst, build_syllables_fst, build_tkdb_v3, config_tl, effect_kinds,
+    build_dictionary_fst, build_syllables_fst, build_tkdb_v4, config_tl, effect_kinds,
     empty_association_bin, engine_in_continuous, fetch_at_pos_response, fetch_cells, fetch_hanji,
     install_lexicon, req, selected, Cell, Row, NOW_MS,
 };
@@ -409,7 +409,7 @@ fn fixture_rows() -> Vec<Row> {
 const FIXTURE_SYLLABLES: &[&str] = &["ki1", "ki3", "khi2", "lai5"];
 
 fn install(rows: &[Row], syllables: &[&str]) {
-    let dict_path = write_temp("dictionary.bin", &build_tkdb_v3(rows));
+    let dict_path = write_temp("dictionary.bin", &build_tkdb_v4(rows));
     let fst_path = build_dictionary_fst(rows);
     let association_path = write_temp("association.bin", &empty_association_bin());
     let syllables_path = build_syllables_fst(syllables);

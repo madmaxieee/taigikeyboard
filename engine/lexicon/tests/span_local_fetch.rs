@@ -23,7 +23,7 @@
 //! pointing to a tiny `dictionary.bin` v2) per test so we never touch
 //! the real packaged dictionary. FST builder pattern mirrors
 //! `tests/syllables_fst.rs:186-207`; dict.bin v2 builder is shared
-//! `tests/common/mod.rs::build_tkdb_v3`.
+//! `tests/common/mod.rs::build_tkdb_v4`.
 
 use lexicon::dictionary_reader::DictionaryReader;
 use lexicon::prefix_index::PrefixIndex;
@@ -82,7 +82,7 @@ fn ctx_neutral<'a>(
     ctx(freq_map, 0, &[], prefix_index, dict)
 }
 
-use crate::common::{build_tkdb_v3, fetch_candidates_for_endings, frequency_map, FrequencyFixture};
+use crate::common::{build_tkdb_v4, fetch_candidates_for_endings, frequency_map, FrequencyFixture};
 
 /// Single dictionary fixture row: `(toneless_tl_key, hanji, tl, syllable_count, frequency)`.
 /// `bitmask` is fixed to `1 << 11` (the `lkk` source per
@@ -120,7 +120,7 @@ fn build_fixture_sourced(name: &str, rows: &[(u16, &Row<'_>)]) -> (PrefixIndex, 
         .iter()
         .map(|(bitmask, r)| (*bitmask, r.freq, r.syll, r.hanji, r.tl))
         .collect();
-    let dict_bytes = build_tkdb_v3(b"TKDB", &dict_rows);
+    let dict_bytes = build_tkdb_v4(b"TKDB", &dict_rows);
     let dict_path = write_temp(&format!("phase5-{name}.dict.bin"), &dict_bytes);
     let dict = DictionaryReader::open(&dict_path).expect("dict.bin opens");
 
@@ -1825,7 +1825,7 @@ fn best_candidate_for_key_breaks_score_tie_by_source_rank_like_the_list() {
     // led with kautian 甲, and the user saw slot 0 disagree with the list.
     // Now both say 甲. (Fixture uses the taigitv bit: the kautian bit is
     // dropped from the effective bitmask when a row has no kautian
-    // subtag, which `build_tkdb_v3` never sets.)
+    // subtag, which `build_tkdb_v4` never sets.)
     const TAIGITV_BIT: u16 = 1 << 1;
     let first_unknown = Row {
         toneless_key: "kap",

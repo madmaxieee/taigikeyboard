@@ -21,7 +21,7 @@
 //! undercuts a freq-1 two-syllable edge under the khiin cost model.
 
 use crate::common::{
-    build_dictionary_fst_tl_toned, build_syllables_fst_tl, build_tkdb_v3, empty_association_bin,
+    build_dictionary_fst_tl_toned, build_syllables_fst_tl, build_tkdb_v4, empty_association_bin,
     fetch_hanji, install_lexicon, selected, Fetch, Row, Selected, NOW_MS,
 };
 use test_support::{engine_install_lock, write_temp};
@@ -63,7 +63,7 @@ fn fixture_rows() -> Vec<Row> {
 
 fn install_fixture() {
     let rows = fixture_rows();
-    let dict_path = write_temp("dictionary.bin", &build_tkdb_v3(&rows));
+    let dict_path = write_temp("dictionary.bin", &build_tkdb_v4(&rows));
     let fst_path = build_dictionary_fst_tl_toned(&rows);
     let association_path = write_temp("association.bin", &empty_association_bin());
     let syllables_path = build_syllables_fst_tl(&["king1", "king3", "sin1", "sin5"]);
@@ -130,7 +130,7 @@ fn selected_rare_phrase_alone_under_its_key_beats_the_single_syllable_split() {
         .into_iter()
         .filter(|r| r.hanji != "敬神")
         .collect();
-    let dict_path = write_temp("dictionary.bin", &build_tkdb_v3(&rows));
+    let dict_path = write_temp("dictionary.bin", &build_tkdb_v4(&rows));
     let fst_path = build_dictionary_fst_tl_toned(&rows);
     let association_path = write_temp("association.bin", &empty_association_bin());
     let syllables_path = build_syllables_fst_tl(&["king1", "king3", "sin1", "sin5"]);

@@ -27,7 +27,7 @@ use phonetics::InputMode;
 use ranking::FrequencyMap;
 use test_support::{fst_entry, write_fst_set, write_temp};
 
-use crate::common::build_tkdb_v3;
+use crate::common::build_tkdb_v4;
 
 /// One dictionary fixture row. `bitmask` is fixed to the `lkk` source bit so
 /// every row passes the all-sources filter the tests use.
@@ -85,7 +85,7 @@ fn build_fixture(name: &str, family: &str, rows: &[Row<'_>]) -> (PrefixIndex, Di
         .collect();
     let dict_path = write_temp(
         &format!("syllable-reach-{name}.dict.bin"),
-        &build_tkdb_v3(b"TKDB", &dict_rows),
+        &build_tkdb_v4(b"TKDB", &dict_rows),
     );
     let dict = DictionaryReader::open(&dict_path).expect("dict.bin opens");
 

@@ -23,7 +23,7 @@
 //! row and asserted on: 豬 `ti` / 鎮 `tìn` under `ting`, 是 `sī` under `sik`.
 
 use crate::common::{
-    build_dictionary_fst_tl_toned, build_syllables_fst_tl, build_tkdb_v3, empty_association_bin,
+    build_dictionary_fst_tl_toned, build_syllables_fst_tl, build_tkdb_v4, empty_association_bin,
     fetch_hanji_with_custom as fetch_hanji_in, install_lexicon, Row,
 };
 use lexicon::CustomEntry;
@@ -112,7 +112,7 @@ fn fixture_rows() -> Vec<Row> {
 
 fn install_fixture() {
     let rows = fixture_rows();
-    let dict_path = write_temp("dictionary-partial-tone.bin", &build_tkdb_v3(&rows));
+    let dict_path = write_temp("dictionary-partial-tone.bin", &build_tkdb_v4(&rows));
     let fst_path = build_dictionary_fst_tl_toned(&rows);
     let association_path = write_temp("association-partial-tone.bin", &empty_association_bin());
     let syllables_path = build_syllables_fst_tl(&[

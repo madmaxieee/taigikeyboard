@@ -9,7 +9,7 @@ use super::{
     derive_script_kind, ConsumedSpan, ContinuousFetchCtx, CustomEntry, LearnedEntry, RawCandidate,
     FORM_NOTONE,
 };
-use crate::dictionary_reader::DictionaryRecord;
+use crate::dictionary_reader::{DictionaryRecord, WALKER_COST_UNPRICED};
 
 /// Shared tail of every continuous fetch: merge `custom_dictionary.db`
 /// hits into the dictionary candidates `out`, collapse duplicates equal on
@@ -121,6 +121,7 @@ pub(super) fn record_to_candidate(
         hanji,
         tl,
         kautian_subtag: _,
+        walker_cost: _,
     } = record;
     // EFFECTIVE bitmask (kautian bit dropped when its subcollection is
     // disabled) drives `source_tier_rank` so a multi-source survivor ranks by
@@ -298,6 +299,7 @@ pub(super) fn learned_entry_to_candidate(
             tl: entry.canonical_tl.clone(),
             syllable_count,
             kautian_subtag: 0,
+            walker_cost: WALKER_COST_UNPRICED,
         },
         0,
         span,
@@ -401,6 +403,7 @@ mod record_to_candidate_carrier_tests {
             frequency: 0,
             syllable_count: 1,
             kautian_subtag: 0,
+            walker_cost: 0,
             hanji: hanji.map(str::to_owned),
             tl: tl.to_owned(),
         }

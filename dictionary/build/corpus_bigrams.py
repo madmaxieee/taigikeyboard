@@ -40,8 +40,9 @@ from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from build.common import BASE_DIR, MERGED_CSV
+from build.common import BASE_DIR, MERGED_CSV, SHARED_DATA_DIR, UNIGRAMS_TSV
 from build.dictionary_records import load_dictionary_records
+from build.walker_lm import model_word
 from common.abbrev import remove_diacritics
 from common.cjk import is_cjk
 from common.logging_utils import setup_logging
@@ -50,10 +51,8 @@ from common.taigi_bridge import convert_poj_to_tl_strict, to_tone_number_ascii
 REPO_DIR = BASE_DIR.parent
 CORPUS_DIR = REPO_DIR / "corpus" / "taigi-corpus" / "data" / "normalized"
 TAIGI_TYPING_ARTICLES = REPO_DIR / "corpus" / "taigi-typing" / "articles.js"
-SHARED_DATA_DIR = BASE_DIR / "shared" / "data"
 ROMANIZED_READINGS_TSV = SHARED_DATA_DIR / "romanized_readings.tsv"
 BIGRAMS_TSV = SHARED_DATA_DIR / "word_bigrams.tsv"
-UNIGRAMS_TSV = SHARED_DATA_DIR / "word_unigrams.tsv"
 
 Word = tuple[str, str]  # (hanji, tl_num)
 # A pair must be seen this often to be written; P3 applies the per-key top-K.
@@ -259,7 +258,7 @@ def load_lexicon(dictionary_csv: Path = MERGED_CSV, readings_tsv: Path = ROMANIZ
     for record in load_dictionary_records(dictionary_csv):
         if record.hanzi is None or not record.tl_num:
             continue
-        word = (record.hanzi, record.tl_num.lower())
+        word = model_word(record)
         tl_by_word.setdefault(word, record.tl)
         frequency[word] = max(frequency.get(word, 0), record.frequency or 0)
     with readings_tsv.open(encoding="utf-8", newline="") as f:

@@ -28,7 +28,7 @@
 
 use crate::common::Fetch;
 use crate::common::{
-    build_dictionary_fst_tl_toned, build_syllables_fst_tl, build_tkdb_v3, config_tl,
+    build_dictionary_fst_tl_toned, build_syllables_fst_tl, build_tkdb_v4, config_tl,
     empty_association_bin, fetch_at_pos_response, fetch_cells, install_lexicon, selected, Row,
     NOW_MS,
 };
@@ -77,7 +77,7 @@ fn fixture_rows() -> Vec<Row> {
 }
 
 fn install_rows(rows: &[Row], syllables: &[&str]) {
-    let dict_path = write_temp("dictionary.bin", &build_tkdb_v3(rows));
+    let dict_path = write_temp("dictionary.bin", &build_tkdb_v4(rows));
     let fst_path = build_dictionary_fst_tl_toned(rows);
     let association_path = write_temp("association.bin", &empty_association_bin());
     let syllables_path = build_syllables_fst_tl(syllables);

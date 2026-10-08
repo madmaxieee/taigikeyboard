@@ -26,7 +26,7 @@ import random
 import re
 import sys
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import cache
 from pathlib import Path
 
@@ -34,7 +34,6 @@ from build.common import BASE_DIR, MERGED_CSV
 from build.corpus_bigrams import (
     SOURCES,
     TAIGI_TYPING_ARTICLES,
-    UNIGRAMS_TSV,
     AlignError,
     align_unit,
     convert_readings,
@@ -44,6 +43,7 @@ from build.corpus_bigrams import (
     typing_article_lines,
 )
 from build.dictionary_records import load_dictionary_records
+from build.walker_lm import HELD_OUT_SOURCE, MILLI_NATS, load_model
 from common.notone import remove_tone
 
 REPO_DIR = BASE_DIR.parent
@@ -59,7 +59,6 @@ SEED = 20261008
 # Typing articles split by article so no calib line shares an article with a final line.
 CALIB_ARTICLES = {10, 31, 32, 33, 35}
 FINAL_ARTICLES = {1, 21, 22, 23, 34}
-HELD_OUT_SOURCE = "taigi_typing"
 DEV_PHRASES = 120
 DEV_PER_SINGLE_WORD_CATEGORY = 15
 DICT_QUOTA = {"unseen": 40, "rare": 20, "variant": 20}
@@ -90,6 +89,9 @@ INPUT_VARIANTS = (
     "tps_toneless",
 )
 NUMERIC_SYLLABLE = re.compile(r"[a-z]+[0-9]?")
+# A fully toned key the input variants can be derived from. 55 dictionary rows carry a
+# non-ASCII `tl_num` (`sere2tn̄g6` for 洗盪), which NUMERIC_SYLLABLE would mis-split.
+SUPPORTED_KEY = re.compile(r"(?:[a-z]+[0-9]?)+")
 DISPLAY_SYLLABLE_SEPARATOR = re.compile(r"[-\s]+")
 GOLD_HEADER = ["id", "split", "category", "ref", "extra_accepted"]
 
@@ -120,11 +122,13 @@ class Row:
 
 
 class Dictionary:
-    """The `dictionary.bin` records plus the corpus unigram counts (held-out source excluded)."""
+    """The `dictionary.bin` records plus the walker model over them (`build.walker_lm`)."""
 
     def __init__(self) -> None:
+        records = load_dictionary_records(MERGED_CSV)
+        self.walker_model = load_model(records)
         self.rows: list[Row] = []
-        for record in load_dictionary_records(MERGED_CSV):
+        for record in records:
             if record.hanzi is None or not record.tl_num:
                 continue
             sources = record.source_dict()
@@ -145,7 +149,6 @@ class Dictionary:
                     and any(sources[name] for name in DEFAULT_SOURCES),
                 )
             )
-        self.vocabulary = len(self.rows)
         # First row wins, as in `corpus_bigrams.load_lexicon`.
         self.by_word: dict[tuple[str, str], Row] = {}
         for row in self.rows:
@@ -157,14 +160,10 @@ class Dictionary:
             self.all_by_tl_num[row.tl_num].append(row)
             if row.is_visible_by_default:
                 self.by_tl_num[row.tl_num].append(row)
-        self.counts: dict[tuple[str, str], int] = {}
-        with UNIGRAMS_TSV.open(encoding="utf-8", newline="") as f:
-            for raw in csv.DictReader(f, delimiter="\t"):
-                self.counts[(raw["hanji"], raw["tl"])] = int(raw["count"]) - int(raw[HELD_OUT_SOURCE])
-        self.tokens = sum(self.counts.values())
 
     def count(self, row: Row) -> int:
-        return self.counts.get((row.hanzi, row.tl), 0)
+        # Row.tl_num is already lowercased, so (hanzi, tl_num) is the model word.
+        return self.walker_model.counts.get((row.hanzi, row.tl_num), 0)
 
     def category(self, row: Row) -> str:
         """One gold category per single word; a multi-word excerpt is a `phrase`."""
@@ -318,7 +317,11 @@ def select(args: argparse.Namespace) -> int:
 
     for words in REGRESSION_ITEMS:
         add("dev", "regression", f"dict:{words}")
-    candidates = [r for r in dictionary.rows if r.is_visible_by_default and 2 <= r.syllable_count <= 3]
+    candidates = [
+        r
+        for r in dictionary.rows
+        if r.is_visible_by_default and 2 <= r.syllable_count <= 3 and SUPPORTED_KEY.fullmatch(r.tl_num)
+    ]
     rng.shuffle(candidates)
     want = dict(DICT_QUOTA)
     for row in candidates:
@@ -376,14 +379,27 @@ def resolve_item(item: Item, dictionary: Dictionary) -> Resolved | None:
     return Resolved(item, words)
 
 
-def resolve_all(dictionary: Dictionary) -> tuple[list[Resolved], list[Item]]:
-    resolved, skipped = [], []
+def resolve_all(dictionary: Dictionary) -> tuple[list[Resolved], list[tuple[Item, str]]]:
+    """The resolvable items, plus the skipped ones with the reason.
+
+    `select` built every item from this corpus, dictionary and taigi-converter, so an item
+    that no longer resolves means the environment drifted (most often a submodule that is not
+    checked out): that exits instead of quietly measuring a smaller gold set.
+    """
+    resolved, skipped, drifted = [], [], []
     for item in read_gold():
         result = resolve_item(item, dictionary)
-        if result:
-            resolved.append(result)
+        if result is None:
+            drifted.append(item.id)
+        elif unsupported := [r.tl_num for r in result.rows if not SUPPORTED_KEY.fullmatch(r.tl_num)]:
+            skipped.append((item, f"unsupported tl_num {unsupported}"))
         else:
-            skipped.append(item)
+            resolved.append(result)
+    if drifted:
+        raise SystemExit(
+            f"{len(drifted)} gold items no longer resolve: {drifted}. Check "
+            "`git submodule update --init corpus/taigi-typing taigi-converter` and `make dict`."
+        )
     return resolved, skipped
 
 
@@ -421,7 +437,9 @@ def resolve(args: argparse.Namespace) -> int:
             ]
         )
     write_tsv(RESOLVED_TSV, header, rows)
-    print(f"resolved {len(rows)} items → {RESOLVED_TSV}; skipped {len(skipped)}: {[i.id for i in skipped]}")
+    print(f"resolved {len(rows)} items → {RESOLVED_TSV}; skipped {len(skipped)}")
+    for item, reason in skipped:
+        print(f"  skipped {item.id}: {reason}")
     # Every fully toned key with competing hanji: walker_gold.rs asks the engine which one it picks.
     keys = sorted(k for k, rs in dictionary.all_by_tl_num.items() if len({r.plain_hanji for r in rs}) > 1)
     write_tsv(
@@ -454,7 +472,7 @@ class Simulator:
     """The walker over a fully toned syllable sequence: dictionary edges only (no OOV, no user data).
 
     `current` = today's edge cost (homophone max frequency); `a2` = plan §3 / D2 / D3 (min
-    smoothed −ln p over the homophones). Both price the length terms on the picked word,
+    `walker_cost` over the homophones, `build.walker_lm` at the given α). Both price the length terms on the picked word,
     as `continuous.rs` does; the pick is the engine's own (`read_edge_picks`).
     """
 
@@ -471,8 +489,9 @@ class Simulator:
         if model == "current":
             base = math.log(self.corpus / (1 + max(r.frequency for r in rows)))
         else:
-            denominator = self.dictionary.tokens + alpha * self.dictionary.vocabulary
-            base = min(-math.log((self.dictionary.count(r) + alpha) / denominator) for r in rows)
+            # The quantised `walker_cost` dictionary.bin v4 stores, at this α.
+            walker_model = replace(self.dictionary.walker_model, alpha=alpha)
+            base = min(walker_model.cost((r.hanzi, r.tl_num)) for r in rows) / MILLI_NATS
         return base / len(pick.tl_notone) ** 0.2 * pick.syllable_count**0.2
 
     def best_path(self, syllables: list[str], model: str, alpha: float) -> list[Row] | None:
@@ -607,6 +626,15 @@ def exposure(args: argparse.Namespace) -> int:
     return 0
 
 
+def hanji_counts(rows: list[Row], dictionary: Dictionary) -> dict[str, int]:
+    """Corpus count per displayed hanji of one key. Rows that share a model word (`tshut-lâi` /
+    `tshut--lâi`) share one count, so each model word is added once."""
+    counts: dict[str, int] = defaultdict(int)
+    for hanzi, tl_num in {(r.hanzi, r.tl_num) for r in rows}:
+        counts[hanzi.replace("-", "")] += dictionary.walker_model.counts.get((hanzi, tl_num), 0)
+    return counts
+
+
 def d3(args: argparse.Namespace) -> int:
     """Plan D3: how often the engine's edge pick is not the word the corpus writes most for that key."""
     dictionary = Dictionary()
@@ -614,11 +642,13 @@ def d3(args: argparse.Namespace) -> int:
         picks = read_edge_picks(sources)
         differs = rare_pick = 0
         examples = []
+        # The winner is chosen among the rows the engine could pick under these sources.
+        visible = dictionary.by_tl_num if sources == "default" else dictionary.all_by_tl_num
         for key, pick_hanji in picks.items():
-            rows = dictionary.all_by_tl_num[key]
-            counts = defaultdict(int)
-            for r in rows:
-                counts[r.plain_hanji] += dictionary.count(r)
+            rows = visible.get(key)
+            if not rows:
+                continue
+            counts = hanji_counts(rows, dictionary)
             winner = max(sorted(counts), key=lambda h: counts[h])
             if not pick_hanji or pick_hanji == winner or counts[winner] == 0:
                 continue

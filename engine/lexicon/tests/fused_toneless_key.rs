@@ -32,7 +32,7 @@ use lexicon::prefix_index::PrefixIndex;
 use lexicon::search::{self, SearchParams};
 use phonetics::KeyFamily;
 
-use crate::common::{build_tkdb_v3, write_synthetic_fst};
+use crate::common::{build_tkdb_v4, write_synthetic_fst};
 use test_support::write_temp;
 
 /// Toneless input `tsua` must retrieve both the single-syllable `紙` and
@@ -50,7 +50,7 @@ fn fused_toneless_key_retrieves_single_and_multi_syllable_entries() {
         "phase1b-fused-toneless.fst",
         &[("tl:tsua", 1), ("tl:tsua", 2)],
     );
-    let dict_bytes = build_tkdb_v3(
+    let dict_bytes = build_tkdb_v4(
         b"TKDB",
         &[
             (0u16, 5_000u32, 1u8, "紙", "tsuá"),
@@ -95,7 +95,7 @@ fn fused_toneless_key_works_for_poj_path() {
         "phase1b-fused-toneless-poj.fst",
         &[("poj:chua", 1), ("poj:chua", 2)],
     );
-    let dict_bytes = build_tkdb_v3(
+    let dict_bytes = build_tkdb_v4(
         b"TKDB",
         &[
             (0u16, 3_134u32, 1u8, "紙", "chóa"),
