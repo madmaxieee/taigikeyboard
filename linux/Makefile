@@ -29,17 +29,26 @@ DESTDIR ?=
 # `rpm` / `arch` pass their LAYOUT; the default is the FHS / Debian one, which
 # the `.deb` and a source install share.
 LAYOUT ?= debian
-# Whether to install fonts. Set to 0 to avoid installing fonts, including their
-# license files.
+# Whether to install the bundled typefaces. 0 skips them, their OFL text and
+# the `copyright` header's sentence about them — for a downstream package
+# that leaves fonts to the system; deb / rpm / arch always carry them.
 INSTALL_FONTS ?= 1
-# The notices every layout carries: attribution, the third-party inventory,
-# the typefaces' OFL and the dictionary's per-source terms. Debian folds them
-# into its one `copyright` file; Fedora also ships the Apache text, which Arch
-# (its `licenses` package) and Debian (common-licenses) already hold.
-LICENSE_TEXTS := ../NOTICE ../THIRD_PARTY_LICENSES.md ../dictionary/LICENSE
+# The header's `@FONTS@` lines are that sentence: kept unprefixed, or dropped.
 ifeq ($(INSTALL_FONTS),1)
-  LICENSE_TEXTS += ../assets/fonts/OFL-1.1.txt
+  FONT_LICENSE := ../assets/fonts/OFL-1.1.txt
+  FONT_HEADER_SED := s/^@FONTS@//
+else ifeq ($(INSTALL_FONTS),0)
+  FONT_LICENSE :=
+  FONT_HEADER_SED := /^@FONTS@/d
+else
+  $(error INSTALL_FONTS must be 0 or 1, not '$(INSTALL_FONTS)')
 endif
+# The notices every layout carries: attribution, the third-party inventory,
+# the typefaces' OFL and the dictionary's per-source terms, in the order the
+# Debian `copyright` header names them. Debian folds them into its one
+# `copyright` file; Fedora also ships the Apache text, which Arch (its
+# `licenses` package) and Debian (common-licenses) already hold.
+LICENSE_TEXTS := ../NOTICE ../THIRD_PARTY_LICENSES.md $(FONT_LICENSE) ../dictionary/LICENSE
 ifeq ($(LAYOUT),debian)
   LIBEXECDIR := $(PREFIX)/libexec
   FONTDIR_TTF := $(PREFIX)/share/fonts/truetype/taigikeyboard
@@ -67,11 +76,14 @@ VERSION := $(shell grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
 # build into its own throwaway container.
 E2E ?=
 E2E_TRACE_GUARD := ../engine/scripts/lib/e2e-trace-guard.sh
-define refuse_e2e
+# INSTALL_FONTS=0 is refused too: the package metadata (control.in, the spec's
+# %files, PKGBUILD's license=) names the typefaces.
+define refuse_unpackageable
 	@if [ "$(E2E)" = 1 ]; then echo "error: E2E=1 binaries are never packaged" >&2; exit 1; fi
+	@if [ "$(INSTALL_FONTS)" = 0 ]; then echo "error: deb / rpm / arch always carry the bundled typefaces; INSTALL_FONTS=0 is for make install" >&2; exit 1; fi
 endef
 
-.PHONY: help i18n-check test lint check-target check check-cpp fmt build build-fcitx5 install install-fcitx5 uninstall component deb rpm arch run-engine run-settings clean
+.PHONY: help i18n-check test lint check-target check check-cpp fmt build build-fcitx5 install install-common install-ibus install-fcitx5 uninstall component deb rpm arch run-engine run-settings clean
 
 help:
 	@echo "Linux input method — dev loop"
@@ -170,7 +182,7 @@ component: data/taigikeyboard.xml.in
 install: install-common install-ibus install-fcitx5
 	@echo "installed under $(DESTDIR)$(PREFIX); restart fcitx5 (fcitx5 -r) and/or ibus (ibus restart)"
 
-# Things shared by both frontends: settings, dictionaries, icons, license.
+# Things shared by both frontends: settings, dictionaries, icons, fonts, licences.
 install-common: build
 	# Settings app:
 	install -Dm755 target/release/taigikeyboard-settings $(DESTDIR)$(PREFIX)/bin/taigikeyboard-settings
@@ -187,7 +199,6 @@ install-common: build
 	for icon in data/icons/hicolor/*/apps/taigikeyboard-*.png; do \
 	  install -Dm644 "$$icon" "$(DESTDIR)$(PREFIX)/share/$${icon#data/}" || exit 1; \
 	done
-	# Fonts:
 ifeq ($(INSTALL_FONTS),1)
 	# The bundled typefaces (the ones macOS and Windows ship), as fontconfig
 	# fallbacks for the Han characters the desktop's fonts lack (roadmap L4);
@@ -203,7 +214,7 @@ ifeq ($(LAYOUT),debian)
 	# Debian Policy §12.5: one `copyright` file, every non-common licence
 	# verbatim; Apache-2.0 is named in the header (common-licenses).
 	install -d $(DESTDIR)$(LICENSEDIR)
-	{ cat packaging/copyright-header; for f in $(LICENSE_TEXTS); do \
+	{ sed -e '$(FONT_HEADER_SED)' packaging/copyright-header; for f in $(LICENSE_TEXTS); do \
 	    name="$${f#../}"; name="$${name#assets/}"; \
 	    printf '\n%s\n%s\n\n' '========================================================================' "$$name"; cat "$$f"; \
 	  done; } > $(DESTDIR)$(LICENSEDIR)/copyright
@@ -251,7 +262,7 @@ uninstall:
 DEB_ROOT := target/deb/root
 DEB_FILE := target/taigikeyboard_$(VERSION)_amd64.deb
 deb:
-	$(refuse_e2e)
+	$(refuse_unpackageable)
 	rm -rf target/deb
 	$(MAKE) install PREFIX=/usr LAYOUT=debian DESTDIR=$(CURDIR)/$(DEB_ROOT)
 	install -d $(DEB_ROOT)/DEBIAN target/deb/debian
@@ -283,7 +294,7 @@ endef
 RPM_DIR := target/rpm
 RPM_FILE := target/taigikeyboard-$(VERSION)-1.x86_64.rpm
 rpm:
-	$(refuse_e2e)
+	$(refuse_unpackageable)
 	$(call stage_and_render,$(RPM_DIR),packaging/taigikeyboard.spec.in,$(RPM_DIR)/taigikeyboard.spec,fedora)
 	rpmbuild -bb --define "_topdir $(CURDIR)/$(RPM_DIR)" $(RPM_DIR)/taigikeyboard.spec
 	cp $(RPM_DIR)/RPMS/x86_64/taigikeyboard-$(VERSION)-1.x86_64.rpm $(RPM_FILE)
@@ -295,7 +306,7 @@ rpm:
 ARCH_DIR := target/arch
 ARCH_FILE := target/taigikeyboard-$(VERSION)-1-x86_64.pkg.tar.zst
 arch:
-	$(refuse_e2e)
+	$(refuse_unpackageable)
 	$(call stage_and_render,$(ARCH_DIR),packaging/PKGBUILD.in,$(ARCH_DIR)/PKGBUILD,arch)
 	cd $(ARCH_DIR) && PKGDEST=$(CURDIR)/target PKGEXT=.pkg.tar.zst makepkg --force --nodeps
 	test -f $(ARCH_FILE)
