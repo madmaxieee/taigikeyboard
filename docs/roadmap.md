@@ -10,7 +10,7 @@
 ## Summary
 
 - **Forward-looking work items only.** Shipped detail lives in `docs/releases/<version>/plan.md` + `changelog/mobile-<version>.md`.
-- **Active**: none — every scoped multi-PR plan has merged (see Closed phases). Pending dogfood is tracked in `docs/architecture/dogfood-checklist.md`.
+- **Active**: E1 unified word frequency (§ Active / In-flight items). Pending dogfood is tracked in `docs/architecture/dogfood-checklist.md`.
 - **Open candidates**: every unfinished, parked or brainstorm item across the roadmaps and reports is listed once in § Open candidates (unscheduled), with a link to its design.
 - **Release scope / timing / tag is the maintainer's call.**
 
@@ -18,9 +18,9 @@
 
 ## Active / In-flight items
 
-None.
+- **E1 — unified word frequency for the walker** (planned 2026-10-08): `kau3siu7` puts the composition 到受 at slot 0 over the dictionary word 教授 because the walker's edge cost mixes character counts with word counts. The walker gets one probability per `(hanji, TL)` from the segmented corpus (`word_unigrams.tsv`); the candidate-list sort is unchanged. P0–P4 (P5 maintainer-gated, not opened). Design + status: [`architecture/unified-word-frequency-roadmap.md`](architecture/unified-word-frequency-roadmap.md).
 
-Everything scoped through 2026-10-05 has merged (see Closed phases). Pending dogfood: `docs/architecture/dogfood-checklist.md`.
+Everything else scoped through 2026-10-05 has merged (see Closed phases). Pending dogfood: `docs/architecture/dogfood-checklist.md`.
 
 ---
 
