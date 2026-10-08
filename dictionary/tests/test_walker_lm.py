@@ -17,6 +17,7 @@ from build.walker_lm import (
     HELD_OUT_SOURCE,
     WalkerModel,
     load_model,
+    model_from_counts,
     record_costs,
 )
 from common.source_bits import DICT_BIN_COLUMNS
@@ -81,6 +82,12 @@ def test_counts_hold_out_typing_and_share_one_word_across_neutral_spellings(unig
     assert costs[2] == round(-math.log(6 / 19) * 1000) == 1153
     # Unseen words (到, the hanzi-less row) take the smoothed value, not a fallback.
     assert costs[3] == costs[4] == model.unseen_cost == round(-math.log(1 / 19) * 1000) == 2944
+
+
+def test_model_from_counts_without_the_held_out_column() -> None:
+    # A partial `corpus_bigrams --sources` run has no typing column; nothing is held out.
+    model = model_from_counts({("教授", "kau3siu7"): {"moe_kautian": 4}}, vocabulary=3, alpha=1.0)
+    assert (model.counts, model.tokens) == ({("教授", "kau3siu7"): 4}, 4)
 
 
 def test_certain_word_costs_zero() -> None:

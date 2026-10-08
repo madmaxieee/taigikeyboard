@@ -16,13 +16,15 @@ feeds the walker gold set's calib / final splits):
   to `DictionaryRecord.frequency`, which keeps feeding the candidate-list sort.
 
 `create_dictionary_bin` calls `record_costs` and writes the result into the
-v4 `walker_cost` field; the engine prices on it from P3 on.
+v4 `walker_cost` field; the engine prices on it from P3 on. `corpus_bigrams`
+builds its subsegment tie-break model through the same `model_from_counts`.
 """
 
 from __future__ import annotations
 
 import csv
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -65,34 +67,43 @@ class WalkerModel:
         return self.cost_of_count(0)
 
 
+def model_from_counts(
+    per_source: Mapping[ModelWord, Mapping[str, int]],
+    vocabulary: int,
+    alpha: float,
+) -> WalkerModel:
+    """Model over per-source counts, the `HELD_OUT_SOURCE` column left out."""
+    if not (math.isfinite(alpha) and alpha > 0):
+        raise ValueError(f"alpha must be finite and positive, got {alpha}")
+    counts = {word: sum(sources.values()) - sources.get(HELD_OUT_SOURCE, 0) for word, sources in per_source.items()}
+    return WalkerModel(counts, sum(counts.values()), vocabulary, alpha)
+
+
 def load_model(
     records: list[DictionaryRecord],
     unigrams_tsv: Path = UNIGRAMS_TSV,
     alpha: float = ALPHA,
 ) -> WalkerModel:
     """Counts per model word; fails on a malformed or unmatched TSV row."""
-    if not (math.isfinite(alpha) and alpha > 0):
-        raise ValueError(f"alpha must be finite and positive, got {alpha}")
     word_by_row = {(r.hanzi, r.tl): model_word(r) for r in records if r.hanzi}
-    counts: dict[ModelWord, int] = {}
+    per_source: dict[ModelWord, dict[str, int]] = {}
     with unigrams_tsv.open(encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f, delimiter="\t")
         sources = [c for c in reader.fieldnames or [] if c not in ("hanji", "tl", "count")]
         if HELD_OUT_SOURCE not in sources:
             raise ValueError(f"{unigrams_tsv.name}: no `{HELD_OUT_SOURCE}` column")
         for line, row in enumerate(reader, start=2):
-            per_source = [int(row[s]) for s in sources]
+            row_counts = {s: int(row[s]) for s in sources}
             total = int(row["count"])
-            if min(per_source) < 0 or total != sum(per_source):
-                raise ValueError(f"{unigrams_tsv.name}:{line}: count {total} != Σ sources {per_source}")
+            if min(row_counts.values()) < 0 or total != sum(row_counts.values()):
+                raise ValueError(f"{unigrams_tsv.name}:{line}: count {total} != Σ sources {list(row_counts.values())}")
             word = word_by_row.get((row["hanji"], row["tl"]))
             if word is None:
                 raise ValueError(f"{unigrams_tsv.name}:{line}: {row['hanji']}/{row['tl']} is not a dictionary record")
-            if word in counts:
+            if word in per_source:
                 raise ValueError(f"{unigrams_tsv.name}:{line}: second row for model word {word}")
-            counts[word] = total - int(row[HELD_OUT_SOURCE])
-    vocabulary = len({model_word(r) for r in records})
-    return WalkerModel(counts, sum(counts.values()), vocabulary, alpha)
+            per_source[word] = row_counts
+    return model_from_counts(per_source, len({model_word(r) for r in records}), alpha)
 
 
 def record_costs(records: list[DictionaryRecord], model: WalkerModel) -> list[int]:
