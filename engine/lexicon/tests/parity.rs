@@ -17,7 +17,7 @@ use lexicon::LexiconError;
 use lexicon::{EngineHandle, LexiconPaths};
 use phonetics::KeyFamily;
 
-use crate::common::{build_tkdb_v3, write_synthetic_fst};
+use crate::common::{build_tkdb_v4, write_synthetic_fst};
 use test_support::{build_tkwa, engine_install_lock, write_temp};
 
 // --- INVARIANT_LEX_FILTER_BITMASK ---------------------------------------
@@ -464,15 +464,15 @@ fn invariant_lex_install_search_serialization_no_panic() {
 
 // --- helpers -----------------------------------------------------------
 
-/// Convenience wrapper: emits a v3 TKDB binary with `syllable_count = 1` and
+/// Convenience wrapper: emits a v4 TKDB binary with `syllable_count = 1` and
 /// `kautian_subtag = 0` on every row. Callers that assert on syllable_count or
-/// subtag should use `common::build_tkdb_v3` / `build_tkdb_v3_subtag` directly.
+/// subtag should use `common::build_tkdb_v4` / `build_tkdb_v4_subtag` directly.
 fn synth_dictionary_bin(magic: &[u8; 4], rows: &[(u16, u32, &str, &str)]) -> Vec<u8> {
-    let rows_v3: Vec<(u16, u32, u8, &str, &str)> = rows
+    let rows_v4: Vec<(u16, u32, u8, &str, &str)> = rows
         .iter()
         .map(|(bm, freq, hanji, tl)| (*bm, *freq, 1u8, *hanji, *tl))
         .collect();
-    build_tkdb_v3(magic, &rows_v3)
+    build_tkdb_v4(magic, &rows_v4)
 }
 
 /// `bad-version` regression test still needs to forge an arbitrary version
@@ -489,6 +489,7 @@ fn synth_dictionary_bin_with_version(
             frequency: *freq,
             syllable_count: Some(1),
             kautian_subtag: None,
+            walker_cost: None,
             hanji,
             tl,
         })

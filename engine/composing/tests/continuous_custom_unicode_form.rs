@@ -9,7 +9,7 @@
 //! dedupes compared the raw roman bytes, so the pair never collided.
 
 use crate::common::{
-    build_dictionary_fst, build_syllables_fst, build_tkdb_v3, config, empty_association_bin,
+    build_dictionary_fst, build_syllables_fst, build_tkdb_v4, config, empty_association_bin,
     fetch_cells, install_lexicon, Fetch, Row,
 };
 use lexicon::CustomEntry;
@@ -52,7 +52,7 @@ fn fixture_rows() -> Vec<Row> {
 
 fn install() {
     let rows = fixture_rows();
-    let dict_path = write_temp("dictionary.bin", &build_tkdb_v3(&rows));
+    let dict_path = write_temp("dictionary.bin", &build_tkdb_v4(&rows));
     let fst_path = build_dictionary_fst(&rows);
     let association_path = write_temp("association.bin", &empty_association_bin());
     let syllables_path = build_syllables_fst(&["li2", "li7", "so2", "si5"]);

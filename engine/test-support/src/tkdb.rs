@@ -10,11 +10,14 @@ const TKWA_HEADER_SIZE: usize = 20;
 ///   `Some(n)` → v2+ layout with that count.
 /// - `kautian_subtag = None` → v1/v2 layout (no subtag bytes);
 ///   `Some(s)` → v3 layout with the 2-byte subtag after syllable_count.
+/// - `walker_cost = None` → v1–v3 layout (no walker-cost bytes);
+///   `Some(c)` → v4 layout with the 2-byte cost after the subtag.
 pub struct TkdbRow<'a> {
     pub bitmask: u16,
     pub frequency: u32,
     pub syllable_count: Option<u8>,
     pub kautian_subtag: Option<u16>,
+    pub walker_cost: Option<u16>,
     pub hanji: &'a str,
     pub tl: &'a str,
 }
@@ -42,6 +45,9 @@ pub fn build_tkdb(magic: &[u8; 4], version: u32, rows: &[TkdbRow<'_>]) -> Vec<u8
         }
         if let Some(subtag) = row.kautian_subtag {
             payload.extend_from_slice(&subtag.to_le_bytes());
+        }
+        if let Some(cost) = row.walker_cost {
+            payload.extend_from_slice(&cost.to_le_bytes());
         }
         payload.extend_from_slice(row.hanji.as_bytes());
         payload.extend_from_slice(row.tl.as_bytes());

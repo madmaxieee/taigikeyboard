@@ -1,8 +1,8 @@
-"""Tests for the dictionary.bin v3 kautian_subtag field (Phase 2).
+"""Tests for the dictionary.bin record: kautian_subtag (v3) and walker_cost (v4).
 
 Covers the bit-packing (`source_bits.encode_kautian_subtag`), the loader
 coercion from CSV cells (`dictionary_records._kautian_subtag` /
-`_as_bool`), and the v3 record byte layout (`create_dictionary_bin`).
+`_as_bool`), and the v4 record byte layout (`create_dictionary_bin`).
 """
 
 from __future__ import annotations
@@ -119,29 +119,40 @@ def _record(kautian_subtag: int) -> DictionaryRecord:
     )
 
 
-def test_version_is_3():
-    assert VERSION == 3
+def test_version_is_4():
+    assert VERSION == 4
 
 
-def test_encode_record_v3_layout_carries_subtag():
+def test_encode_record_v4_layout_carries_subtag_and_walker_cost():
     subtag = encode_kautian_subtag(has_main=False, accent_mask=0b11, has_name=False)
-    blob = encode_record(_record(subtag))
-    # <HIBBBH = bitmask, freq, hanzi_len, tl_len, syllable_count, kautian_subtag
-    bitmask, freq, hanzi_len, tl_len, syll, got_subtag = struct.unpack_from("<HIBBBH", blob, 0)
+    blob = encode_record(_record(subtag), walker_cost=12_345)
+    # <HIBBBHH = bitmask, freq, hanzi_len, tl_len, syllable_count, kautian_subtag, walker_cost
+    bitmask, freq, hanzi_len, tl_len, syll, got_subtag, walker_cost = struct.unpack_from(
+        "<HIBBBHH", blob, 0
+    )
     assert freq == 42
     assert syll == 1
     assert got_subtag == subtag
-    # Fixed prefix is 11 bytes (was 9 in v2); payload follows.
+    assert walker_cost == 12_345
+    # Fixed prefix is 13 bytes (11 in v3, 9 in v2); payload follows.
     assert hanzi_len == len("八".encode("utf-8"))
     assert tl_len == len(b"pueh")
-    assert len(blob) == 11 + hanzi_len + tl_len
+    assert len(blob) == 13 + hanzi_len + tl_len
+    assert blob[13:] == "八".encode() + b"pueh"
 
 
 def test_encode_record_rejects_reserved_subtag_bits():
     import pytest
 
     with pytest.raises(AssertionError):
-        encode_record(_record(0xF000))  # reserved bits set
+        encode_record(_record(0xF000), walker_cost=0)  # reserved bits set
+
+
+def test_encode_record_rejects_walker_cost_beyond_u16():
+    import pytest
+
+    with pytest.raises(struct.error):
+        encode_record(_record(0), walker_cost=0x1_0000)
 
 
 def test_pandas_isna_helpers_smoke():

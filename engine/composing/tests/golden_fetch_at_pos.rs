@@ -54,7 +54,7 @@
 use std::path::PathBuf;
 
 use crate::common::{
-    build_syllables_fst, build_tkdb_v3, config, derive_poj_notone, empty_association_bin,
+    build_syllables_fst, build_tkdb_v4, config, derive_poj_notone, empty_association_bin,
     fetch_at_pos_response, install_lexicon, wire_fetch_at_pos_response, Fetch, Row, Selected,
 };
 use lexicon::CustomEntry;
@@ -261,7 +261,7 @@ const SYLLABLE_SAMPLES: &[&str] = &[
 
 fn install_union_fixture() {
     let rows = fixture_rows();
-    let dict_path = write_temp("dictionary.bin", &build_tkdb_v3(&rows));
+    let dict_path = write_temp("dictionary.bin", &build_tkdb_v4(&rows));
     let fst_path = build_dictionary_fst(&rows);
     let association_path = write_temp("association.bin", &empty_association_bin());
     let syllables_path = build_syllables_fst(SYLLABLE_SAMPLES);

@@ -56,9 +56,9 @@ Custom binary format holding per-rowid dictionary entries.
 Authoritative spec lives in [`docs/engine/binary-format.md`](../engine/binary-format.md). Summary:
 
 - **Producer**: `dictionary/build/create_dictionary_bin.py`.
-- **Header (16 bytes)**: magic `"TKDB"` (4) · `version: u32` (currently `2`) · `count: u32` · `build_ts: u32`.
+- **Header (16 bytes)**: magic `"TKDB"` (4) · `version: u32` (currently `4`) · `count: u32` · `build_ts: u32`.
 - **Offset table**: `count × u32` absolute byte offsets (LE).
-- **Record**: `bitmask: u16 · frequency: u32 · hanzi_len: u8 · tl_len: u8 · syllable_count: u8 · hanzi_bytes · tl_bytes` — UTF-8 strings, fixed-layout prefix. v2 (v3.5.8 Phase 1) added the `syllable_count` byte for span-local candidate ranking.
+- **Record**: `bitmask: u16 · frequency: u32 · hanzi_len: u8 · tl_len: u8 · syllable_count: u8 · kautian_subtag: u16 · walker_cost: u16 · hanzi_bytes · tl_bytes` — UTF-8 strings, fixed-layout prefix. v2 (v3.5.8 Phase 1) added `syllable_count` for span-local candidate ranking; v3 added the kautian subcollection `kautian_subtag`; v4 (E1 P2) added the walker model cost `walker_cost`.
 - **Bitmask (13 bits)**: bits 0–7 = eight text sources (`kautian, taigitv, itaigi, sitbut, taihoa, taijit, kungge, stti`); bits 8–11 = four Hoklo-sourced dicts (`khpoo, khiin, dev, lkk`); bit 12 = `is_variant`.
 
 ### Readers (Rust-only post-Phase IV-B)
@@ -286,7 +286,7 @@ Distribution-channel design (OTA vs app-bundle) is out of scope for this audit.
 |---|---|---|
 | D1 | MARISA lib strategy (C++ bind vs Rust port) | **Resolved 2026-05-02** — chose Rust-native `fst` (v3.5.6 / PR #199); MARISA C++ bridges deleted under Path G. |
 | D2 | `dictionary.bin` + `association.bin` UTF-8 error policy | **Resolved** — Rust readers in `engine/lexicon` follow the platform "hanzi-optional, tl-required" contract; invalid records return `null`/`None`. |
-| D3 | `dictionary.bin` + `association.bin` version-bump policy | **Resolved** — `dictionary.bin` is at `version: u32 = 2` (v3.5.8 Phase 1, added `syllable_count`); `association.bin` remains at `version: u32 = 1`. Rust readers reject mismatch at open time, with `dictionary.bin` v1 surfacing an explicit `v1→v2` rebuild message. |
+| D3 | `dictionary.bin` + `association.bin` version-bump policy | **Resolved** — `dictionary.bin` is at `version: u32 = 4` (v2 added `syllable_count`, v3 `kautian_subtag`, v4 `walker_cost`); `association.bin` is at `version: u32 = 2` (word-key namespace). Rust readers reject mismatch at open time, with `dictionary.bin` v1–v3 surfacing an explicit `v1/v2/v3→v4` rebuild message. |
 | D4 | Lift bitmask semantics to single shared-core enum | **Resolved** — bitmask constants now live in Rust `engine/lexicon` (`KHIIN_BIT`, `VARIANT_BIT`; the unread `DEV_BIT` was dropped 2026-09-05). Platform `EnabledDictionaries` DTOs mirror the layout for UI toggles only. |
 | D5 | `custom_dictionary` version-namespace unification | **Resolved 2026-09-26** — no unified number: the engine owns custom-dictionary writes and migrates by shape across the Android, iOS and macOS / desktop namespaces, re-derives every entry once, and raises the stamp to 4 without ever lowering it (`user-data-engine-roadmap.md` U7 / U8, §6 above). |
 | D6 | Lift `CustomDictionaryDerivation` to shared core | **Resolved** — `rust_shipped` in `migration-inventory.csv` (v3.5.1 D9.4 phonetics slice) moved the transforms to `engine/phonetics/src/derivation.rs`; since user-data-engine-roadmap P7b / P8b the engine store calls them in-process and the Swift / Kotlin bridges are deleted. |

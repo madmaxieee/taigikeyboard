@@ -45,9 +45,9 @@ pub struct Row {
     pub freq: u32,
 }
 
-/// TKDB v3 `dictionary.bin`: every row rank-neutral with no kautian
-/// provenance (subtag 0).
-pub fn build_tkdb_v3(rows: &[Row]) -> Vec<u8> {
+/// TKDB v4 `dictionary.bin`: every row rank-neutral with no kautian
+/// provenance (subtag 0) and walker cost 0.
+pub fn build_tkdb_v4(rows: &[Row]) -> Vec<u8> {
     let tkdb_rows: Vec<TkdbRow<'_>> = rows
         .iter()
         .map(|row| TkdbRow {
@@ -55,11 +55,12 @@ pub fn build_tkdb_v3(rows: &[Row]) -> Vec<u8> {
             frequency: row.freq,
             syllable_count: Some(row.syll),
             kautian_subtag: Some(0),
+            walker_cost: Some(0),
             hanji: row.hanji,
             tl: row.tl,
         })
         .collect();
-    build_tkdb(b"TKDB", 3, &tkdb_rows)
+    build_tkdb(b"TKDB", 4, &tkdb_rows)
 }
 
 /// `dictionary.fst` with the toneless `tl:` family, the `poj:` family
