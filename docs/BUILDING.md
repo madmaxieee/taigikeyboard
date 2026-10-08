@@ -115,9 +115,6 @@ Notes:
 - iOS signing: the project names the maintainer's development team. Pick your
   own team under *Signing & Capabilities* for a device build, and leave that
   change out of your commits.
-- CI skips `corpus_total_freq_matches_dictionary_csv` in the engine suite
-  (`.github/workflows/engine.yml`); `make test` does not, so expect that one
-  failure locally.
 
 ## 5. Keep native artifacts in step with the engine
 

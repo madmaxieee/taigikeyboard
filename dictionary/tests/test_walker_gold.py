@@ -60,9 +60,9 @@ class SimulatorTests(unittest.TestCase):
         )
         return Simulator(dictionary, picks={})
 
-    def test_current_model_composes_the_single_characters(self) -> None:
-        # trace: current cost 到 5.3177 + 受 5.8460 = 11.1636 < 教授 11.2279
-        path = self.simulator({}).best_path(["kau3", "siu7"], "current", 0.0)
+    def test_pre_p3_model_composes_the_single_characters(self) -> None:
+        # trace: pre-P3 cost 到 5.3177 + 受 5.8460 = 11.1636 < 教授 11.2279
+        path = self.simulator({}).best_path(["kau3", "siu7"], "pre-p3", 0.0)
         self.assertEqual([r.hanzi for r in path], ["到", "受"])
 
     def test_a2_model_keeps_the_word_on_corpus_counts(self) -> None:

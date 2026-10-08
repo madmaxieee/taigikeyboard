@@ -4,6 +4,22 @@
 const TKDB_HEADER_SIZE: usize = 16;
 const TKWA_HEADER_SIZE: usize = 20;
 
+/// The corpus total the walker priced `DictionaryRecord.frequency` against
+/// before E1 P3 (`Σ frequency` of the 2026-09-26 `dictionary.csv`); the
+/// offline simulator freezes the same value (`dictionary/tools/walker_gold.py`
+/// `PRE_P3_CORPUS_TOTAL_FREQ`).
+const PRE_E1_CORPUS_TOTAL_FREQ: f64 = 13_056_588.0;
+
+/// A hermetic fixture's `walker_cost` derived from its `frequency` with the
+/// pre-E1 walker formula, `round(ln(PRE_E1_CORPUS_TOTAL_FREQ / (1 + freq)) ×
+/// 1000)`, so fixtures written against frequencies keep the segmentation
+/// they were written for. Tests that pin the cost itself set `walker_cost`
+/// explicitly. Production costs come from `dictionary/build/walker_lm.py`.
+pub fn walker_cost_from_fixture_frequency(frequency: u32) -> u16 {
+    let nats = (PRE_E1_CORPUS_TOTAL_FREQ / (1.0 + f64::from(frequency))).ln();
+    (nats * 1000.0).round().clamp(0.0, f64::from(u16::MAX)) as u16
+}
+
 /// One TKDB record. The optional fields drive the on-disk record layout,
 /// independently of the header `version` (tests forge mismatches on purpose):
 /// - `syllable_count = None` → v1 layout (no syllable_count byte);

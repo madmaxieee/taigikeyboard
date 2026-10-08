@@ -27,9 +27,9 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::path::PathBuf;
 
-use protos::engine::{CandidateMessage, DictionarySourceToggles};
+use protos::engine::CandidateMessage;
 
-use crate::common::{config, fetch_at_pos_response, Fetch};
+use crate::common::{config, default_sources_bitmask, fetch_at_pos_response, Fetch};
 
 const DEFAULT_SPLITS: &str = "dev,calib";
 const HELD_OUT_SPLIT: &str = "final";
@@ -43,21 +43,6 @@ const WORD_SEPARATOR: char = '+';
 const TYPED_SEPARATOR_VARIANT: &str = "tl_hyphen";
 /// Columns of `resolved.tsv` before the input variants.
 const ITEM_COLUMNS: usize = 7;
-
-/// The sources a fresh install enables on every platform (desktop
-/// `DictionarySourceToggles::DEFAULT`; iOS / Android defaults agree).
-fn default_sources_bitmask() -> u32 {
-    lexicon::api::dictionary_filter_bitmask(&DictionarySourceToggles {
-        kautian: true,
-        taigitv: true,
-        kungge: true,
-        stti: true,
-        khpoo: true,
-        lkk: true,
-        dev: true,
-        ..Default::default()
-    })
-}
 
 fn output_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../target/walker_gold")

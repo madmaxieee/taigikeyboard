@@ -26,9 +26,14 @@ use lexicon::{
 use phonetics::{canonicalize_poj_syllable, canonicalize_syllable};
 use protos::engine::composing_request::Method;
 use protos::engine::effect::Kind;
-use protos::engine::{AppConfig, ComposingRequest, ComposingResponse, Effect, FetchAtPos, Start};
+use protos::engine::{
+    AppConfig, ComposingRequest, ComposingResponse, DictionarySourceToggles, Effect, FetchAtPos,
+    Start,
+};
 use ranking::FrequencyData;
-use test_support::{build_tkdb, build_tkwa, fst_entry, write_fst_set, TkdbRow};
+use test_support::{
+    build_tkdb, build_tkwa, fst_entry, walker_cost_from_fixture_frequency, write_fst_set, TkdbRow,
+};
 
 const RANK_NEUTRAL_BITMASK: u16 = 1u16 << 11;
 
@@ -46,7 +51,8 @@ pub struct Row {
 }
 
 /// TKDB v4 `dictionary.bin`: every row rank-neutral with no kautian
-/// provenance (subtag 0) and walker cost 0.
+/// provenance (subtag 0) and the walker cost its frequency had before E1
+/// ([`walker_cost_from_fixture_frequency`]).
 pub fn build_tkdb_v4(rows: &[Row]) -> Vec<u8> {
     let tkdb_rows: Vec<TkdbRow<'_>> = rows
         .iter()
@@ -55,7 +61,7 @@ pub fn build_tkdb_v4(rows: &[Row]) -> Vec<u8> {
             frequency: row.freq,
             syllable_count: Some(row.syll),
             kautian_subtag: Some(0),
-            walker_cost: Some(0),
+            walker_cost: Some(walker_cost_from_fixture_frequency(row.freq)),
             hanji: row.hanji,
             tl: row.tl,
         })
@@ -423,6 +429,21 @@ impl Default for Fetch {
             context: ranking::ContextRanks::default(),
         }
     }
+}
+
+/// The sources a fresh install enables on every platform (desktop
+/// `DictionarySourceToggles::DEFAULT`; iOS / Android defaults agree).
+pub fn default_sources_bitmask() -> u32 {
+    lexicon::api::dictionary_filter_bitmask(&DictionarySourceToggles {
+        kautian: true,
+        taigitv: true,
+        kungge: true,
+        stti: true,
+        khpoo: true,
+        lkk: true,
+        dev: true,
+        ..Default::default()
+    })
 }
 
 /// `rows` as the frequency map a ranking reads.

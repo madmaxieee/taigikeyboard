@@ -12,7 +12,9 @@ use lexicon::{
     fetch_candidates_for_keys_with_barriers, ConsumedSpan, ContinuousFetchCtx, RawCandidate,
 };
 use phonetics::InputMode;
-use test_support::{build_tkdb, fst_entry, write_fst_set, TkdbRow};
+use test_support::{
+    build_tkdb, fst_entry, walker_cost_from_fixture_frequency, write_fst_set, TkdbRow,
+};
 
 /// `(key, rowid)` → FST `key || 0xFF || rowid_le_4` (`key` carries its
 /// family prefix, `tl:tsua`). `lookup_exact` resolves `rowid`;
@@ -52,7 +54,8 @@ pub fn build_tkdb_legacy(
 }
 
 /// 5-tuple convenience for v4 fixtures: `(bitmask, frequency, syllable_count,
-/// hanji, tl)` with `kautian_subtag = 0` and `walker_cost = 0` on every row.
+/// hanji, tl)` with `kautian_subtag = 0` and the walker cost derived from the
+/// frequency ([`walker_cost_from_fixture_frequency`]) on every row.
 /// The default for tests that don't exercise subcollection provenance.
 /// Delegates to `build_tkdb_v4_subtag`.
 pub fn build_tkdb_v4(magic: &[u8; 4], rows: &[(u16, u32, u8, &str, &str)]) -> Vec<u8> {
@@ -65,7 +68,7 @@ pub fn build_tkdb_v4(magic: &[u8; 4], rows: &[(u16, u32, u8, &str, &str)]) -> Ve
 
 /// 6-tuple convenience for v4 fixtures with explicit kautian subtags:
 /// `(bitmask, frequency, syllable_count, kautian_subtag, hanji, tl)`;
-/// `walker_cost = 0` on every row.
+/// the walker cost derived from the frequency on every row.
 pub fn build_tkdb_v4_subtag(magic: &[u8; 4], rows: &[(u16, u32, u8, u16, &str, &str)]) -> Vec<u8> {
     let dict_rows: Vec<TkdbRow<'_>> = rows
         .iter()
@@ -74,7 +77,7 @@ pub fn build_tkdb_v4_subtag(magic: &[u8; 4], rows: &[(u16, u32, u8, u16, &str, &
             frequency: *freq,
             syllable_count: Some(*syll),
             kautian_subtag: Some(*subtag),
-            walker_cost: Some(0),
+            walker_cost: Some(walker_cost_from_fixture_frequency(*freq)),
             hanji,
             tl,
         })
