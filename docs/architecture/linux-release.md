@@ -31,7 +31,12 @@ maintain them.
 All three are packed from the SAME `make install PREFIX=/usr` recipe into a
 staging root — no second build inside rpmbuild or makepkg. One package holds
 both shells (Debian and Fedora pick the framework through `fcitx5 | ibus`;
-pacman has no alternatives, so Arch requires `fcitx5`). Shared paths:
+pacman has no alternatives, so Arch requires `fcitx5`). For downstream split
+packages, `make install` is the sum of `install-common` (settings window,
+dictionaries, icons, typefaces, licence texts), `install-ibus` and
+`install-fcitx5`; `INSTALL_FONTS=0` leaves out the typefaces, their OFL text
+and the `copyright` header's sentence about them. `deb` / `rpm` / `arch`
+refuse `INSTALL_FONTS=0` — their metadata names the typefaces. Shared paths:
 
 | Path | What |
 |---|---|
