@@ -9,7 +9,7 @@ disable-model-invocation: false
 Answer one question: **can a user on `<base-ref>` upgrade to `<target-ref>` without a crash, a forced data wipe, or a store-rejected install?**
 
 Run from `main`. User supplies `<base-ref> [<target-ref>]`.
-Example: `/upgrade-check v3.6.2 v3.6.3` · `/upgrade-check v3.6.2` (target = HEAD).
+Example: `/upgrade-check mobile-3.7.0 mobile-3.8.0` · `/upgrade-check desktop-3.8.0` (target = HEAD).
 
 It only reads two refs, so it is safe on a dirty tree.
 
@@ -131,6 +131,6 @@ Rules:
 
 ## Notes
 
-- Refs can be tags (`v3.6.2`), branches, or SHAs.
+- Refs can be tags (`mobile-<version>`, `desktop-<version>`; mobile releases before 3.6.8 are `v<version>`), branches, or SHAs.
 - If `<base-ref>` is not an ancestor of `<target-ref>`, say so — a non-linear comparison may miss reverts.
 - A path above missing at `<target>` → locate the moved file by its constant name and report the stale path as a finding.

@@ -230,9 +230,10 @@ git commit -m "desktop v<target>: release prep + changelog"
 git push origin main
 ```
 
-Report the commit SHA, the release range, and every rendered section. Ask the
-maintainer to read the changelog back before staging: deterministic validation
-cannot tell whether a sentence describes the behavior that shipped.
+Report the commit SHA, the release range, and every rendered section, then go
+straight to staging: the maintainer reads the changelog on the draft page before
+publishing, since deterministic validation cannot tell whether a sentence
+describes the behavior that shipped.
 
 ## 7. Stage all three installers
 

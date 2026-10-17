@@ -73,7 +73,7 @@ Sort every user-visible change into one of three buckets before writing anything
 
 - **iOS-only / Android-only** → that platform's store notes, plus its detailed-changelog section.
 - **Shared** (engine, dictionary, behavior landing on both mobile platforms) → both store notes, plus the shared detailed-changelog section. Describe it by what a phone user sees, not by the platforms it landed on.
-- **macOS-only / Windows-only** → NOT this release. Desktop work is recorded in the desktop train's own `changelog/desktop-v<version>.md` when a desktop release is cut — see § Desktop train. Never either store note.
+- **macOS-only / Windows-only / Linux-only** → NOT this release. Desktop work is recorded in the desktop train's own `changelog/desktop-v<version>.md` when a desktop release is cut — see § Desktop train. Never either store note.
 
 Run the `upgrade-check` procedure for `<base-tag> → HEAD`:
 
@@ -177,5 +177,5 @@ macOS, Windows and Linux are a separate train with its own version, skill (`rele
 - Tag only the release commit made in § 6, only as `mobile-<version>`, and never move or delete an existing tag.
 - Never request, store, or use signing certificates, keystores, API keys, or store credentials.
 - Never upload a build, edit a live store listing, or submit production.
-- Never run the macOS release or publish scripts, and never put macOS-only work in a store note.
+- Never run the macOS release or publish scripts, and never put desktop-only (macOS / Windows / Linux) work in a store note.
 - Surface the first actionable rebuild or validation failure and stop before commit.
