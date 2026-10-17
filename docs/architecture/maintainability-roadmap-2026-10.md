@@ -2,7 +2,7 @@
 
 > **Type**: Planning (PR table over the 2026-10-09 audit)
 > **Keywords**: `refactor`, `dead code`, `parity`, `engine-owned commit`, `dictionary search op`, `desktop-core`, `layering`, `docs drift`
-> **Status**: in progress — H, A1a (#473), A1b (#475), A2 (#490) merged, D1 (#503), D2 (#504) merged; next ③ double-space op. The maintainer decides order and start
+> **Status**: paused by the maintainer 2026-10-14 ("pause to do other feature rounds") — H, A1a, A1b, A2, D1, D2 merged; every other row pending. The maintainer decides when and where to resume
 > **Source**: `docs/reports/2026-10-09-audit-all.md` (frozen snapshot on `68f2481b`; §2 findings, §4 draft rounds, §5 open decisions)
 > **Predecessor**: the 2026-09-30 audit (`docs/reports/2026-09-30-audit-all.md`), rounds R1–R12 complete 2026-10-01 (#274–#331)
 > **Session memory**: project memory `project_maintainability_audit_2026_10_09.md`
@@ -34,6 +34,7 @@ Each PR 200–500 LOC. Pre-gates per `~/.claude/rules/round-workflow.md`; Codex 
 | C3 | desktop-core + macOS / Windows / Linux over C1; `lookup_tl` from the engine (lookup-button drift closed) | refactor · `refactor-reviewer` · Windows box check | 1 | Pending |
 | D1 | `PredictNext` returns `document_text`, `wrote_romanization`, `earns_auto_space` per prediction; golden incl. empty-bracket case | feature · Codex design pre-review · `phonetics-specialist` | 1 | Merged #503 `276b8343` 2026-10-14 — shipped as tap-time composing op `CommitPrediction` (resolves text + counts usage; Codex pre-review F1(c)) instead of per-prediction fields |
 | D2 | iOS + Android prediction taps over D1 (`CommitPrediction`): phone resolvers (`formatOutputText` / `markedCellCommit` / `resolveTaigiCommit` / `resolveUnmarkedCommit` / `resolveMarkedCellCommit`), `effectiveSwapped` and iOS `UsageRecorder` deleted; usage recorded by the engine; `shouldAppendAutoSpace` stays for English / raw-preedit commits | refactor · `refactor-reviewer` · dogfood S1 / S2 | 1 | Merged #504 `0f7f4c82` 2026-10-14 |
+| D2b | Double-space period as an engine op: one rule for the two-space window, the period character (`. ` / full-width `。`) and the not-composing gate; iOS `ActionHandler+KeyActions.swift::doubleSpacePeriodReplacement` and Android `TextInputKeyHandler.commitSpaceOrDoubleSpacePeriod` (twins since R2a #499, "drift causes silent divergence") call it | feature / refactor · Codex design pre-review · lockstep iOS + Android | 1 | Pending — was the next round when paused |
 | D3 | Mobile TPS keys over `TpsKey` (one op per key, engine-owned Space-separator rule, one gate) | refactor · `phonetics-specialist` · dogfood S2 | 1 | Pending |
 | D4 | Engine emits TPS cell text + §42 single-script split in `CandidateMessage`; shells drop per-render `TlDisplayToTps` and split / dedupe ×3 | feature / refactor · `refactor-reviewer` | 1–2 | Pending |
 | E1 | `composing::requests::fetch_at_pos(req, rows: &dyn UserRowsSource)` owns two-pass ranking; dispatch passes `Option<&UserDataStores>`; 5 reach-throughs + 4 mirror-row conversions gone; `dispatch/case.rs` → `phonetics::case_transform` | refactor · `refactor-reviewer` | 1 | Pending |
@@ -49,7 +50,7 @@ Each PR 200–500 LOC. Pre-gates per `~/.claude/rules/round-workflow.md`; Codex 
 | G3 | iOS: Platform-layer `SharedSettings.shared` consumers injected; `ActionHandler` deps injected (iOS `UsageRecorder` deleted by D2); Engine-layer purity | refactor · `refactor-reviewer` · after #471 | 1 | Pending |
 | G4 | Mobile Learning Records view models (one listing call); English current-word split, last-used date, count rule aligned | refactor + parity · maintainer confirms decisions 7–8 | 1–2 | Pending |
 
-Active PR pointer: none (next: ③ double-space op, own small PR; A3 still pending).
+Active PR pointer: none (paused).
 
 ## Best practices alignment
 

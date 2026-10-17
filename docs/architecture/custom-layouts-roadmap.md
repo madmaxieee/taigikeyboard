@@ -2,7 +2,7 @@
 
 > **Type**: Planning (feature)
 > **Keywords**: `custom layout`, `layout editor`, `romanization keyboard`, `Layout tab`
-> **Status**: Active — phase 1 (iOS) merged; phase 2 (Android) in two PRs, 2a (data, storage, keyboard) merged (#506), 2b (editor + UI) merged (#507); device dogfood pending
+> **Status**: Active — phases 1–4 merged, follow-up fixes #511 / #513 / #514 merged; device dogfood pending
 
 ---
 

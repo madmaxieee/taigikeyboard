@@ -16,8 +16,8 @@
 
 ## Active / In-flight items
 
-- **Custom layouts (mobile)** — [`architecture/custom-layouts-roadmap.md`](architecture/custom-layouts-roadmap.md): phase 1 iOS merged (#505), phase 2 Android merged (2a #506, 2b #507); device dogfood pending.
-- **Maintainability audit follow-up (2026-10)** — [`architecture/maintainability-roadmap-2026-10.md`](architecture/maintainability-roadmap-2026-10.md), rounds H, A–G over [`reports/2026-10-09-audit-all.md`](reports/2026-10-09-audit-all.md). In progress: H, A1a (#473), A1b (#475), A2 (#490) merged; next A3.
+- **Custom layouts (mobile)** — [`architecture/custom-layouts-roadmap.md`](architecture/custom-layouts-roadmap.md): all phases merged; device dogfood pending.
+- **Maintainability audit follow-up (2026-10)** — [`architecture/maintainability-roadmap-2026-10.md`](architecture/maintainability-roadmap-2026-10.md), rounds over [`reports/2026-10-09-audit-all.md`](reports/2026-10-09-audit-all.md). **Paused** by the maintainer 2026-10-14; resume point is the maintainer's call.
 
 ---
 
@@ -30,12 +30,6 @@ One line each; the linked section holds the design, the measurements and the ope
 | Item | Status | Where |
 |---|---|---|
 | Retire the old dictionary `frequency` after E1 | Recorded, not started. Still read: the equal-cost tie-break (`CandidateSortKey` −score / −freq; ~69 % of rows are corpus-unseen and share one cost), the search-page tie-break, `association.bin` dictionary-derived counts (`associations.py`), CSV / FST row order + duplicate max-aggregation (`merge_csv.py`), the `dict.bin` u32 field, `CandidateMessage.score`. Steps: pick a replacement tie-break for unseen words, a count source for the association rows, then the format bump. A custom twin of a dictionary word carries no corpus cost (sorts below its priced homophone in the list) | [`reports/2026-10-08-e1-p5b-list-sort.md`](reports/2026-10-08-e1-p5b-list-sort.md) §5 |
-
-**Desktop**
-
-| Item | Status | Where |
-|---|---|---|
-| Windows candidate window is not exposed to UI Automation (Narrator stays silent on it; settings window is covered) | Known gap, not started | `windows/crates/taigi-windows-tsf/src/ui/` |
 
 **Mobile parity (inventory 2026-10-12)** — pending code; directions decided unless marked.
 
