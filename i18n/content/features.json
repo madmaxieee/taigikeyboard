@@ -475,9 +475,9 @@
       "paragraphs": [
         {
           "text": {
-            "hanji": "「拍的羅馬字囥第一格」拍開了後，候選詞頭一格就是你拍的羅馬字，揤一下就送出。",
-            "tailo": "“Phah ê lô-má-jī khǹg tē-it keh” phah-khui liáu-āu, hāu-suán-sû thâu tsi̍t keh tō sī lí phah ê lô-má-jī, tshi̍h tsi̍t-ē tō sàng-tshut.",
-            "poj": "“Phah ê lô-má-jī khǹg tē-it keh” phah-khui liáu-āu, hāu-soán-sû thâu chi̍t keh tō sī lí phah ê lô-má-jī, chhi̍h chi̍t-ē tō sàng-chhut.",
+            "hanji": "「選字窗顯示拍的字」拍開了後，候選詞頭一格就是你拍的羅馬字，揤一下就送出。",
+            "tailo": "“Suán-jī-thang hián-sī phah ê jī” phah-khui liáu-āu, hāu-suán-sû thâu tsi̍t keh tō sī lí phah ê lô-má-jī, tshi̍h tsi̍t-ē tō sàng-tshut.",
+            "poj": "“Soán-jī-thang hián-sī phah ê jī” phah-khui liáu-āu, hāu-soán-sû thâu chi̍t keh tō sī lí phah ê lô-má-jī, chhi̍h chi̍t-ē tō sàng-chhut.",
             "en": "With Show Typed Text First on, the first candidate is exactly what you typed. Tap it to enter it.",
             "ja": "「入力中の文字を先頭に表示」をオンにすると、候補の先頭に入力したローマ字が表示され、タップで入力できます。"
           },
