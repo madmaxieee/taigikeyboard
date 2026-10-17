@@ -9,14 +9,13 @@
 ## Summary
 
 - **Forward-looking work only.** Shipped versions: [`CHANGELOG.md`](../CHANGELOG.md) (release notes per train); the v3.5.8 plan archive is [`releases/v3.5.8/plan.md`](releases/v3.5.8/plan.md). Shipped designs live in the `architecture/*-roadmap.md` docs and in `architecture/behavioral-invariants.md`.
-- Pending device dogfood: [`architecture/dogfood-checklist.md`](architecture/dogfood-checklist.md).
+- Device dogfood items: [`architecture/dogfood-checklist.md`](architecture/dogfood-checklist.md) (none pending as of 2026-10-18).
 - Release scope, timing and tags are the maintainer's call; nothing below is assigned to a release.
 
 ---
 
 ## Active / In-flight items
 
-- **Custom layouts (mobile)** — [`architecture/custom-layouts-roadmap.md`](architecture/custom-layouts-roadmap.md): all phases merged; device dogfood pending.
 - **Maintainability audit follow-up (2026-10)** — [`architecture/maintainability-roadmap-2026-10.md`](architecture/maintainability-roadmap-2026-10.md), rounds over [`reports/2026-10-09-audit-all.md`](reports/2026-10-09-audit-all.md). **Paused** by the maintainer 2026-10-14; resume point is the maintainer's call.
 
 ---

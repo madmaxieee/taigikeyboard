@@ -2,7 +2,7 @@
 
 > **Type**: Planning (feature)
 > **Keywords**: `custom layout`, `layout editor`, `romanization keyboard`, `Layout tab`
-> **Status**: Active — phases 1–4 merged, follow-up fixes #511 / #513 / #514 merged; device dogfood pending
+> **Status**: Done — phases 1–4 and follow-up fixes #511 / #513 / #514 merged; device dogfood passed 2026-10-18
 
 ---
 
