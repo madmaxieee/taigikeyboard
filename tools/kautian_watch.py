@@ -8,6 +8,7 @@ import hashlib
 import html
 import io
 import json
+import re
 import subprocess
 import xml.etree.ElementTree as ET
 import zipfile
@@ -21,6 +22,7 @@ OFFICE = "{urn:oasis:names:tc:opendocument:xmlns:office:1.0}"
 TEXT = "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}"
 TITLE = "chore(dictionary): MoE kautian.ods has new data"
 START, END = "<!-- kautian-watch:start -->", "<!-- kautian-watch:end -->"
+FORMAT_MARKER = "<!-- kautian-watch:format:2 -->"
 # These are source-record identifiers, not dictionary word/deduplication keys.
 SOURCE_KEYS = {
     "詞目": ("詞目id",),
@@ -219,67 +221,158 @@ def safe(value: str, limit: int | None = None) -> str:
     return "".join(replacements.get(char, html.escape(char)) for char in value)
 
 
-def render(differences: list[SheetDiff], *, brief: bool) -> str:
+def counts(sheet: SheetDiff) -> tuple[int, int, int]:
+    return (
+        sum(row.count for row in sheet.added),
+        sum(row.count for row in sheet.removed),
+        len(sheet.modified),
+    )
+
+
+def summary_table(sheets: list[SheetDiff], *, brief: bool) -> str:
     lines = [
-        "## Data diff",
-        "",
         "| Sheet | Before | After | Added | Removed | Modified |",
         "| --- | ---: | ---: | ---: | ---: | ---: |",
     ]
-    for sheet in differences:
+    for sheet in sheets:
+        totals = (sheet.total_before, sheet.total_after, *counts(sheet))
         lines.append(
-            f"| {safe(sheet.name, 80)} | {sheet.total_before} | {sheet.total_after} | "
-            f"{sum(row.count for row in sheet.added)} | "
-            f"{sum(row.count for row in sheet.removed)} | {len(sheet.modified)} |"
+            f"| {safe(sheet.name, 80 if brief else None)} | "
+            + " | ".join(f"{number:,}" for number in totals)
+            + " |"
         )
-    lines += [
-        "",
-        "Counts are raw source rows. Modified rows are excluded from additions/removals.",
-        "Only unique source IDs in both complete sheets pair modifications; other changes use −/+.",
+    return "\n".join(lines)
+
+
+def code_text(value: str) -> str:
+    # Fenced code preserves Unicode; JSON escaping keeps controls on one signed line.
+    # Marker-like source text must not confuse the generated-section parser.
+    return json.dumps(value, ensure_ascii=False)[1:-1].replace("<", "\\u003c")
+
+
+def column_label(columns: Row, index: int) -> str:
+    if index >= len(columns) or not columns[index]:
+        return f"Column {index + 1}"
+    name = columns[index]
+    return name if columns.count(name) == 1 else f"{name} [column {index + 1}]"
+
+
+def row_context(columns: Row, row: Row) -> str:
+    fields = dict(zip(columns, row))
+    identifiers = [
+        f"{column}={value}" for column, value in zip(columns, row) if column.endswith("id")
     ]
-    for sheet in differences:
-        if not changed(sheet):
-            continue
-        lines += ["", f"### {safe(sheet.name, 80 if brief else None)}"]
-        if sheet.columns_before != sheet.columns_after:
-            lines += ["Sheet added/removed or column headers changed."]
-        for label, columns in (
-            ("Before columns", sheet.columns_before),
-            ("After columns", sheet.columns_after),
-        ):
-            lines.append(
-                f"{label}: {safe(json.dumps(columns, ensure_ascii=False), 300 if brief else None)}"
+    name = fields.get("漢字", fields.get("詞目漢字", fields.get("羅馬字", "")))
+    if target := fields.get("對應詞目漢字"):
+        name += f" → {target}"
+    return code_text(" · ".join([*identifiers, name] if name else identifiers))
+
+
+def diff_hunks(sheet: SheetDiff, *, brief: bool):
+    if not brief or sheet.columns_before != sheet.columns_after:
+        yield "\n".join(
+            [
+                "@@ Column headers (null means sheet absent) @@",
+                "- " + json.dumps(sheet.columns_before, ensure_ascii=False).replace("<", "\\u003c"),
+                "+ " + json.dumps(sheet.columns_after, ensure_ascii=False).replace("<", "\\u003c"),
+            ]
+        )
+    for modification in sheet.modified:
+        columns = sheet.columns_before or ()
+        context = row_context(columns, modification.before)
+        name_index = columns.index("漢字") if "漢字" in columns else None
+        if name_index is not None:
+            old_name = (
+                modification.before[name_index] if name_index < len(modification.before) else ""
             )
-        examples = [[("−", row.values, row.count)] for row in sheet.removed]
-        examples += [[("+", row.values, row.count)] for row in sheet.added]
-        for modification in sheet.modified:
-            examples.append(
-                [
-                    ("modified before", modification.before, 1),
-                    ("modified after", modification.after, 1),
-                ]
+            new_name = (
+                modification.after[name_index] if name_index < len(modification.after) else ""
             )
-        for group in examples[:4] if brief else examples:
-            group_lines = []
-            for label, values, count in group:
-                group_lines.append(
-                    f"- {label} ×{count}: {safe(json.dumps(values, ensure_ascii=False), 500 if brief else None)}"
+            if old_name != new_name:
+                context += " → " + code_text(new_name)
+        lines = [f"@@ {context} @@"]
+        for index in range(max(len(modification.before), len(modification.after))):
+            before = modification.before[index] if index < len(modification.before) else None
+            after = modification.after[index] if index < len(modification.after) else None
+            label = code_text(column_label(columns, index))
+            if before != after:
+                for sign, value in (("-", before), ("+", after)):
+                    display = code_text(value) if value else "(empty)"
+                    lines.append(f"{sign} {label}: {display}")
+            elif not brief:
+                lines.append(f"  {label}: {code_text(before) if before else '(empty)'}")
+        yield "\n".join(lines)
+    for sign, rows, columns in (
+        ("+", sheet.added, sheet.columns_after),
+        ("-", sheet.removed, sheet.columns_before),
+    ):
+        for row in rows:
+            columns = columns or ()
+            context = row_context(columns, row.values)
+            suffix = f" · ×{row.count}" if row.count > 1 else ""
+            lines = [f"@@ {context}{suffix} @@"]
+            for index, value in enumerate(row.values):
+                lines.append(
+                    f"{sign} {code_text(column_label(columns, index))}: "
+                    + (code_text(value) or "(empty)")
                 )
-            lines.append("\n".join(group_lines))
-        if brief and len(examples) > 4:
-            lines.append("More rows in the full report.")
-    if not any(changed(sheet) for sheet in differences):
-        lines += ["", "No data differences from the committed capture."]
-    if brief:
-        bounded, length = [], 0
-        for block in lines:
-            if length + len(block) + 1 > 24000:
-                bounded.append("\nSummary truncated; see full report.")
+            yield "\n".join(lines)
+
+
+def render(differences: list[SheetDiff], *, brief: bool) -> str:
+    active = [sheet for sheet in differences if changed(sheet)]
+    totals = [sum(counts(sheet)[index] for sheet in active) for index in range(3)]
+    blocks = [
+        "## Data diff",
+        (
+            f"**{totals[0]} added · {totals[1]} removed · {totals[2]} modified** "
+            f"across {len(active)} sheets."
+        ),
+        "Counts refer to source rows; modified rows are counted separately.",
+    ]
+    if not active:
+        blocks.append("No data differences from the committed capture.")
+    tables = [summary_table(active, brief=brief)] if active else []
+    tables.append(
+        f"<details>\n<summary>All {len(differences)} sheets</summary>\n\n"
+        + summary_table(differences, brief=brief)
+        + "\n\n</details>"
+    )
+    omitted = "Summary truncated; see full report for remaining changes."
+    limit = 24000 if brief else None
+    for table in tables:
+        if limit and len("\n\n".join([*blocks, table, omitted])) > limit:
+            return "\n\n".join([*blocks, omitted]) + "\n"
+        blocks.append(table)
+    for sheet in active:
+        labels = ", ".join(
+            f"{number} {label}"
+            for number, label in zip(counts(sheet), ("added", "removed", "modified"))
+            if number
+        )
+        title = f"### {safe(sheet.name, 80 if brief else None)} — " + (
+            labels or "column headers changed"
+        )
+        hunks, fence_length, body_length = [], 3, 0
+        truncated = False
+        remaining = limit - len("\n\n".join([*blocks, title, omitted])) - 24 if limit else None
+        for hunk in diff_hunks(sheet, brief=brief):
+            candidate_fence = max(
+                fence_length, max((len(m[0]) + 1 for m in re.finditer(r"`+", hunk)), default=3)
+            )
+            candidate_length = body_length + len(hunk) + 2
+            if remaining is not None and candidate_length + 2 * candidate_fence > remaining:
+                truncated = True
                 break
-            bounded.append(block)
-            length += len(block) + 1
-        lines = bounded
-    return "\n".join(lines) + "\n"
+            hunks.append(hunk)
+            body_length, fence_length = candidate_length, candidate_fence
+        if hunks:
+            fence = "`" * fence_length
+            blocks.append(title + f"\n\n{fence}diff\n" + "\n\n".join(hunks) + f"\n{fence}")
+        if truncated:
+            blocks.append(omitted)
+            break
+    return "\n\n".join(blocks) + "\n"
 
 
 def generate(arguments: argparse.Namespace) -> None:
@@ -302,20 +395,23 @@ def generate(arguments: argparse.Namespace) -> None:
     )
     for filename, brief in (("summary.md", True), ("diff.md", False)):
         (arguments.output / filename).write_text(
-            f"Baseline commit: `{arguments.baseline_commit}`\n\n"
+            ("" if brief else f"Baseline commit: `{arguments.baseline_commit}`\n\n")
             + render(differences, brief=brief),
             encoding="utf-8",
         )
 
 
-def replace_section(body: str, section: str) -> str:
+def generated_section(body: str) -> str | None:
     if START not in body and END not in body:
-        result = body.rstrip() + "\n\n" + section
-    else:
-        if body.count(START) != 1 or body.count(END) != 1 or body.index(START) > body.index(END):
-            raise ValueError("Issue has malformed generated-section markers; preserve it unchanged")
-        start, end = body.index(START), body.index(END) + len(END)
-        result = body[:start] + section + body[end:]
+        return None
+    if body.count(START) != 1 or body.count(END) != 1 or body.index(START) > body.index(END):
+        raise ValueError("Issue has malformed generated-section markers; preserve it unchanged")
+    return body[body.index(START) : body.index(END) + len(END)]
+
+
+def replace_section(body: str, section: str) -> str:
+    old = generated_section(body)
+    result = body.replace(old, section, 1) if old is not None else body.rstrip() + "\n\n" + section
     if len(result) > 60000:
         raise ValueError("Issue body too large; preserve human text unchanged")
     return result
@@ -355,7 +451,8 @@ def publish(arguments: argparse.Namespace) -> None:
     identity = (arguments.report / "fingerprint.txt").read_text(encoding="utf-8")
     marker = f"<!-- kautian-watch:data:{identity} -->"
     current = github(f"{endpoint}/{matches[0]['number']}") if matches else None
-    if current and marker in (current["body"] or ""):
+    existing = generated_section(current["body"] or "") if current else None
+    if existing and marker in existing and FORMAT_MARKER in existing:
         print("Issue already has this data diff")
         return
     report = json.loads((arguments.report / "report.json").read_text(encoding="utf-8"))
@@ -364,11 +461,16 @@ def publish(arguments: argparse.Namespace) -> None:
         return
     summary = (arguments.report / "summary.md").read_text(encoding="utf-8")
     section = (
-        f"{START}\n{marker}\n{summary}\n"
+        f"{START}\n{marker}\n{FORMAT_MARKER}\n{summary}\n"
+        f"[Full report (Markdown + JSON)]({arguments.artifact_url}) · [Detection run]({arguments.run_url})\n\n"
+        "<details>\n<summary>Comparison details</summary>\n\n"
+        f"- Baseline commit: `{report['baseline_commit']}`\n"
         f"- Upstream Last-Modified: {safe(arguments.last_modified, 200)}\n"
         f"- Upstream file SHA-256: `{report['upstream_file_sha256']}`\n"
-        f"- [Full diff (Markdown + JSON)]({arguments.artifact_url}) — retained 90 days; GitHub sign-in required.\n"
-        f"- [Detection run]({arguments.run_url})\n{END}"
+        "- Full report retained for 90 days; GitHub sign-in required.\n"
+        "- Modified rows pair unique source IDs in both complete sheets. "
+        "Other changes appear as additions/removals.\n\n</details>\n"
+        f"{END}"
     )
     if current:
         github(

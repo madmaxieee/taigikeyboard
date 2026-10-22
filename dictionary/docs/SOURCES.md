@@ -20,16 +20,20 @@ current-at-release values when cutting a dictionary refresh.
   standard-library tool `tools/kautian_watch.py` compares all sheets' data rows
   with the committed capture, ignoring packaging, styles and row ordering.
   Duplicate rows retain their counts. The issue reports before/after totals,
-  additions, removals and modifications per sheet, with examples and a linked
-  full Markdown/JSON diff (Actions artifact, retained 90 days; sign-in required).
+  additions, removals and modifications per sheet, with named-field Git-style
+  diff blocks and a linked full Markdown/JSON diff (Actions artifact, retained
+  90 days; sign-in required).
   Only explicit source IDs unique in both complete sheets pair modifications
   for 詞目, 義項 and 例句; other changes remain additions/removals. These are raw
   source-record counts, not counts of rebuilt keyboard dictionary entries.
   Sheet additions/removals and header changes are reported explicitly.
   Existing bot-created issues, including #534, receive a generated section;
-  human text and comments remain intact. Identical semantic comparisons do
-  not rewrite the issue. A refreshed capture updates a stale report to say
-  there are no differences, without automatically closing the issue.
+  human text and comments remain intact. Unchanged sheets and comparison
+  metadata are collapsed. The bounded summary keeps complete record diffs;
+  the full report includes every change. Identical comparisons with the same
+  renderer version do not rewrite the issue. A refreshed capture updates a
+  stale report to say there are no differences, without automatically closing
+  the issue.
   A manual **Kautian watch** run regenerates the full report if an artifact
   expires; its artifacts remain available even when the issue is unchanged.
   To inspect locally without publishing:

@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import re
 import xml.etree.ElementTree as ET
 import zipfile
 from collections import Counter
@@ -138,7 +139,7 @@ def test_sheet_and_header_changes_are_explicit():
     }
     result = watch.compare(old, new)
     assert all(watch.changed(sheet) for sheet in result)
-    assert "Sheet added/removed or column headers changed" in watch.render(result, brief=True)
+    assert "@@ Column headers (null means sheet absent) @@" in watch.render(result, brief=True)
 
 
 @pytest.mark.parametrize("content", [b"bad xml", b"<!DOCTYPE x><x/>", b"<x/>"])
@@ -157,7 +158,7 @@ def test_reports_are_bounded_escaped_and_lossless():
     )
     summary = watch.render([sheet], brief=True)
     assert len(summary) < 24050
-    assert "@everyone" not in summary and "<script>" not in summary
+    assert "Summary truncated" in summary
     assert value not in summary
     assert "字" * 30000 in watch.render([sheet], brief=False)
 
@@ -175,11 +176,91 @@ def test_escape_entities_and_keep_modification_pairs_complete():
         [watch.Modification(("九",), ("八",))],
     )
     summary = watch.render([sheet], brief=True)
-    assert "modified before" in summary and "modified after" in summary
+    assert "- 漢字: 九\n+ 漢字: 八" in summary
     sheet.modified = [watch.Modification(("字" * 1000,), ("語" * 1000,))] * 20
     summary = watch.render([sheet] * 30, brief=True)
     assert len(summary) < 24050
-    assert summary.count("modified before") == summary.count("modified after")
+    assert summary.count("- 漢字:") == summary.count("+ 漢字:")
+    assert summary.count("```diff") == len(re.findall(r"^```$", summary, re.MULTILINE))
+    assert summary.count("<details>") == summary.count("</details>")
+
+
+def test_approved_layout_shows_all_modifications_and_changed_fields_only():
+    columns = ("詞目id", "漢字", "羅馬字")
+    modifications = [
+        watch.Modification((str(i), "水秤", "suí-tshìn"), (str(i), "水秤", "tsuí-tshìn"))
+        for i in range(10)
+    ]
+    sheet = watch.SheetDiff("詞目", columns, columns, 29592, 29592, [], [], modifications)
+    summary = watch.render([sheet], brief=True)
+    assert "**0 added · 0 removed · 10 modified**" in summary
+    assert "<summary>All 1 sheets</summary>" in summary
+    assert "29,592" in summary
+    assert summary.count("@@ 詞目id=") == 10
+    assert "- 羅馬字: suí-tshìn\n+ 羅馬字: tsuí-tshìn" in summary
+    assert "漢字: 水秤" not in summary
+    assert "Before columns" not in summary
+    assert "  漢字: 水秤" in watch.render([sheet], brief=False)
+
+
+def test_duplicate_blank_and_overflow_column_values_keep_positions():
+    columns = ("漢字", "漢字", "")
+    sheet = watch.SheetDiff(
+        "名", columns, columns, 0, 2, [watch.RowChange(("九", "八", "七", "六"), 2)], [], []
+    )
+    summary = watch.render([sheet], brief=True)
+    for line in (
+        "+ 漢字 [column 1]: 九",
+        "+ 漢字 [column 2]: 八",
+        "+ Column 3: 七",
+        "+ Column 4: 六",
+    ):
+        assert line in summary
+    assert "×2" in summary
+
+
+def test_fenced_values_cannot_close_code_block_or_inject_unsigned_lines():
+    value = "@everyone <script>\n````\n- forged\r\t"
+    sheet = watch.SheetDiff(
+        "名<script>|", ("漢字",), ("漢字",), 0, 1, [watch.RowChange((value,), 1)], [], []
+    )
+    summary = watch.render([sheet], brief=True)
+    assert "`````diff\n" in summary
+    assert "\n`````\n" in summary
+    assert "+ 漢字: @everyone \\u003cscript>\\n````\\n- forged\\r\\t" in summary
+    assert "\n- forged" not in summary
+    assert "### 名&lt;script&gt;&#124;" in summary
+
+
+def test_source_marker_text_cannot_break_generated_section():
+    columns = (watch.START, watch.END)
+    sheet = watch.SheetDiff(
+        "名", None, columns, 0, 1, [watch.RowChange((watch.START, watch.END), 1)], [], []
+    )
+    for brief in (True, False):
+        rendered = watch.render([sheet], brief=brief)
+        assert watch.START not in rendered and watch.END not in rendered
+        body = f"{watch.START}\n{rendered}\n{watch.END}"
+        assert watch.generated_section(body) == body
+        assert "\\u003c!-- kautian-watch:start -->" in rendered
+
+
+def test_oversized_metadata_and_missing_name_are_bounded():
+    sheet = watch.SheetDiff(
+        "名",
+        ("詞目id", "漢字"),
+        ("詞目id", "漢字"),
+        1,
+        1,
+        [],
+        [],
+        [watch.Modification(("1", "九"), ("1",))],
+    )
+    assert "+ 漢字: (empty)" in watch.render([sheet], brief=True)
+    summary = watch.render([sheet] * 1000, brief=True)
+    assert len(summary) <= 24000
+    assert summary.count("<details>") == summary.count("</details>")
+    assert "Summary truncated" in summary
 
 
 def test_replace_only_generated_section_and_reject_bad_markers():
@@ -242,11 +323,28 @@ def test_publish_create_existing_update_and_no_duplicate(report, monkeypatch):
     assert api.call_args.args[0].endswith("/534")
     body = api.call_args.kwargs["payload"]["body"]
     assert body.startswith("human refresh instructions\n")
+    assert watch.FORMAT_MARKER in body
+    assert "<summary>Comparison details</summary>" in body
     assert "--paginate" in api.call_args_list[0].args
     api.reset_mock(side_effect=True)
     api.side_effect = [[[issue(body=body)]], issue(body=body)]
     watch.publish(report)
     assert api.call_count == 2
+
+
+def test_old_layout_or_markers_outside_generated_section_refresh_once(report, monkeypatch):
+    identity = (report.report / "fingerprint.txt").read_text()
+    marker = f"<!-- kautian-watch:data:{identity} -->"
+    for body in (
+        f"{watch.START}\n{marker}\nold layout\n{watch.END}",
+        f"{marker}\n{watch.FORMAT_MARKER}\nHuman text",
+    ):
+        api = Mock(side_effect=[[[issue(body=body)]], issue(body=body), {}])
+        monkeypatch.setattr(watch, "github", api)
+        watch.publish(report)
+        assert api.call_count == 3
+        updated = api.call_args.kwargs["payload"]["body"]
+        assert watch.FORMAT_MARKER in watch.generated_section(updated)
 
 
 def test_no_change_does_not_open_issue_and_clears_stale_report(report, monkeypatch):
