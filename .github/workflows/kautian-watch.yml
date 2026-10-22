@@ -2,9 +2,9 @@ name: Kautian watch
 
 # Weekly check whether MoE has published a new 教典 export
 # (https://sutian.moe.edu.tw/media/senn/ods/kautian.ods). Compares the export's
-# content.xml with the committed capture — the zip bytes and meta.xml carry
-# timestamps that change on a re-export with identical rows — and opens an
-# issue when the rows differ. Refresh steps: dictionary/docs/SOURCES.md § kautian.
+# data rows with the committed capture, ignoring packaging, styles and ordering.
+# Maintains one issue with counts, examples and full report artifacts.
+# Refresh steps: dictionary/docs/SOURCES.md § kautian.
 on:
   schedule:
     - cron: '0 1 * * 1'
@@ -21,7 +21,6 @@ concurrency:
 env:
   KAUTIAN_URL: https://sutian.moe.edu.tw/media/senn/ods/kautian.ods
   KAUTIAN_PATH: dictionary/sources/official/kautian/data/raw/kautian.ods
-  ISSUE_TITLE: 'chore(dictionary): MoE kautian.ods has new data'
 
 jobs:
   check:
@@ -30,11 +29,17 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          sparse-checkout: ${{ env.KAUTIAN_PATH }}
+          sparse-checkout: |
+            ${{ env.KAUTIAN_PATH }}
+            tools/kautian_watch.py
           sparse-checkout-cone-mode: false
 
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
       # --insecure: the publisher's TLS certificate expired 2026-10-08. The download
-      # is only hashed and compared, never committed or built; refreshing the capture
+      # is only parsed and compared, never committed or built; refreshing the capture
       # is a manual step.
       - name: Download upstream export
         run: |
@@ -42,39 +47,28 @@ jobs:
             --dump-header upstream.headers --output upstream.ods "$KAUTIAN_URL"
 
       - name: Compare with committed capture
-        id: compare
         run: |
-          upstream=$(unzip -p upstream.ods content.xml | sha256sum | cut -d' ' -f1)
-          committed=$(unzip -p "$KAUTIAN_PATH" content.xml | sha256sum | cut -d' ' -f1)
-          echo "upstream content.xml:  $upstream"
-          echo "committed content.xml: $committed"
-          if [ "$upstream" = "$committed" ]; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
+          python tools/kautian_watch.py compare "$KAUTIAN_PATH" upstream.ods \
+            --baseline-commit "$GITHUB_SHA" --output report
 
-      - name: Open issue
-        if: steps.compare.outputs.changed == 'true'
+      - name: Upload full diff
+        id: report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: kautian-diff
+          path: report/
+          if-no-files-found: error
+          retention-days: 90
+
+      # Also runs on no-change comparisons to clear a stale report after a
+      # capture refresh. Existing human text and comments remain intact.
+      - name: Create or update issue
         env:
           GH_TOKEN: ${{ github.token }}
+          ARTIFACT_URL: ${{ steps.report.outputs.artifact-url }}
         run: |
-          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
-            --search "\"$ISSUE_TITLE\" in:title" --json number --jq '.[0].number')
-          if [ -n "$existing" ]; then
-            echo "Issue #$existing already open"
-            exit 0
-          fi
-          last_modified=$(grep -i '^last-modified:' upstream.headers | cut -d' ' -f2- | tr -d '\r')
-          size=$(stat -c %s upstream.ods)
-          {
-            echo "MoE published a kautian.ods whose rows differ from \`$KAUTIAN_PATH\`."
-            echo
-            echo "- Source: $KAUTIAN_URL"
-            echo "- Upstream Last-Modified: $last_modified"
-            echo "- Upstream size: $size bytes"
-            echo "- Detected by run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-            echo
-            echo "Refresh: replace the capture, then \`make dict\` (regenerate \`word_unigrams.tsv\` / \`word_bigrams.tsv\` with \`build.corpus_bigrams\` if a unigram row is no longer a dictionary record) and commit the rebuilt artifacts."
-          } > issue.md
-          gh issue create --repo "$GITHUB_REPOSITORY" --title "$ISSUE_TITLE" --body-file issue.md
+          last_modified=$(awk 'tolower($1) == "last-modified:" {$1=""; sub(/^ /, ""); sub(/\r$/, ""); print}' upstream.headers)
+          python tools/kautian_watch.py publish --repo "$GITHUB_REPOSITORY" \
+            --report report --artifact-url "$ARTIFACT_URL" \
+            --last-modified "${last_modified:-unknown}" \
+            --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
