@@ -2,7 +2,7 @@
 
 The largest and most authoritative source in the dictionary (~49k rows,
 source bit 0). Published by the Ministry of Education (Taiwan); consumed
-as ODS with 18 sheets covering headwords, 異體字, 俗唸作 pronunciations,
+as ODS with 19 sheets covering headwords, 異體字, 俗唸作 pronunciations,
 dialect variants, and 異用字 cross-references.
 
 Pipeline runs the full 12-stage flow — only source that uses
