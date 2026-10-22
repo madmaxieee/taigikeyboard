@@ -71,8 +71,8 @@ jobs:
       - name: Kautian watch tests
         run: python -m pytest tools/kautian_watch_test.py -q
 
-      - name: Test selection tests
-        run: python tools/test_select_test.py
+      - name: Platform test selection tests
+        run: PYTHONPATH=tools python -m unittest test_select_test.PlatformSelectionTests
 
       - name: Windows icon tool tests
         run: python -m pytest tools/windows/tests -q
