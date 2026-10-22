@@ -197,6 +197,7 @@ class Effects:
 PYTHON_SUITES = {
     "dictionary": Command("python3 -m pytest tests -q", "dictionary"),
     "tools": Command("python3 -m unittest discover -s tools -p '*_test.py'"),
+    "kautian-watch": Command("python3 -m pytest tools/kautian_watch_test.py -q"),
     "tools-windows": Command("python3 -m pytest tools/windows/tests -q"),
     "e2e": Command("python3 -m unittest analyze_test", "e2e/analyzer"),
     "emoji": Command("python3 -m pytest -q", "emoji"),
@@ -245,7 +246,9 @@ def add_dictionary_path(path: str, effects: Effects) -> None:
 
 
 def add_tools_path(path: str, effects: Effects) -> None:
-    if path.startswith("tools/i18n/"):
+    if path in {"tools/kautian_watch.py", "tools/kautian_watch_test.py"}:
+        effects.python.add("kautian-watch")
+    elif path.startswith("tools/i18n/"):
         effects.platforms.add("i18n")
     elif path.startswith("tools/windows/"):
         effects.python.add("tools-windows")

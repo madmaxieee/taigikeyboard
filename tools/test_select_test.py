@@ -235,6 +235,13 @@ class PlatformSelectionTests(SelectorTestCase):
         self.assertEqual(selection.commands, {})
         self.assertEqual(selection.unmapped, [])
 
+    def test_kautian_watch_selects_pytest_suite(self) -> None:
+        selection = self.select("tools/kautian_watch.py", "tools/kautian_watch_test.py")
+        self.assertEqual(
+            selection.commands["python"],
+            [Command("python3 -m pytest tools/kautian_watch_test.py -q")],
+        )
+
     def test_e2e_analyzer_runs_its_tests_in_place(self) -> None:
         selection = self.select("e2e/analyzer/analyze.py")
 
