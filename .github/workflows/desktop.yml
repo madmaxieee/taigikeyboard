@@ -72,7 +72,7 @@ jobs:
       # Cached across runs by desktop/Cargo.lock hash. The engine crates build
       # into desktop/target as path dependencies, so they are rebuilt with the
       # workspace's own crates; only registry dependencies come from the cache.
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           workspaces: desktop
 
@@ -116,7 +116,7 @@ jobs:
           rustup toolchain install "$msrv" --profile minimal --no-self-update
           echo "RUSTUP_TOOLCHAIN=$msrv" >> "$GITHUB_ENV"
 
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           workspaces: desktop
           key: msrv
