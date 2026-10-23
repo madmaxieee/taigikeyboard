@@ -9,16 +9,37 @@ current-at-release values when cutting a dictionary refresh.
 ### kautian — 教育部臺灣台語常用詞辭典
 - **Publisher**: 中華民國教育部 (MoE Taiwan)
 - **Origin URL**: <https://sutian.moe.edu.tw/>
-- **Format**: ODS (OpenDocument Spreadsheet, 18 sheets)
-- **Captured**: `data/raw/kautian.ods` (file committed 2026-04-23; actual
-  MoE release date TBD)
+- **Format**: ODS (OpenDocument Spreadsheet, 19 sheets in the committed capture)
+- **Captured**: `data/raw/kautian.ods` on 2026-10-23 from
+  <https://sutian.moe.edu.tw/media/senn/ods/kautian.ods>.
+  Upstream Last-Modified: 2026-10-21 18:04:17 UTC; SHA-256:
+  `f8e3ac4a40572cbf8ca6c7251b47730a35c9306113dd2ea8fcdf8a7f8a152b7e`.
 - **Licence**: **CC BY-ND 3.0 TW** (創用CC 姓名標示-禁止改作 3.0 臺灣) — verified 2026-09-05 against the publisher's copyright notice, <https://sutian.moe.edu.tw/zh-hant/piantsip/pankhuan-singbing/>. Covers text and audio content (文字、音檔內容). **Commercial use permitted; no NonCommercial term.** This file previously recorded CC BY-NC 4.0, which was wrong. Only Hanji + romanization are taken — see `dictionary/LICENSE` for why CC BY-ND permits that.
 - **Notes**: Multi-sheet; pipeline `select`/`expand`/`merge` stages
   handle the pivoting. Largest single source (~49k rows).
 - **Update watch**: `.github/workflows/kautian-watch.yml` downloads
-  <https://sutian.moe.edu.tw/media/senn/ods/kautian.ods> every Monday and opens an
-  issue when its `content.xml` differs from the capture (MoE re-exports the file
-  daily, so the zip bytes change even when the rows do not).
+  <https://sutian.moe.edu.tw/media/senn/ods/kautian.ods> every Monday. The
+  standard-library tool `tools/kautian_watch.py` compares all sheets' data rows
+  with the committed capture, ignoring packaging, styles and row ordering.
+  Duplicate rows retain their counts. The issue reports before/after totals,
+  additions, removals and modifications per sheet, with named-field Git-style
+  diff blocks and a linked full Markdown/JSON diff (Actions artifact, retained
+  90 days; sign-in required).
+  Only explicit source IDs unique in both complete sheets pair modifications
+  for 詞目, 義項 and 例句; other changes remain additions/removals. These are raw
+  source-record counts, not counts of rebuilt keyboard dictionary entries.
+  Sheet additions/removals and header changes are reported explicitly.
+  Existing bot-created issues, including #534, receive a generated section;
+  human text and comments remain intact. Unchanged sheets and comparison
+  metadata are collapsed. The bounded summary keeps complete record diffs;
+  the full report includes every change. Identical comparisons with the same
+  renderer version do not rewrite the issue. A refreshed capture updates a
+  stale report to say there are no differences, without automatically closing
+  the issue.
+  A manual **Kautian watch** run regenerates the full report if an artifact
+  expires; its artifacts remain available even when the issue is unchanged.
+  To inspect locally without publishing:
+  `python3 tools/kautian_watch.py compare dictionary/sources/official/kautian/data/raw/kautian.ods /path/to/upstream.ods --baseline-commit "$(git rev-parse HEAD)" --output /tmp/kautian-diff`.
 
 ### taigitv — 公視台語新詞辭庫
 - **Publisher**: 公共電視文化事業基金會 / 公視台語台 (PTS Taigi)
