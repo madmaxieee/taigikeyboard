@@ -11,85 +11,57 @@ A Taiwanese input method for iOS, Android, macOS, Windows, and Linux.
 
 ## Download
 
-| Platform | Where |
+| Platform | Download |
 | --- | --- |
 | iOS / iPadOS | [App Store](https://apps.apple.com/app/id6751871806) |
 | Android | [Google Play](https://play.google.com/store/apps/details?id=com.siansiansu.taigikeyboard) |
 | macOS / Windows | [taigikeyboard.tw](https://taigikeyboard.tw) |
-| Linux (`.deb`, `.rpm`, Arch; Fcitx5 or IBus) | [GitHub Releases](https://github.com/taigikeyboard/taigikeyboard/releases) |
+| Linux | [GitHub Releases](https://github.com/taigikeyboard/taigikeyboard/releases) (`.deb`, `.rpm`, Arch; Fcitx5 or IBus) |
 
-Installation and setup for every platform: [`docs/INSTALL.md`](docs/INSTALL.md).
+See the [installation guide](docs/INSTALL.md) for setup instructions.
 
 ## Features
 
-- Romanization input in POJ, TL, and TPS
+- Input in Pe̍h-ōe-jī (POJ), Tâi-lô (TL), and Taiwanese Phonetic Symbols (TPS)
 - Hanji and mixed Hanji–Romanization output
 - Continuous multi-syllable typing
 - Tone marks, tone numbers, and tone variation
-- Autocomplete and next-word prediction
+- Autocomplete; next-word prediction on iOS and Android
 - Custom dictionary and frequency learning
 - Lossless TL ↔ POJ ↔ TPS conversion
 
-## How it works
+## Documentation
 
-One Rust engine (`engine/`) holds phonetics, composing, lexicon, ranking and user data. Each platform is a thin shell: it owns the text field, the candidate window and settings, and every request reaches the engine's `dispatch` as a protobuf envelope.
-
-```text
-┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-│ iOS          │ │ Android      │ │ macOS        │ │ Windows      │ │ Linux        │
-│ Swift        │ │ Kotlin       │ │ Swift        │ │ Rust         │ │ Fcitx5 (C++) │
-│ KeyboardKit  │ │ Compose      │ │ IMKit        │ │ TSF          │ │ IBus (Rust)  │
-└──────┬───────┘ └──────┬───────┘ └───┬─────┬────┘ └──────┬───────┘ └──────┬───────┘
-       │                │             │     │             │                │ C ABI
-       │                │             │     │ macos-ffi   │ path dep       │ crate
-       │                │             │   ┌─┴─────────────┴────────────────┴───────┐
-       │                │             │   │ desktop/  taigi-desktop-core           │
-       │                │             │   │ keys · intent executor · engine bridge │
-       │                │             │   └───────────────────┬────────────────────┘
-       │                │             │                       │
-       │ swift-ffi      │ JNI         │ swift-ffi             │ path dep
-       │                │             │ (user data)           │
-       │                │             │                       │
-┌──────┴────────────────┴─────────────┴───────────────────────┴────────────────────┐
-│ engine/  dispatch::process_request — proto envelope in, proto out                │
-│                                                                                  │
-│   composing · lexicon · ranking · nextword · userdata                            │
-│   phonetics (POJ / TL / TPS) · protos · mmap-host                                │
-└──────────────┬──────────────────────────────────────────────┬────────────────────┘
-               │ mmap, read-only                              │ read / write
-               │                                              │
-┌──────────────┴───────────────────────┐    ┌─────────────────┴────────────────────┐
-│ assets/dictionaries/  (committed)    │    │ engine/userdata  (SQLite, on device) │
-│ dictionary.fst · dictionary.bin      │    │ user_frequency · user_association    │
-│ association.bin · syllables.fst      │    │ custom_dictionary · learned_phrases  │
-└──────────────▲───────────────────────┘    └──────────────────────────────────────┘
-               │ make dict
-               │
-┌──────────────┴───────────────────────┐
-│ dictionary/  sources → normalize     │
-│ (taigi-converter) → merge → build    │
-└──────────────────────────────────────┘
-```
-
-- **iOS / Android** call the engine library directly (`swift-ffi` static library, `android-jni` shared library).
-- **macOS** runs its key path through `taigi-macos-ffi` into the shared `desktop/` core; its user-data pages call `swift-ffi` in the same library.
-- **Windows / Linux** link the engine crates in-process. On Linux the Fcitx5 addon (C++) calls the Rust core over a C ABI, and IBus talks over D-Bus to a Rust engine process; both run `taigi-linux-core`.
-
-Crate graph, build pipeline and keystroke data flow: [`docs/architecture/system-overview.md`](docs/architecture/system-overview.md).
-
-## Building
-
-See [`docs/BUILDING.md`](docs/BUILDING.md). Clone with `--recurse-submodules`, then run `make build` once.
+- [Documentation index](docs/README.md)
+- [Architecture](docs/architecture/system-overview.md)
+- [Build and test](docs/BUILDING.md)
+- [Release history](CHANGELOG.md)
 
 ## Contributing
 
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — build, test, and submit changes
-- [`docs/README.md`](docs/README.md) — architecture and engine docs
-- [`SECURITY.md`](SECURITY.md) — vulnerability reporting and data handling
-- [`CHANGELOG.md`](CHANGELOG.md) — release history
+See the [contributing guide](CONTRIBUTING.md) to submit changes. Report security vulnerabilities through the [security policy](SECURITY.md).
+
+## Community
+
+[![Join Discord](https://img.shields.io/badge/Join_Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/UFn9RdynPu)
+
+Ask questions, share feedback, and report problems.
+
+## Support
+
+<a href="https://ko-fi.com/N8J429DBK4"><img height="36" src="https://storage.ko-fi.com/cdn/kofi5.png?v=6" alt="Support me on Ko-fi" /></a>
+<a href="https://www.paypal.com/ncp/payment/AZNAN8NSJXR7J"><img height="36" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="Donate with PayPal (outside Taiwan only, USD)" /></a>
+
+Support development and maintenance via Ko-fi or PayPal (outside Taiwan only, USD).
+
+For Taiwan, scan or click the ECPay QR code:
+
+<a href="https://p.ecpay.com.tw/5256DCE"><img width="200" height="200" src="https://payment.ecpay.com.tw/Upload/QRCode/202403/QRCode_e2510983-82aa-4501-8d92-33a5e154e34f.png" alt="Support via ECPay (Taiwan only)" /></a>
 
 ## License
 
 Source code: [Apache License 2.0](LICENSE).
 
-**Dictionary data is not Apache-licensed.** Each source keeps its own terms, and one carries a NonCommercial clause, so the compiled dictionary shipped in every app is non-commercial. See [`dictionary/LICENSE`](dictionary/LICENSE) for per-source terms and required attribution, and [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) for fonts and vendored code. Code signing: [`docs/CODE_SIGNING_POLICY.md`](docs/CODE_SIGNING_POLICY.md).
+**Dictionary data is not Apache-licensed.** Each source keeps its own terms, and one carries a NonCommercial clause, so the compiled dictionary shipped in every app is non-commercial. See [dictionary licenses](dictionary/LICENSE) for terms and attribution, and [third-party licenses](THIRD_PARTY_LICENSES.md) for fonts and vendored code.
+
+Released binaries follow the [code-signing policy](docs/CODE_SIGNING_POLICY.md).
