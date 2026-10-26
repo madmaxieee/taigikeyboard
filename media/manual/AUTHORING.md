@@ -1,6 +1,6 @@
 # Authoring the desktop user manual
 
-`README.md` is the manual: Markdown and pictures for first-time desktop users (macOS, Windows, Linux), readable on GitHub as it is. A cheatsheet picture and the blog post that announces them sit beside it. Sources live here, like `film/`; the website repository (`taigikeyboard/taigikeyboard.github.io`) receives copies.
+`README.md` is the manual: Markdown and pictures for first-time desktop users (macOS, Windows, Linux), readable on GitHub as it is. A cheatsheet picture and the blog post that announces them sit beside it. Sources live here, alongside [the video sources](../film/) under `media/`; the website repository (`taigikeyboard/taigikeyboard.github.io`) receives copies.
 
 | Path | What it is |
 |---|---|
@@ -15,7 +15,7 @@
 ## Regenerating the pictures
 
 ```sh
-manual/render.sh        # keyboards/*.png and cheatsheet/*.png
+media/manual/render.sh  # keyboards/*.png and cheatsheet/*.png
 ```
 
 The keyboard pictures are drawn by `keyboards.py` from tables in that file: the two layouts (MacBook, Windows with a navigation block), the keys each picture marks, and the full-width punctuation map. Change a default key in `desktop/crates/taigi-desktop-core/src/keys/` or a row of `policies/full_width.rs` and the matching table there changes with it.
@@ -24,8 +24,8 @@ The screenshots come from `macos/Tests/TaigiInputMethodCoreTests/ManualScreensho
 
 ```sh
 make build                                   # only if engine/ or desktop/ changed
-TAIGI_MANUAL_SHOTS="$PWD/manual/shots" swift test --package-path macos --filter ManualScreenshotTests
-manual/render.sh                             # the cheatsheet embeds three of the screenshots
+TAIGI_MANUAL_SHOTS="$PWD/media/manual/shots" swift test --package-path macos --filter ManualScreenshotTests
+media/manual/render.sh                       # the cheatsheet embeds three of the screenshots
 ```
 
 Windows flash on screen for about half a minute while it runs. A new picture is a new `Scene` in that file plus an image line in `README.md`.
@@ -37,7 +37,7 @@ Jekyll renders `README.md` as the index of its directory, so the manual is serve
 ```sh
 SITE=../taigikeyboard.github.io
 mkdir -p "$SITE/manual"
-cp -R manual/README.md manual/keyboards manual/shots manual/cheatsheet "$SITE/manual/"
+cp -R media/manual/README.md media/manual/keyboards media/manual/shots media/manual/cheatsheet "$SITE/manual/"
 ```
 
 Then link the page from the website's `_includes/navbar.html`.

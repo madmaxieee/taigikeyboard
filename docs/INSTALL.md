@@ -24,15 +24,20 @@ brew install --cask taigikeyboard/tap/taigikeyboard
 
 Or download `TaigiKeyboard-<version>.pkg` from [taigikeyboard.tw](https://taigikeyboard.tw) and open it.
 
-Then add it: System Settings → Keyboard → Input Sources → Edit → + → TaigiKeyboard. The input-source list is cached per login session, so if TaigiKeyboard is not listed after a first install, log out and back in.
+Then add it: System Settings → Keyboard → Text Input → Input Sources → Edit → +. Search for `taigi`, choose Multiple languages → TaigiKeyboard, then Add. The input-source list is cached per login session, so if TaigiKeyboard is not listed after a first install, log out and back in. Select TaigiKeyboard from the menu bar's input menu.
+
+See the [macOS installation screenshots](../media/screenshots/install/README.md#macos) for the installer and input-source setup in English, Traditional Chinese and Japanese.
 
 ## Windows
 
 Requires Windows 10 or later, x64.
 
 1. Download `TaigiKeyboard-<version>.exe` from [taigikeyboard.tw](https://taigikeyboard.tw) and run it. The installer is not code-signed, so SmartScreen may warn: More info → Run anyway.
-2. Settings → Time & language → Language & region → Chinese (Traditional, Taiwan) → Language options → Add a keyboard → TaigiKeyboard. Add the language first if it is not listed.
-3. If TaigiKeyboard is not in the list, sign out and sign in again.
+2. Open Settings → Time & language → Language & region. Under Preferred languages, open the three-dot menu beside Chinese (Traditional, Taiwan), then choose Language options. Add the language first if it is not listed.
+3. Scroll to Keyboards → Installed keyboards and check for TaigiKeyboard. If it is missing, click Add a keyboard and select TaigiKeyboard. If it still does not appear, sign out and sign in again.
+4. Press Windows + Space to switch to TaigiKeyboard.
+
+See the [Windows setup screenshots](../media/screenshots/install/README.md#windows) for SmartScreen, installer, Settings pages, and the keyboard menu (Windows 11 in English, Traditional Chinese, and Japanese). The UAC secure-desktop prompt is described but has no screenshot.
 
 ## Linux
 

@@ -1,4 +1,4 @@
-// Renders the user manual's screenshots (`manual/shots/`) from the real controller, engine and windows.
+// Renders the user manual's screenshots (`media/manual/shots/`) from the real controller, engine and windows.
 
 import AppKit
 import Carbon.HIToolbox
@@ -14,7 +14,7 @@ import XCTest
 /// Skipped unless `TAIGI_MANUAL_SHOTS` names the output directory, because
 /// it puts windows on screen and captures a region of it:
 ///
-///     TAIGI_MANUAL_SHOTS=$PWD/../manual/shots swift test --filter ManualScreenshotTests
+///     TAIGI_MANUAL_SHOTS=$PWD/../media/manual/shots swift test --filter ManualScreenshotTests
 ///
 /// The terminal running it needs Screen Recording permission. Images come out
 /// at the main display's scale, so run it on a Retina display for 2x. The

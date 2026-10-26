@@ -96,8 +96,7 @@ NO_GATE_DIRS = {
     "changelog",
     "corpus",
     "docs",
-    "film",
-    "manual",
+    "media",
 }
 INVARIANT_PREFIXES = ("docs/", "tools/invariant_labels")
 INVARIANT_SUFFIXES = (".rs", ".kt", ".swift")

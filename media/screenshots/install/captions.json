@@ -1,0 +1,95 @@
+{
+  "en": {
+    "windows": [
+      "If Windows protected your PC appears, click More info.",
+      "Confirm the application is the downloaded TaigiKeyboard installer, then click Run anyway. Approve the following UAC prompt on the computer.",
+      "Click Install.",
+      "Wait for the installation to finish.",
+      "Click Finish to close the installer.",
+      "Open Settings → Time & language → Language & region.",
+      "Open the menu beside Chinese (Traditional, Taiwan), then choose Language options.",
+      "Confirm TaigiKeyboard appears under Installed keyboards. If it is missing, click Add a keyboard. Press Windows + Space to switch to it."
+    ],
+    "linux": [
+      "Open a terminal in the Ubuntu/Debian package directory and run the installation command.",
+      "Wait for the package installation to complete. Restart Fcitx5 or sign out and back in.",
+      "Open Fcitx Configuration. Clear Only Show Current Language and search for taigi.",
+      "Select TaigiKeyboard in the list on the right and click the left arrow.",
+      "Confirm it appears in the list on the left, then click Apply."
+    ],
+    "macos": [
+      "Click Continue in the installer.",
+      "The destination is Install for me only. This optional screen opens through Change Install Location.",
+      "Click Install to install into your home folder.",
+      "Wait for the installation to finish.",
+      "Confirm the installation was successful, then click Close.",
+      "Choose Keep to retain the installer, or Move to Trash to discard it.",
+      "Open System Settings → Keyboard, then Edit beside Input Sources.",
+      "Click + below the input-source list.",
+      "Search taigi, select Multiple languages, then TaigiKeyboard, and click Add.",
+      "Confirm TaigiKeyboard appears, then click Done. Select it from the menu bar input menu."
+    ]
+  },
+  "zh-TW": {
+    "windows": [
+      "出現「Windows 已保護您的電腦」時，按「其他資訊」。",
+      "確認應用程式是剛下載的 TaigiKeyboard 安裝檔，按「仍要執行」，接著在電腦上確認 UAC 提示。",
+      "按「安裝」。",
+      "等待安裝完成。",
+      "按「完成」關閉安裝程式。",
+      "開啟「設定」→「時間與語言」→「語言與地區」。",
+      "按「繁體中文（台灣）」旁的選單，選擇「語言選項」。",
+      "確認「已安裝的鍵盤」中有「台語齒盤」。若沒有，按「新增鍵盤」加入。按 Windows + 空白鍵切換輸入法。"
+    ],
+    "linux": [
+      "在 Ubuntu／Debian 安裝套件所在目錄開啟終端機，執行安裝指令。",
+      "等待套件安裝完成，再重新啟動 Fcitx5，或登出後重新登入。",
+      "開啟 Fcitx 設定，取消只顯示目前語言的篩選，搜尋 taigi。",
+      "在右側選取「台語齒盤」，按向左箭頭加入。",
+      "確認左側清單中有「台語齒盤」，再按「Apply」（套用）。"
+    ],
+    "macos": [
+      "在安裝程式中按「繼續」。",
+      "安裝目標是「安裝只供我使用」；可從「更改安裝位置⋯」開啟這個選用畫面。",
+      "按「安裝」，將輸入法安裝到個人專屬檔案夾。",
+      "等待安裝完成。",
+      "確認顯示「已成功安裝」，再按「關閉」。",
+      "按「保留」留下安裝檔，或按「丟到垃圾桶」移除安裝檔。",
+      "開啟「系統設定」→「鍵盤」，按「輸入方式」旁的「編輯⋯」。",
+      "按輸入方式清單下方的 +。",
+      "搜尋「台語」，選擇「Multiple languages」與「台語齒盤」，再按「加入」。",
+      "確認清單中有「台語齒盤」，再按「完成」。從選單列的輸入法選單切換；本次選單畫面維持主機的英文介面。"
+    ]
+  },
+  "ja": {
+    "windows": [
+      "「Windows によって PC が保護されました」と表示されたら、「詳細情報」をクリックします。",
+      "ダウンロードした TaigiKeyboard インストーラーであることを確認し、「実行」をクリックします。続いてパソコン上で UAC の確認に応答します。",
+      "「インストール」をクリックします。",
+      "インストールが終わるまで待ちます。",
+      "「完了」をクリックしてインストーラーを閉じます。",
+      "「設定」→「時刻と言語」→「言語と地域」を開きます。",
+      "「繁体中国語 (台湾)」のメニューから「言語のオプション」を開きます。",
+      "「インストールされているキーボード」に「台湾語キーボード」があることを確認します。なければ「キーボードの追加」から追加します。Windows + Space キーで切り替えます。"
+    ],
+    "linux": [
+      "Ubuntu／Debian 用パッケージの保存先で端末を開き、インストールコマンドを実行します。",
+      "パッケージのインストールが完了したら Fcitx5 を再起動するか、ログアウトして再度ログインします。",
+      "Fcitx の設定を開き、現在の言語だけを表示する設定を解除して taigi を検索します。",
+      "右側の一覧から「台語齒盤」を選び、左向きの矢印をクリックします。",
+      "左側の一覧に追加されたことを確認して「適用」をクリックします。"
+    ],
+    "macos": [
+      "インストーラで「続ける」をクリックします。",
+      "インストール先は「自分専用にインストール」です。この任意の画面は「インストール先を変更…」から開きます。",
+      "「インストール」をクリックしてホームフォルダにインストールします。",
+      "インストールが終わるまで待ちます。",
+      "完了を確認し、「閉じる」をクリックします。",
+      "インストーラを保存する場合は「残す」、削除する場合は「ゴミ箱に入れる」を選びます。",
+      "「システム設定」→「キーボード」を開き、「入力ソース」の「編集…」をクリックします。",
+      "入力ソース一覧の下にある + をクリックします。",
+      "「台湾語」を検索し、「Multiple languages」から「台湾語キーボード」を選んで「追加」をクリックします。",
+      "追加されたことを確認して「完了」をクリックします。メニューバーの入力メニューから切り替えます。今回の入力メニューはホストの英語表示です。"
+    ]
+  }
+}
