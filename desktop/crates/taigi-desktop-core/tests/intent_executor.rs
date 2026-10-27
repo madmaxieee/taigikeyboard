@@ -114,12 +114,20 @@ struct Rig {
 }
 
 fn new_rig(is_auto_space_enabled: bool) -> Rig {
+    configured_rig(is_auto_space_enabled, |_| {})
+}
+
+fn configured_rig(
+    is_auto_space_enabled: bool,
+    configure: impl FnOnce(&mut SettingsDocument),
+) -> Rig {
     let engine = engine_lock();
     let mut settings = SettingsDocument::default();
     settings.set_bool(&keys::IS_AUTO_SPACE_ENABLED, is_auto_space_enabled);
     // The surface's slot mapping assumes the §34 literal at cell 0, so Show
     // Typed Text First is pinned ON (it ships OFF since 2026-10-02).
     settings.set_bool(&keys::IS_LITERAL_ROMAN_CANDIDATE_ENABLED, true);
+    configure(&mut settings);
     let manager = ComposingManager::new(
         Arc::new(StaticSettingsProvider::new(settings.clone())),
         Box::new(EngineNextWord),
@@ -469,6 +477,117 @@ fn enter_on_the_literal_writes_it_spaced_and_space_on_it_writes_nothing() {
 }
 
 #[test]
+fn punctuation_commits_the_highlighted_candidate_in_one_write() {
+    for platform in [
+        DesktopPlatform::MacOS,
+        DesktopPlatform::Windows,
+        DesktopPlatform::Linux,
+    ] {
+        for (typed, mark) in [("?", "？"), (",", "，"), ("\\", "、")] {
+            let mut rig = new_rig(true);
+            rig.type_word("ho");
+            rig.surface.selected = Some(1); // 好 hó, after the literal ho.
+            let key = KeyEventSnapshot::text(typed, KeyModifiers::NONE);
+            let bindings = ComposingKeyBindings::from_document(&rig.settings, platform);
+            let intent = ComposingKeyIntent::intent(&key, true, true, &bindings, platform);
+            assert!(rig.run(intent, &key));
+            assert_eq!(
+                rig.calls(),
+                [format!("commit 好{mark}"), "list closed".into()]
+            );
+            assert!(!rig.manager.is_composing());
+        }
+    }
+}
+
+#[test]
+fn punctuation_uses_the_highlighted_cells_script_and_auto_space_verdict() {
+    use taigi_desktop_core::settings::CandidateDisplayMode;
+
+    for mode in [InputMode::Tl, InputMode::Poj] {
+        for auto_space in [false, true] {
+            let mut rig = configured_rig(auto_space, |settings| {
+                settings.set_choice(&keys::INPUT_MODE, mode);
+                settings.set_choice(
+                    &keys::CANDIDATE_DISPLAY_MODE,
+                    CandidateDisplayMode::Combined,
+                );
+            });
+            rig.type_word("ho");
+            let roman = rig
+                .list
+                .cells()
+                .iter()
+                .position(|cell| cell.text == "hó")
+                .unwrap();
+            rig.surface.selected = Some(roman);
+            assert!(rig.run(ComposingKeyIntent::CommitThenInsert("?".into()), &no_key()));
+            let mut expected = vec![
+                format!("commit hó？{}", if auto_space { " " } else { "" }),
+                "list closed".into(),
+            ];
+            if auto_space {
+                expected.push("arm".into());
+            }
+            assert_eq!(rig.calls(), expected);
+            assert!(!rig.manager.is_composing());
+        }
+    }
+}
+
+#[test]
+fn punctuation_after_a_prefix_pick_keeps_the_unconsumed_tail() {
+    let mut rig = new_rig(true);
+    rig.type_word("taigi");
+    let index = (0..rig.list.len())
+        .find(|&index| {
+            let (candidate, _) = rig.list.resolve(index, false).unwrap();
+            candidate.hanji.as_deref() == Some("台") && candidate.consumed_span_end == 3
+        })
+        .expect("a prefix candidate for tai, leaving gi pending");
+    rig.surface.selected = Some(index);
+    assert!(rig.run(ComposingKeyIntent::CommitThenInsert("?".into()), &no_key()));
+    assert_eq!(rig.calls(), ["commit 台gi？ ", "list closed", "arm"]);
+    assert!(!rig.manager.is_composing());
+}
+
+#[test]
+fn punctuation_with_a_hidden_list_commits_the_preedit() {
+    let mut rig = configured_rig(true, |settings| {
+        settings.set_bool(&keys::IS_CANDIDATE_WINDOW_ENABLED, false);
+    });
+    rig.type_word("ho");
+    rig.surface.selected = Some(1); // A stale surface highlight has no cell to resolve.
+    assert!(rig.list.is_empty());
+    assert!(rig.run(ComposingKeyIntent::CommitThenInsert("?".into()), &no_key()));
+    assert_eq!(rig.calls(), ["commit ho？ ", "list closed", "arm"]);
+}
+
+#[test]
+fn punctuation_does_not_replace_a_rejected_pick_with_raw_text() {
+    let mut rig = new_rig(true);
+    rig.type_word("ho");
+    let mut stale = rig.list.resolve(1, false).unwrap().0.clone();
+    stale.consumed_span_end = 1000;
+    rig.list.set(vec![stale], &rig.manager);
+    rig.surface.selected = Some(0);
+    assert!(rig.run(ComposingKeyIntent::CommitThenInsert("?".into()), &no_key()));
+    assert_eq!(rig.calls(), [format!("list {}", rig.list.len())]);
+    assert!(rig.manager.is_composing());
+    assert_eq!(rig.manager.raw_input(), "ho");
+}
+
+#[test]
+fn punctuation_on_a_literal_candidate_does_not_arm_after_a_failed_write() {
+    let mut rig = new_rig(true);
+    rig.type_word("ho");
+    rig.surface.selected = Some(0);
+    rig.surface.has_failed = true;
+    assert!(rig.run(ComposingKeyIntent::CommitThenInsert("?".into()), &no_key()));
+    assert_eq!(rig.calls(), ["commit ho？ ", "list closed"]);
+}
+
+#[test]
 fn punctuation_mid_composition_commits_both_in_one_write_and_arms_the_space() {
     // trace (read by running): Hanji-first maps `?` to `？`; the preedit as
     // typed is romanization, so the one write carries the auto space too.
@@ -794,6 +913,26 @@ fn tps_punctuation_commits_the_composition_as_shown_then_itself() {
         &question
     ));
     assert_eq!(rig.calls(), ["commit 好？", "list closed"]);
+}
+
+#[test]
+fn tps_punctuation_picks_the_highlighted_word_before_finishing() {
+    let mut rig = new_tps_rig();
+    rig.type_tps("ㄏㄛˋ");
+    rig.open_window();
+    rig.surface.selected = Some(1);
+    let expected = rig.list.resolve(1, false).unwrap().0.hanji.clone().unwrap();
+    assert_ne!(
+        rig.manager.display_text(),
+        expected,
+        "pick a different word"
+    );
+    assert!(rig.run(ComposingKeyIntent::CommitThenInsert("?".into()), &no_key()));
+    assert_eq!(
+        rig.calls(),
+        [format!("commit {expected}？"), "list closed".into()]
+    );
+    assert!(!rig.manager.is_composing());
 }
 
 /// H3: Backspace on an empty tail un-nails the pick and the reading is

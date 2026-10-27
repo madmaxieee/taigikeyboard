@@ -226,6 +226,19 @@ fn space_inside_a_composition_confirms_the_highlighted_cell() {
 }
 
 #[test]
+fn punctuation_confirms_the_highlighted_hanji_without_an_auto_space() {
+    let _serial = serial();
+    let mut session = Session::new(true, true);
+    session.type_word("ho");
+    session.press(0xff09); // Tab: move from the literal ho to 好.
+    assert_eq!(
+        session.press(COMMA),
+        [Emit::ClearPreedit, commit("好，"), Emit::HideLookupTable]
+    );
+    assert!(!session.state.armed_auto_space);
+}
+
+#[test]
 fn punctuation_inside_a_composition_commits_the_literal_with_the_full_width_mark() {
     let _serial = serial();
     let mut session = Session::new(false, true);

@@ -6,7 +6,7 @@
 
 use super::{
     CandidateCommitOutcome, CandidateListChange, CandidateSource, ComposingEffectExecutor,
-    ComposingManager, TpsKeyOutcome,
+    ComposingManager, ConfirmCompositionThenInsertOutcome, TpsKeyOutcome,
 };
 use crate::engine;
 use crate::keys::{
@@ -147,22 +147,29 @@ pub fn perform_intent(
             true
         }
         ComposingKeyIntent::CommitThenInsert(text) => {
-            // Mapped before the auto-space augmentation so the full-width
-            // character rides the same single mutation as the commit. Both
-            // rewrites CAN fire: this path commits the preedit as typed —
-            // romanization under TL and POJ, whichever script the list led
-            // with — while the full-width map still answers to the output
-            // MODE, so Hanji-first gets `taigi？ ` (macOS pins the same pair).
-            // Under TPS the composition is written as shown and earns no
-            // space.
             let document_text =
-                document_punctuation(settings, text).unwrap_or_else(|| text.clone());
-            let gate = auto_space_gate(settings, raw_preedit_wrote_romanization(settings));
-            let insert = policies::augment_insert(&document_text, manager.display_text(), gate);
-            let committed = manager.commit_composition_then_insert(&insert.text, surface);
-            close_list(list, surface);
-            if insert.leaves_trailing_auto_space && committed.is_some() {
-                surface.arm_swap();
+                document_punctuation(settings, text).unwrap_or_else(|| text.to_owned());
+            let candidate = surface
+                .selected_index()
+                .and_then(|index| list.resolve(index, false));
+            match manager.confirm_composition_then_insert(
+                candidate,
+                &document_text,
+                settings.bool(&keys::IS_AUTO_SPACE_ENABLED),
+                surface,
+            ) {
+                ConfirmCompositionThenInsertOutcome::Finalized {
+                    leaves_trailing_auto_space,
+                } => {
+                    close_list(list, surface);
+                    if leaves_trailing_auto_space && !surface.has_write_failed() {
+                        surface.arm_swap();
+                    }
+                }
+                ConfirmCompositionThenInsertOutcome::Ignored
+                | ConfirmCompositionThenInsertOutcome::Unavailable => {
+                    refresh(settings, manager, list, surface)
+                }
             }
             true
         }

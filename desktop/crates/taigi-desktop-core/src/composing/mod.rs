@@ -25,5 +25,8 @@ pub use intent_executor::{
 };
 pub use manager::{ComposingEffectExecutor, ComposingManager, TpsKeyOutcome};
 pub use next_word::{EngineNextWord, NextWordPort};
-pub use outcomes::{CandidateCommitOutcome, CandidateFetchOutcome, CandidateListChange};
+pub use outcomes::{
+    CandidateCommitOutcome, CandidateFetchOutcome, CandidateListChange,
+    ConfirmCompositionThenInsertOutcome,
+};
 pub use presentation::{CandidateSource, PresentedCandidate};

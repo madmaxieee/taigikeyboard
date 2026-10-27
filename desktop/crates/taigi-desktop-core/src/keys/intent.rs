@@ -125,7 +125,8 @@ pub enum ComposingKeyIntent {
     CommitAsTyped,
     /// Abandon the composition without writing to the document.
     Cancel,
-    /// Finish the composition and write `text` after it, as one step.
+    /// Confirm the highlighted cell, finish any remaining composition and
+    /// write `text` after it. With no highlight, finish the preedit as shown.
     CommitThenInsert(String),
     /// The host must receive this event, after the composition is finished
     /// into the document first (khiin's ignored-event path).

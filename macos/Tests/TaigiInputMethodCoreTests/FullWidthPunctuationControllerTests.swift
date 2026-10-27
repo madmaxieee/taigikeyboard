@@ -139,6 +139,35 @@ final class FullWidthPunctuationControllerTests: XCTestCase {
 
     // MARK: - Mid-composition (one mutation with the commit)
 
+    func testPunctuationMidComposition_confirmsTheHighlightedCandidate() throws {
+        let session = try makeSession(configure: {
+            $0.storedIsHanjiFirst = true
+            $0.isAutoSpaceEnabled = true
+        })
+        // `ho` never reaches the helper's `taigi` caret index, so anchor within this composition.
+        session.client.caretRects = [0: CGRect(x: 120, y: 400, width: 1, height: 18)]
+        for character in ["h", "o"] {
+            _ = try session.controller.handle(
+                TestFixtures.keyDownEvent(characters: character), client: session.client,
+            )
+        }
+        _ = try session.controller.handle(
+            TestFixtures.arrowKeyDownEvent(.rightArrow), client: session.client,
+        )
+        let presenter = try XCTUnwrap(session.controller.candidatePresenter as? RecordingCandidatePresenter)
+        let highlighted = try XCTUnwrap(presenter.cells.dropFirst().first)
+        XCTAssertTrue(presenter.isShowing)
+        XCTAssertEqual(presenter.selectedIndex, 1)
+        XCTAssertEqual(highlighted.text, "好")
+
+        _ = try session.controller.handle(
+            TestFixtures.keyDownEvent(characters: "?"), client: session.client,
+        )
+
+        XCTAssertEqual(session.client.insertedTexts, ["好？"])
+        XCTAssertFalse(presenter.isShowing)
+    }
+
     /// ⚠ Both rewrites fire here, and they answer to different questions: the
     /// auto space follows what this commit WROTE — the preedit as typed, which
     /// is romanization under TL and POJ — while the
