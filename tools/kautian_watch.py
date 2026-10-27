@@ -432,6 +432,10 @@ def github(*arguments: str, payload: dict[str, str] | None = None):
 
 
 def publish(arguments: argparse.Namespace) -> None:
+    report = json.loads((arguments.report / "report.json").read_text(encoding="utf-8"))
+    if report["baseline_data_sha256"] == report["upstream_data_sha256"]:
+        print("No data changes; preserve the latest issue diff")
+        return
     endpoint = f"repos/{arguments.repo}/issues"
     pages = github(
         f"{endpoint}?state=open&creator=github-actions%5Bbot%5D&per_page=100",
@@ -454,10 +458,6 @@ def publish(arguments: argparse.Namespace) -> None:
     existing = generated_section(current["body"] or "") if current else None
     if existing and marker in existing and FORMAT_MARKER in existing:
         print("Issue already has this data diff")
-        return
-    report = json.loads((arguments.report / "report.json").read_text(encoding="utf-8"))
-    if not current and report["baseline_data_sha256"] == report["upstream_data_sha256"]:
-        print("No data changes; no issue needed")
         return
     summary = (arguments.report / "summary.md").read_text(encoding="utf-8")
     section = (
@@ -484,10 +484,10 @@ def publish(arguments: argparse.Namespace) -> None:
         body = (
             "MoE published data differing from the committed capture.\n\n"
             "Source: https://sutian.moe.edu.tw/media/senn/ods/kautian.ods\n\n"
-            "Refresh: replace `dictionary/sources/official/kautian/data/raw/kautian.ods`, "
-            "then `make dict` (regenerate `word_unigrams.tsv` / `word_bigrams.tsv` "
-            "with `build.corpus_bigrams` if a unigram row is no longer a dictionary record) "
-            "and commit rebuilt artifacts."
+            "Daily automation rebuilds dictionary data and opens a PR for manual merge "
+            "after Python and Engine verification. Merging that PR closes this issue. "
+            "If verification fails, inspect the linked run; corpus membership changes "
+            "require complete `build.corpus_bigrams` regeneration before retrying."
         )
         issue = github(
             endpoint,

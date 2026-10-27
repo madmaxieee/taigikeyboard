@@ -347,7 +347,7 @@ def test_old_layout_or_markers_outside_generated_section_refresh_once(report, mo
         assert watch.FORMAT_MARKER in watch.generated_section(updated)
 
 
-def test_no_change_does_not_open_issue_and_clears_stale_report(report, monkeypatch):
+def test_no_change_preserves_latest_issue_without_any_api_mutation(report, monkeypatch):
     data_path = report.report / "report.json"
     data = json.loads(data_path.read_text())
     data["upstream_data_sha256"] = data["baseline_data_sha256"]
@@ -357,11 +357,7 @@ def test_no_change_does_not_open_issue_and_clears_stale_report(report, monkeypat
     api = Mock(return_value=[[]])
     monkeypatch.setattr(watch, "github", api)
     watch.publish(report)
-    assert api.call_count == 1
-    api.reset_mock()
-    api.side_effect = [[[issue()]], issue(), {}]
-    watch.publish(report)
-    assert "No data differences" in api.call_args.kwargs["payload"]["body"]
+    api.assert_not_called()
 
 
 def test_github_errors_propagate_without_mutation(report, monkeypatch):
