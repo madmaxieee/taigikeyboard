@@ -484,8 +484,8 @@ def publish(arguments: argparse.Namespace) -> None:
         body = (
             "MoE published data differing from the committed capture.\n\n"
             "Source: https://sutian.moe.edu.tw/media/senn/ods/kautian.ods\n\n"
-            "Daily automation rebuilds dictionary data, opens a PR and merges it after "
-            "Python and Engine verification. This issue stays open with the latest diff. "
+            "Daily automation rebuilds dictionary data and opens a PR for manual merge "
+            "after Python and Engine verification. Merging that PR closes this issue. "
             "If verification fails, inspect the linked run; corpus membership changes "
             "require complete `build.corpus_bigrams` regeneration before retrying."
         )

@@ -3,7 +3,7 @@ name: Kautian watch
 # Daily check whether MoE has published a new 教典 export
 # (https://sutian.moe.edu.tw/media/senn/ods/kautian.ods). Compares the export's
 # data rows with the committed capture, ignoring packaging, styles and ordering.
-# Maintains an open issue and merges data PRs after reusable CI succeeds.
+# Opens data PRs for manual merge; merging closes the corresponding issue.
 # Refresh steps: dictionary/docs/SOURCES.md § kautian.
 on:
   schedule:
@@ -34,7 +34,6 @@ jobs:
       pull-requests: write
     outputs:
       head: ${{ steps.refresh.outputs.head }}
-      pr: ${{ steps.refresh.outputs.pr }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -73,7 +72,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      # No-change runs preserve the latest diff for review after merging.
+      # No-change runs preserve the latest diff in the issue history.
       - name: Create or update issue
         env:
           GH_TOKEN: ${{ github.token }}
@@ -101,8 +100,8 @@ jobs:
           existing=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&base=main&per_page=100" \
             --paginate --jq '.[] | select(.head.ref | startswith("automation/kautian-")) | .html_url')
           if [ -n "$existing" ]; then
-            echo "::error::Resolve existing Kautian refresh PR before retrying: $existing"
-            exit 1
+            echo "::notice::Kautian refresh PR awaiting manual merge: $existing"
+            exit 0
           fi
           git submodule update --init taigi-converter
           python -m pip install -r dictionary/requirements.txt
@@ -158,18 +157,17 @@ jobs:
           {
             echo 'Refresh MoE capture, provenance and rebuilt dictionary artifacts.'
             echo
-            echo 'Merge after reusable Python and Engine CI validate this exact commit.'
+            echo 'Manual merge required after reusable Python and Engine CI validate this exact commit.'
             echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
             echo
-            gh issue list --repo "$GITHUB_REPOSITORY" --state open --author 'github-actions[bot]' \
-              --json number,title --jq '.[] | select(.title == "chore(dictionary): MoE kautian.ods has new data") | "Related #\(.number)"'
+            gh api "repos/$GITHUB_REPOSITORY/issues?state=open&creator=github-actions%5Bbot%5D&per_page=100" \
+              --paginate --jq '.[] | select(.title == "chore(dictionary): MoE kautian.ods has new data" and (has("pull_request") | not)) | "Closes #\(.number)"'
             echo
             cat "$RUNNER_TEMP/report/summary.md"
           } > "$RUNNER_TEMP/kautian-pr.md"
-          pr=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$branch" \
-            --title 'chore(dictionary): refresh MoE Kautian data' --body-file "$RUNNER_TEMP/kautian-pr.md")
+          gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$branch" \
+            --title 'chore(dictionary): refresh MoE Kautian data' --body-file "$RUNNER_TEMP/kautian-pr.md"
           echo "head=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "pr=${pr##*/}" >> "$GITHUB_OUTPUT"
 
   python:
     needs: check
@@ -189,27 +187,3 @@ jobs:
     permissions:
       contents: read
 
-  merge:
-    needs: [check, python, engine]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Merge verified data PR
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ needs.check.outputs.pr }}
-          HEAD_SHA: ${{ needs.check.outputs.head }}
-        run: |
-          set -euo pipefail
-          main=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)
-          if [ "$main" != "$GITHUB_SHA" ]; then
-            echo '::error::main changed during verification; leave PR open for revalidation'
-            exit 1
-          fi
-          result=$(gh api --method PUT "repos/$GITHUB_REPOSITORY/pulls/$PR/merge" \
-            -f sha="$HEAD_SHA" -f merge_method=merge)
-          echo "$result"
-          test "$(echo "$result" | jq -r .merged)" = true

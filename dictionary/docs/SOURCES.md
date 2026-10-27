@@ -21,7 +21,8 @@ current-at-release values when cutting a dictionary refresh.
   <https://sutian.moe.edu.tw/media/senn/ods/kautian.ods> daily at 00:00 UTC
   (08:00 Taiwan time), with HTTPS certificate verification. The downstream
   `taigikeyboard/kautian-mirror` checks this repository's main at 09:00 Taiwan
-  time, leaving one hour for the upstream rebuild, verification and merge.
+  time, leaving one hour for the upstream rebuild and verification. Data PRs
+  require manual merge; the site picks up merged data on a later scheduled run.
   GitHub scheduled runs can be delayed; the two schedules are not a strict
   completion dependency. The standard-library tool `tools/kautian_watch.py`
   compares all sheets' data rows
@@ -39,19 +40,21 @@ current-at-release values when cutting a dictionary refresh.
   metadata are collapsed. The bounded summary keeps complete record diffs;
   the full report includes every change. Identical comparisons with the same
   renderer version do not rewrite the issue. No-change runs retain the latest
-  diff, and data PRs link the issue without closing it.
+  diff. Data PRs include a closing reference to the matching issue, so manually
+  merging the PR into main automatically closes the issue and preserves its report.
   Data changes trigger `make dict`, including binary round-trip, POJ integrity
   and known-key verification. The workflow commits only the Kautian capture,
   provenance, source CSV, derived variants, merged dictionary, walker statistics,
   word keys and four shipped artifacts, then opens a PR. Callable Python and
-  Engine workflows validate its exact commit before a SHA-checked merge to main.
+  Engine workflows validate its exact commit; the maintainer merges the PR manually.
   These explicit gates avoid requiring manual approval of workflows triggered
   by a `GITHUB_TOKEN`-created PR. Actions must be allowed to create PRs in the
   repository's workflow permissions; no additional token is required.
-  Failed rebuilds or verification stop merging. An existing open automation PR
-  blocks duplicate refresh PRs; resolve it before retrying. A changed main also
-  stops merging, leaving the PR for revalidation. The base check immediately
-  precedes the merge request; GitHub's API atomically checks only the head SHA.
+  Rebuild failures stop PR creation. Verification failures remain visible for
+  review before manual merge. An existing open automation PR skips duplicate
+  refresh creation while awaiting the maintainer; daily issue reports still update.
+  The pending PR keeps its original capture; upstream changes arriving while it
+  is open are detected again after that PR merges.
   Corpus membership changes require manual regeneration of both corpus TSVs
   from all source corpora with `build.corpus_bigrams`; partial-source generation
   would lose counts. Automation preserves that failure instead of dropping data.
