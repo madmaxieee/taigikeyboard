@@ -5,6 +5,12 @@ name: Python tools
 # through Node, so that submodule is checked out) and the release-notes and
 # Windows icon tools. Nothing is built; ~1 min.
 on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate for automated dictionary refreshes
+        type: string
+        required: true
   pull_request:
     paths:
       - 'dictionary/**/*.py'
@@ -39,6 +45,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       # Only the converter: corpus/ is manual-test text, never a build input.
       - name: Check out taigi-converter

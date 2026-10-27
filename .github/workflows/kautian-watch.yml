@@ -1,13 +1,13 @@
 name: Kautian watch
 
-# Weekly check whether MoE has published a new 教典 export
+# Daily check whether MoE has published a new 教典 export
 # (https://sutian.moe.edu.tw/media/senn/ods/kautian.ods). Compares the export's
 # data rows with the committed capture, ignoring packaging, styles and ordering.
-# Maintains one issue with counts, examples and full report artifacts.
+# Maintains an open issue and merges data PRs after reusable CI succeeds.
 # Refresh steps: dictionary/docs/SOURCES.md § kautian.
 on:
   schedule:
-    - cron: '0 1 * * 1'
+    - cron: '0 1 * * *'
   workflow_dispatch:
 
 permissions:
@@ -24,51 +24,191 @@ env:
 
 jobs:
   check:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      head: ${{ steps.refresh.outputs.head }}
+      pr: ${{ steps.refresh.outputs.pr }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          sparse-checkout: |
-            ${{ env.KAUTIAN_PATH }}
-            tools/kautian_watch.py
-          sparse-checkout-cone-mode: false
+          fetch-depth: 0
 
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.13'
 
-      # --insecure: the publisher's TLS certificate expired 2026-10-08. The download
-      # is only parsed and compared, never committed or built; refreshing the capture
-      # is a manual step.
       - name: Download upstream export
         run: |
-          curl --fail --silent --show-error --insecure --max-time 300 \
-            --dump-header upstream.headers --output upstream.ods "$KAUTIAN_URL"
+          curl --fail --silent --show-error --max-time 300 \
+            --dump-header "$RUNNER_TEMP/upstream.headers" \
+            --output "$RUNNER_TEMP/upstream.ods" "$KAUTIAN_URL"
 
       - name: Compare with committed capture
+        id: compare
         run: |
-          python tools/kautian_watch.py compare "$KAUTIAN_PATH" upstream.ods \
-            --baseline-commit "$GITHUB_SHA" --output report
+          python tools/kautian_watch.py compare "$KAUTIAN_PATH" "$RUNNER_TEMP/upstream.ods" \
+            --baseline-commit "$GITHUB_SHA" --output "$RUNNER_TEMP/report"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads((Path(os.environ['RUNNER_TEMP']) / 'report/report.json').read_text())
+          changed = report['baseline_data_sha256'] != report['upstream_data_sha256']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print(f'changed={str(changed).lower()}', file=output)
+          PY
 
       - name: Upload full diff
         id: report
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: kautian-diff
-          path: report/
+          path: ${{ runner.temp }}/report/
           if-no-files-found: error
           retention-days: 90
 
-      # Also runs on no-change comparisons to clear a stale report after a
-      # capture refresh. Existing human text and comments remain intact.
+      # No-change runs preserve the latest diff for review after merging.
       - name: Create or update issue
         env:
           GH_TOKEN: ${{ github.token }}
           ARTIFACT_URL: ${{ steps.report.outputs.artifact-url }}
         run: |
-          last_modified=$(awk 'tolower($1) == "last-modified:" {$1=""; sub(/^ /, ""); sub(/\r$/, ""); print}' upstream.headers)
+          last_modified=$(awk 'tolower($1) == "last-modified:" {$1=""; sub(/^ /, ""); sub(/\r$/, ""); print}' "$RUNNER_TEMP/upstream.headers")
           python tools/kautian_watch.py publish --repo "$GITHUB_REPOSITORY" \
-            --report report --artifact-url "$ARTIFACT_URL" \
+            --report "$RUNNER_TEMP/report" --artifact-url "$ARTIFACT_URL" \
             --last-modified "${last_modified:-unknown}" \
             --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.compare.outputs.changed == 'true'
+        with:
+          node-version: '22'
+
+      - name: Rebuild and open data PR
+        id: refresh
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUSTUP_TOOLCHAIN: stable
+        run: |
+          set -euo pipefail
+          existing=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&base=main&per_page=100" \
+            --paginate --jq '.[] | select(.head.ref | startswith("automation/kautian-")) | .html_url')
+          if [ -n "$existing" ]; then
+            echo "::error::Resolve existing Kautian refresh PR before retrying: $existing"
+            exit 1
+          fi
+          git submodule update --init taigi-converter
+          python -m pip install -r dictionary/requirements.txt
+          rustup toolchain install stable --profile minimal --no-self-update
+          cp "$RUNNER_TEMP/upstream.ods" "$KAUTIAN_PATH"
+          python - <<'PY'
+          import datetime, email.utils, hashlib, os, re
+          from pathlib import Path
+          temporary = Path(os.environ['RUNNER_TEMP'])
+          headers = (temporary / 'upstream.headers').read_text()
+          modified = re.findall(r'^last-modified:\s*(.+)$', headers, re.I | re.M)
+          timestamp = email.utils.parsedate_to_datetime(modified[-1].strip()).astimezone(datetime.UTC)
+          digest = hashlib.sha256((temporary / 'upstream.ods').read_bytes()).hexdigest()
+          source = Path('dictionary/docs/SOURCES.md')
+          text = source.read_text()
+          replacement = (
+              f'- **Captured**: `data/raw/kautian.ods` on {datetime.datetime.now(datetime.UTC):%Y-%m-%d} from\n'
+              '  <https://sutian.moe.edu.tw/media/senn/ods/kautian.ods>.\n'
+              f'  Upstream Last-Modified: {timestamp:%Y-%m-%d %H:%M:%S} UTC; SHA-256:\n'
+              f'  `{digest}`.\n'
+          )
+          text, count = re.subn(r'- \*\*Captured\*\*: `data/raw/kautian\.ods`.*?(?=- \*\*Licence\*\*:)', replacement, text, flags=re.S)
+          if count != 1:
+              raise ValueError('Expected exactly one Kautian provenance block')
+          source.write_text(text)
+          PY
+          # Includes binary round trips, POJ integrity and known FST key gates.
+          # Corpus membership errors remain fatal; never discard existing counts.
+          make dict
+          python - <<'PY'
+          import subprocess
+          allowed = {
+              'dictionary/sources/official/kautian/data/raw/kautian.ods',
+              'dictionary/sources/official/kautian/data/kautian.csv',
+              'dictionary/supplementary/variants/data/variants.csv',
+              'dictionary/output/dictionary.csv', 'dictionary/output/walker_lm_stats.txt',
+              'dictionary/word-keys.tsv', 'dictionary/docs/SOURCES.md',
+              'assets/dictionaries/dictionary.bin', 'assets/dictionaries/dictionary.fst',
+              'assets/dictionaries/syllables.fst', 'assets/dictionaries/association.bin',
+          }
+          paths = subprocess.check_output(['git', 'diff', '--name-only', '-z']).decode().split('\0')
+          unexpected = set(paths) - allowed - {''}
+          if unexpected:
+              raise ValueError(f'Unexpected generated changes: {sorted(unexpected)}')
+          subprocess.run(['git', 'add', '--', *sorted(allowed)], check=True)
+          PY
+          branch="automation/kautian-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          git switch -c "$branch"
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m 'chore(dictionary): refresh MoE Kautian data'
+          git push origin "HEAD:refs/heads/$branch"
+          {
+            echo 'Refresh MoE capture, provenance and rebuilt dictionary artifacts.'
+            echo
+            echo 'Merge after reusable Python and Engine CI validate this exact commit.'
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            gh issue list --repo "$GITHUB_REPOSITORY" --state open --author 'github-actions[bot]' \
+              --json number,title --jq '.[] | select(.title == "chore(dictionary): MoE kautian.ods has new data") | "Related #\(.number)"'
+            echo
+            cat "$RUNNER_TEMP/report/summary.md"
+          } > "$RUNNER_TEMP/kautian-pr.md"
+          pr=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$branch" \
+            --title 'chore(dictionary): refresh MoE Kautian data' --body-file "$RUNNER_TEMP/kautian-pr.md")
+          echo "head=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "pr=${pr##*/}" >> "$GITHUB_OUTPUT"
+
+  python:
+    needs: check
+    if: needs.check.outputs.head != ''
+    uses: ./.github/workflows/python.yml
+    with:
+      ref: ${{ needs.check.outputs.head }}
+    permissions:
+      contents: read
+
+  engine:
+    needs: check
+    if: needs.check.outputs.head != ''
+    uses: ./.github/workflows/engine.yml
+    with:
+      ref: ${{ needs.check.outputs.head }}
+    permissions:
+      contents: read
+
+  merge:
+    needs: [check, python, engine]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Merge verified data PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ needs.check.outputs.pr }}
+          HEAD_SHA: ${{ needs.check.outputs.head }}
+        run: |
+          set -euo pipefail
+          main=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)
+          if [ "$main" != "$GITHUB_SHA" ]; then
+            echo '::error::main changed during verification; leave PR open for revalidation'
+            exit 1
+          fi
+          result=$(gh api --method PUT "repos/$GITHUB_REPOSITORY/pulls/$PR/merge" \
+            -f sha="$HEAD_SHA" -f merge_method=merge)
+          echo "$result"
+          test "$(echo "$result" | jq -r .merged)" = true

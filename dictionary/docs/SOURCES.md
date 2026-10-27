@@ -18,7 +18,8 @@ current-at-release values when cutting a dictionary refresh.
 - **Notes**: Multi-sheet; pipeline `select`/`expand`/`merge` stages
   handle the pivoting. Largest single source (~49k rows).
 - **Update watch**: `.github/workflows/kautian-watch.yml` downloads
-  <https://sutian.moe.edu.tw/media/senn/ods/kautian.ods> every Monday. The
+  <https://sutian.moe.edu.tw/media/senn/ods/kautian.ods> daily at 01:00 UTC
+  (09:00 Taiwan time), with HTTPS certificate verification. The
   standard-library tool `tools/kautian_watch.py` compares all sheets' data rows
   with the committed capture, ignoring packaging, styles and row ordering.
   Duplicate rows retain their counts. The issue reports before/after totals,
@@ -33,9 +34,23 @@ current-at-release values when cutting a dictionary refresh.
   human text and comments remain intact. Unchanged sheets and comparison
   metadata are collapsed. The bounded summary keeps complete record diffs;
   the full report includes every change. Identical comparisons with the same
-  renderer version do not rewrite the issue. A refreshed capture updates a
-  stale report to say there are no differences, without automatically closing
-  the issue.
+  renderer version do not rewrite the issue. No-change runs retain the latest
+  diff, and data PRs link the issue without closing it.
+  Data changes trigger `make dict`, including binary round-trip, POJ integrity
+  and known-key verification. The workflow commits only the Kautian capture,
+  provenance, source CSV, derived variants, merged dictionary, walker statistics,
+  word keys and four shipped artifacts, then opens a PR. Callable Python and
+  Engine workflows validate its exact commit before a SHA-checked merge to main.
+  These explicit gates avoid requiring manual approval of workflows triggered
+  by a `GITHUB_TOKEN`-created PR. Actions must be allowed to create PRs in the
+  repository's workflow permissions; no additional token is required.
+  Failed rebuilds or verification stop merging. An existing open automation PR
+  blocks duplicate refresh PRs; resolve it before retrying. A changed main also
+  stops merging, leaving the PR for revalidation. The base check immediately
+  precedes the merge request; GitHub's API atomically checks only the head SHA.
+  Corpus membership changes require manual regeneration of both corpus TSVs
+  from all source corpora with `build.corpus_bigrams`; partial-source generation
+  would lose counts. Automation preserves that failure instead of dropping data.
   A manual **Kautian watch** run regenerates the full report if an artifact
   expires; its artifacts remain available even when the issue is unchanged.
   To inspect locally without publishing:

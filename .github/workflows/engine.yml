@@ -12,6 +12,12 @@ name: Engine
 # Budget: ~2 min with a warm cache, ~5 min cold (dependency compile). Nothing
 # here needs a macOS or Windows runner.
 on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit to validate for automated dictionary refreshes
+        type: string
+        required: true
   pull_request:
     paths:
       - 'engine/**'
@@ -49,6 +55,8 @@ jobs:
       RUSTUP_TOOLCHAIN: stable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Install protoc ${{ env.PROTOC_VERSION }}
         run: |
@@ -104,6 +112,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Install protoc ${{ env.PROTOC_VERSION }}
         run: |
@@ -139,6 +149,8 @@ jobs:
       RUSTUP_TOOLCHAIN: stable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Install protoc ${{ env.PROTOC_VERSION }}
         run: |
