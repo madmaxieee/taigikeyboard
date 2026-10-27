@@ -7,7 +7,8 @@ name: Kautian watch
 # Refresh steps: dictionary/docs/SOURCES.md § kautian.
 on:
   schedule:
-    - cron: '0 1 * * *'
+    # 08:00 Taiwan time, before kautian-mirror's 09:00 downstream check.
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 permissions:

@@ -18,9 +18,13 @@ current-at-release values when cutting a dictionary refresh.
 - **Notes**: Multi-sheet; pipeline `select`/`expand`/`merge` stages
   handle the pivoting. Largest single source (~49k rows).
 - **Update watch**: `.github/workflows/kautian-watch.yml` downloads
-  <https://sutian.moe.edu.tw/media/senn/ods/kautian.ods> daily at 01:00 UTC
-  (09:00 Taiwan time), with HTTPS certificate verification. The
-  standard-library tool `tools/kautian_watch.py` compares all sheets' data rows
+  <https://sutian.moe.edu.tw/media/senn/ods/kautian.ods> daily at 00:00 UTC
+  (08:00 Taiwan time), with HTTPS certificate verification. The downstream
+  `taigikeyboard/kautian-mirror` checks this repository's main at 09:00 Taiwan
+  time, leaving one hour for the upstream rebuild, verification and merge.
+  GitHub scheduled runs can be delayed; the two schedules are not a strict
+  completion dependency. The standard-library tool `tools/kautian_watch.py`
+  compares all sheets' data rows
   with the committed capture, ignoring packaging, styles and row ordering.
   Duplicate rows retain their counts. The issue reports before/after totals,
   additions, removals and modifications per sheet, with named-field Git-style
