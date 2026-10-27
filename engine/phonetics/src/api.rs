@@ -44,6 +44,11 @@ pub enum PhoneticsError {
     UnsupportedOp,
 }
 
+/// Whether text is punctuation that attaches before an auto space (§23).
+pub fn is_attaching_punctuation(text: &str) -> bool {
+    crate::punctuation::is_attaching_punctuation(text)
+}
+
 pub(crate) fn capitalize_first(text: &str) -> String {
     let mut chars = text.chars();
     match chars.next() {

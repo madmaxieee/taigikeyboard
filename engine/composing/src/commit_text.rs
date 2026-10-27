@@ -204,6 +204,7 @@ pub(crate) fn commit_resolution(
         document_text: resolved.text,
         wrote_romanization: resolved.wrote_romanization,
         earns_auto_space,
+        leaves_trailing_auto_space: false,
     }
 }
 

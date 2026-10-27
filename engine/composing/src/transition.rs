@@ -29,7 +29,8 @@
 
 use crate::api::{
     combined_display, join_nailed_prefix_and_tail, nailed_prefix, Applied, CaretDirection,
-    CommitScript, ConversionFrequency, EngineState, Intent, NailedSegment, Phase, Usage,
+    CommitScript, ContinuousPick, ConversionFrequency, EngineState, Intent, NailedSegment, Phase,
+    Usage,
 };
 use crate::commit_text::{commit_resolution, resolve_commit_text};
 use crate::conversion::{next_raw_span, PreviousTail};
@@ -110,6 +111,20 @@ pub(crate) fn apply(
             }
             Phase::Idle => insert_external_when_idle(state, text, config),
         },
+        Intent::ConfirmCompositionThenInsert {
+            candidate,
+            text,
+            auto_space_enabled,
+        } => {
+            return confirm_composition_then_insert(
+                state,
+                candidate,
+                &text,
+                auto_space_enabled,
+                config,
+                frequency,
+            );
+        }
         Intent::Reset => reset(state, config),
         // FetchAtPos is a read-only query that needs lexicon state; the
         // dispatcher short-circuits before reaching `apply`. Reaching
@@ -1235,6 +1250,113 @@ fn commit_continuous(
         applied.usage = Some(usage);
     }
     applied.response.commit = Some(commit_resolution(outcome, Some(resolved)));
+    applied
+}
+
+/// Accept a pick and finish with a literal in the same transition. Learning
+/// remains the pick's: a full pick teaches its words, a partial pick followed
+/// by an unpicked tail teaches no final word or phrase.
+fn confirm_composition_then_insert(
+    state: &mut EngineState,
+    candidate: Option<ContinuousPick>,
+    text: &str,
+    auto_space_enabled: bool,
+    config: &AppConfig,
+    frequency: Frequency<'_>,
+) -> Applied {
+    if text.is_empty() || matches!(state.phase, Phase::Idle) {
+        let mut response = noop(state, config);
+        response.commit = Some(commit_resolution(CommitOutcome::Ignored, None));
+        return response.into();
+    }
+    let mut applied = if let Some(candidate) = candidate {
+        let pick = SegmentPick {
+            canonical_text: candidate.canonical_text,
+            association_tl: candidate.association_tl,
+            hanji: candidate.hanji,
+            consumed_bytes: candidate.consumed_bytes,
+            syllable_count: candidate.syllable_count,
+        };
+        let applied = commit_continuous(
+            state,
+            pick,
+            candidate.script,
+            &candidate.roman,
+            config,
+            frequency,
+        );
+        if applied
+            .response
+            .commit
+            .as_ref()
+            .is_some_and(|commit| commit.outcome() == CommitOutcome::Ignored)
+        {
+            return applied;
+        }
+        applied
+    } else {
+        noop(state, config).into()
+    };
+    if matches!(state.phase, Phase::Continuous { .. }) {
+        let committed = phase_preedit(&state.phase, config).display_text;
+        let insert = crate::external_insert::augment_insert(
+            text,
+            &committed,
+            auto_space_enabled && !config.is_tps_layout(),
+        );
+        let mut resolution = commit_resolution(
+            CommitOutcome::Finalized,
+            Some(crate::commit_text::ResolvedCommit {
+                text: committed,
+                wrote_romanization: !config.is_tps_layout(),
+            }),
+        );
+        resolution.leaves_trailing_auto_space = insert.leaves_trailing_auto_space;
+        // Preserve a partial pick's learning handshake, without exposing its
+        // transient preedit or refetch request to the host.
+        applied.response.effect.retain(|effect| {
+            matches!(
+                effect.kind,
+                Some(effect::Kind::NextWordUpdateLastSelectedWord(_))
+            )
+        });
+        // A TPS pick can leave the composition all nailed with no raw tail.
+        // Use normal confirmation learning: only fully picked compositions
+        // teach words/phrases; unpicked segments or a pending tail teach none.
+        let mut finished = commit_as_shown(state, config);
+        for effect in &mut finished.response.effect {
+            if let Some(effect::Kind::CommitTextReplacingPreedit(committed)) = effect.kind.as_mut()
+            {
+                committed.text.push_str(&insert.text);
+            }
+        }
+        applied.learned = finished.learned;
+        applied.response.effect.extend(finished.response.effect);
+        applied.response = ComposingResponse {
+            effect: applied.response.effect,
+            commit: Some(resolution),
+            ..finished.response
+        };
+    } else {
+        // The pick finalized already. Its one document write receives the
+        // literal; its learning effects and phrase identity stay untouched.
+        if let Some(resolution) = applied.response.commit.as_mut() {
+            for effect in &mut applied.response.effect {
+                if let Some(effect::Kind::CommitTextReplacingPreedit(committed)) =
+                    effect.kind.as_mut()
+                {
+                    let insert = crate::external_insert::augment_insert(
+                        text,
+                        &committed.text,
+                        auto_space_enabled && resolution.earns_auto_space,
+                    );
+                    resolution.document_text = committed.text.clone();
+                    resolution.leaves_trailing_auto_space = insert.leaves_trailing_auto_space;
+                    committed.text.push_str(&insert.text);
+                }
+            }
+        }
+    }
     applied
 }
 

@@ -109,6 +109,36 @@ fn final_commit_of_hanji_picks_learns_the_joined_phrase() {
 }
 
 #[test]
+fn confirm_composition_then_insert_learns_the_same_phrase_without_the_literal() {
+    let _lock = engine_install_lock();
+    install(&fixture_rows(), FIXTURE_SYLLABLES);
+    let mut engine = engine_in_continuous("kikhilai");
+    engine.apply(pick((Some("記"), "kì", 2, 1)), &config_tl());
+    let request = req(Method::ConfirmCompositionThenInsert(
+        protos::engine::ConfirmCompositionThenInsert {
+            candidate: Some(CommitContinuous {
+                consumed_bytes: 6,
+                syllable_count: 2,
+                canonical_text: "起來".into(),
+                association_tl: "khí-lâi".into(),
+                hanji: Some("起來".into()),
+                script: protos::engine::CommitScript::Lead as i32,
+                roman: "khí-lâi".into(),
+            }),
+            text: "?".into(),
+            auto_space_enabled: true,
+        },
+    ));
+    let applied = engine.apply_learning(requests::decode_intent(&request).unwrap(), &config_tl());
+    assert_eq!(applied.learned, phrase("記起來", "kì khí-lâi"));
+    assert_eq!(applied.usage.unwrap().canonical_tl, "khí-lâi");
+    assert_eq!(
+        crate::common::commit_text(&applied.response).as_deref(),
+        Some("記 khí-lâi? ")
+    );
+}
+
+#[test]
 fn only_a_dictionary_compound_run_learns_its_hyphens() {
     // USER 2026-09-23: `tsotsintshutkhau` picked 做 → 進 → 出 → 口 learned
     // `tsò-tsìn-tshut-kháu`, but 做 and 進出口 are two words.

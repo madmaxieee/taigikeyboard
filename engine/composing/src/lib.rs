@@ -18,6 +18,7 @@ mod commit_text;
 mod continuous;
 mod conversion;
 mod derived;
+mod external_insert;
 mod lattice;
 mod shadow;
 pub mod telex;

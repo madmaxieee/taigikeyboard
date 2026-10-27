@@ -220,5 +220,16 @@ public interface ComposingRequestOrBuilder extends
    */
   com.siansiansu.taigikeyboard.engine.proto.CommitAsTyped getCommitAsTyped();
 
+  /**
+   * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+   * @return Whether the confirmCompositionThenInsert field is set.
+   */
+  boolean hasConfirmCompositionThenInsert();
+  /**
+   * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+   * @return The confirmCompositionThenInsert.
+   */
+  com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert getConfirmCompositionThenInsert();
+
   public com.siansiansu.taigikeyboard.engine.proto.ComposingRequest.MethodCase getMethodCase();
 }
