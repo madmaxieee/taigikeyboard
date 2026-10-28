@@ -55,6 +55,8 @@ current-at-release values when cutting a dictionary refresh.
   refresh creation while awaiting the maintainer; daily issue reports still update.
   The pending PR keeps its original capture; upstream changes arriving while it
   is open are detected again after that PR merges.
+  Dictionary merging preserves source and row order within official-source
+  priority, so unrelated additions cannot change the selected TL/POJ spelling.
   Corpus membership changes require manual regeneration of both corpus TSVs
   from all source corpora with `build.corpus_bigrams`; partial-source generation
   would lose counts. Automation preserves that failure instead of dropping data.

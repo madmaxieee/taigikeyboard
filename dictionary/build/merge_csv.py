@@ -117,8 +117,9 @@ def main():
     merged_df["_tl_key"] = merged_df["tl"].str.replace(" ", "-", regex=False)
     merged_df["_is_official"] = merged_df[OFFICIAL_SOURCES].any(axis=1)
 
-    # Sort: official dictionaries first, so groupby's "first" takes the official version
-    merged_df = merged_df.sort_values("_is_official", ascending=False, ignore_index=True)
+    # Keep source/row order within each priority so unrelated additions cannot
+    # change the display spelling selected by groupby's "first".
+    merged_df = merged_df.sort_values("_is_official", ascending=False, kind="stable", ignore_index=True)
 
     # Dedup: rows with the same (hanzi, _tl_key) merge their source columns
     # dropna=False: keeps groupby from silently dropping rows that hold NaN

@@ -4900,7 +4900,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 上帝	siōng-tè	受	siū	5	0	2	1	0	0	2	0	0	0
 上帝	siōng-tè	呼	hoo	5	0	0	0	0	0	0	0	5	0
 上帝	siōng-tè	咱	lán	5	0	1	0	0	0	0	0	4	0
-上帝	siōng-tè	家內	ke-lāi	5	0	2	0	0	0	1	0	2	0
+上帝	siōng-tè	家內	ke lāi	5	0	2	0	0	0	1	0	2	0
 上帝	siōng-tè	家己	ka-kī	5	0	0	0	0	0	1	0	4	0
 上帝	siōng-tè	寶座	pó-tsō	5	0	0	0	0	0	2	0	3	0
 上帝	siōng-tè	差遣	tshe-khián	5	0	1	0	0	0	2	0	2	0
@@ -6682,7 +6682,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 不知	put-ti	情	tsîng	12	12	0	0	0	0	0	0	0	0
 不知	put-ti	去向	khì-hiòng	7	0	3	1	0	0	3	0	0	0
 不知	put-ti	天地	thian-tē	3	0	0	1	0	0	2	0	0	0
-不知	put-ti	這陣	tsit-tsūn	3	0	1	1	0	0	1	0	0	0
+不知	put-ti	這陣	tsit tsūn	3	0	1	1	0	0	1	0	0	0
 不知	put-ti	上帝	siōng-tè	2	0	0	1	0	0	1	0	0	0
 不知	put-ti	其	kî	2	1	1	0	0	0	0	0	0	0
 不知	put-ti	危機	guî-ki	2	0	1	0	0	0	1	0	0	0
@@ -11932,7 +11932,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 也	iā	返	tńg	2	0	0	2	0	0	0	0	0	0
 也	iā	迷惑	bê-hi̍k	2	0	0	0	0	0	0	0	2	0
 也	iā	退	thuè	2	0	0	2	0	0	0	0	0	0
-也	iā	這陣	tsit-tsūn	2	0	0	1	0	0	1	0	0	0
+也	iā	這陣	tsit tsūn	2	0	0	1	0	0	1	0	0	0
 也	iā	通	thong	2	0	1	1	0	0	0	0	0	0
 也	iā	連鞭	liâm-pinn	2	0	2	0	0	0	0	0	0	0
 也	iā	進	tsìn	2	0	0	2	0	0	0	0	0	0
@@ -13101,7 +13101,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 予	hōo	姓	sènn	8	6	1	0	0	0	1	0	0	0
 予	hōo	嬰仔	enn--á	8	0	0	3	1	0	1	0	3	0
 予	hōo	室	sik	8	0	0	4	0	0	4	0	0	0
-予	hōo	家內	ke-lāi	8	0	3	1	0	0	4	0	0	0
+予	hōo	家內	ke lāi	8	0	3	1	0	0	4	0	0	0
 予	hōo	李	lí	8	1	2	1	0	0	4	0	0	0
 予	hōo	海	hái	8	0	1	2	0	0	5	0	0	0
 予	hōo	湧	íng	8	0	0	0	0	1	3	0	4	0
@@ -22021,7 +22021,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 伊	i	賞賜	siúnn-sù	19	0	5	1	0	0	6	0	7	0
 伊	i	今	tann	18	0	1	4	0	2	11	0	0	0
 伊	i	安慰	an-uì	18	0	2	2	0	1	8	0	5	0
-伊	i	家內	ke-lāi	18	0	4	2	0	0	6	0	6	0
+伊	i	家內	ke lāi	18	0	4	2	0	0	6	0	6	0
 伊	i	拍	phah	18	0	10	4	0	2	2	0	0	0
 伊	i	本人	pún-lâng	18	1	1	3	0	2	9	0	2	0
 伊	i	決心	kuat-sim	18	2	5	5	0	1	5	0	0	0
@@ -22300,7 +22300,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 伊	i	身軀	sin-khu	9	0	2	2	0	0	5	0	0	0
 伊	i	車	tshia	9	0	0	5	0	1	2	1	0	0
 伊	i	這	tse	9	0	0	9	0	0	0	0	0	0
-伊	i	這陣	tsit-tsūn	9	0	1	3	0	2	3	0	0	0
+伊	i	這陣	tsit tsūn	9	0	1	3	0	2	3	0	0	0
 伊	i	通過	thong-kuè	9	0	0	0	0	0	1	0	8	0
 伊	i	過	kè	9	0	2	2	0	0	5	0	0	0
 伊	i	金	kim	9	0	0	8	0	1	0	0	0	0
@@ -24717,7 +24717,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 佇	tī	死	sí	32	0	16	0	0	0	8	0	8	0
 佇	tī	空空	khang-khang	32	0	14	0	0	0	11	0	7	0
 佇	tī	羅馬	lô-má	32	0	11	2	0	0	11	0	8	0
-佇	tī	家內	ke-lāi	31	0	12	1	0	0	16	0	2	0
+佇	tī	家內	ke lāi	31	0	12	1	0	0	16	0	2	0
 佇	tī	這搭	tsit-tah	31	30	0	0	0	1	0	0	0	0
 佇	tī	小	sió	30	4	10	7	0	0	9	0	0	0
 佇	tī	德國	tik-kok	30	5	14	3	0	0	8	0	0	0
@@ -27353,7 +27353,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 佇	tī	逐時	ta̍k-sî	2	0	2	0	0	0	0	0	0	0
 佇	tī	逐項	ta̍k hāng	2	0	1	0	0	0	1	0	0	0
 佇	tī	這跡	tsit-liah	2	2	0	0	0	0	0	0	0	0
-佇	tī	這陣	tsit-tsūn	2	0	1	0	0	0	1	0	0	0
+佇	tī	這陣	tsit tsūn	2	0	1	0	0	0	1	0	0	0
 佇	tī	這馬	tsit-má	2	2	0	0	0	0	0	0	0	0
 佇	tī	進前	tsìn-tsîng	2	1	0	1	0	0	0	0	0	0
 佇	tī	進展	tsìn-tián	2	0	0	1	0	0	1	0	0	0
@@ -29139,7 +29139,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 你	lí	安	an	3	0	0	0	0	0	3	0	0	0
 你	lí	安眠	an-bîn	3	0	0	0	0	0	3	0	0	0
 你	lí	家	ka	3	0	0	3	0	0	0	0	0	0
-你	lí	家內	ke-lāi	3	0	1	0	0	0	0	0	2	0
+你	lí	家內	ke lāi	3	0	1	0	0	0	0	0	2	0
 你	lí	寧可	lîng-khóo	3	0	0	0	0	0	0	0	3	0
 你	lí	寶貴	pó-kuì	3	0	0	2	0	0	1	0	0	0
 你	lí	小可	sió-khuá	3	0	0	0	0	1	1	1	0	0
@@ -29679,7 +29679,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 你	lí	逐年	ta̍k-nî	2	0	0	1	0	0	1	0	0	0
 你	lí	這	tsí	2	0	0	1	0	0	1	0	0	0
 你	lí	這號	tsit-hō	2	0	0	0	0	0	2	0	0	0
-你	lí	這陣	tsit-tsūn	2	0	0	0	0	2	0	0	0	0
+你	lí	這陣	tsit tsūn	2	0	0	0	0	2	0	0	0	0
 你	lí	連	liān	2	0	0	1	0	0	1	0	0	0
 你	lí	週全	tsiu-tsuân	2	0	0	2	0	0	0	0	0	0
 你	lí	過	kè	2	0	0	2	0	0	0	0	0	0
@@ -29955,7 +29955,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 佮	kap	醫生	i-sing	21	3	8	2	0	0	8	0	0	0
 佮	kap	受	siū	20	0	9	0	0	0	8	0	3	0
 佮	kap	各	kok	20	2	10	2	0	0	3	0	3	0
-佮	kap	家內	ke-lāi	20	0	4	4	0	0	9	0	3	0
+佮	kap	家內	ke lāi	20	0	4	4	0	0	9	0	3	0
 佮	kap	寫	siá	20	0	9	3	0	0	8	0	0	0
 佮	kap	歹	pháinn	20	0	11	3	0	0	6	0	0	0
 佮	kap	死	sí	20	0	8	2	0	0	6	0	4	0
@@ -33315,7 +33315,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 來	lâi	失明	sit-bîng	4	0	0	4	0	0	0	0	0	0
 來	lâi	媽宮	má-king	4	0	1	0	0	0	3	0	0	0
 來	lâi	完成	uân-tsiânn	4	0	4	0	0	0	0	0	0	0
-來	lâi	家內	ke-lāi	4	0	1	1	0	0	2	0	0	0
+來	lâi	家內	ke lāi	4	0	1	1	0	0	2	0	0	0
 來	lâi	寫字	siá-jī	4	0	0	3	0	1	0	0	0	0
 來	lâi	專	tsuan	4	0	2	1	0	0	1	0	0	0
 來	lâi	對照	tuì-tsiò	4	0	2	1	0	0	1	0	0	0
@@ -37561,7 +37561,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 倒來	tò-lâi	到	kàu	6	0	3	0	0	0	3	0	0	0
 倒來	tò-lâi	的	ê	6	0	6	0	0	0	0	0	0	0
 倒來	tò-lâi	予	hōo	5	0	0	0	0	0	5	0	0	0
-倒來	tò-lâi	家內	ke-lāi	5	0	0	0	0	0	5	0	0	0
+倒來	tò-lâi	家內	ke lāi	5	0	0	0	0	0	5	0	0	0
 倒來	tò-lâi	做	tsuè	4	0	3	0	0	0	1	0	0	0
 倒來	tò-lâi	共	kā	4	0	0	0	0	0	4	0	0	0
 倒來	tò-lâi	是	sī	4	0	1	0	0	0	3	0	0	0
@@ -37624,7 +37624,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 倒去	tò--khì	加拿大	ka-ná-tāi	2	0	2	0	0	0	0	0	0	0
 倒去	tò--khì	南京	lâm-kiann	2	0	0	0	0	0	2	0	0	0
 倒去	tò--khì	天	thian	2	0	2	0	0	0	0	0	0	0
-倒去	tò--khì	家內	ke-lāi	2	0	0	0	0	0	2	0	0	0
+倒去	tò--khì	家內	ke lāi	2	0	0	0	0	0	2	0	0	0
 倒去	tò--khì	恁	lín	2	0	1	0	0	0	1	0	0	0
 倒去	tò--khì	旗後	kî-āu	2	0	2	0	0	0	0	0	0	0
 倒去	tò--khì	本家	pún-ke	2	0	1	0	0	0	1	0	0	0
@@ -38703,7 +38703,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 做	tsuè	受	siū	11	0	3	0	0	0	2	0	6	0
 做	tsuè	女	lú	11	0	5	2	0	0	4	0	0	0
 做	tsuè	完全	uân-tsuân	11	0	3	0	0	0	1	0	7	0
-做	tsuè	家內	ke-lāi	11	0	2	2	0	0	7	0	0	0
+做	tsuè	家內	ke lāi	11	0	2	2	0	0	7	0	0	0
 做	tsuè	模樣	bôo-iūnn	11	0	7	1	0	0	1	0	2	0
 做	tsuè	真實	tsin-si̍t	11	0	2	0	0	0	8	0	1	0
 做	tsuè	祈禱	kî-tó	11	0	7	0	0	0	2	0	2	0
@@ -40485,7 +40485,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 做	tsò	官	kuan	2	0	0	0	0	0	2	0	0	0
 做	tsò	宰相	tsáinn-siòng	2	0	1	0	0	0	0	0	1	0
 做	tsò	家	ka	2	1	0	1	0	0	0	0	0	0
-做	tsò	家內	ke-lāi	2	0	1	1	0	0	0	0	0	0
+做	tsò	家內	ke lāi	2	0	1	1	0	0	0	0	0	0
 做	tsò	家長	ke-tiúnn	2	0	1	1	0	0	0	0	0	0
 做	tsò	宿舍	siok-sià	2	0	1	0	0	0	1	0	0	0
 做	tsò	實業	si̍t-gia̍p	2	0	1	0	0	0	1	0	0	0
@@ -42335,7 +42335,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 像	tshiūnn	華語	huâ-gí	2	0	0	2	0	0	0	0	0	0
 像	tshiūnn	蛇	tsuâ	2	0	0	2	0	0	0	0	0	0
 像	tshiūnn	踏	ta̍h	2	0	0	0	0	0	2	0	0	0
-像	tshiūnn	這陣	tsit-tsūn	2	0	0	0	0	0	2	0	0	0
+像	tshiūnn	這陣	tsit tsūn	2	0	0	0	0	0	2	0	0	0
 像	tshiūnn	雞卵	ke-nn̄g	2	0	0	1	0	0	1	0	0	0
 像	tshiūnn	雲	hûn	2	0	0	2	0	0	0	0	0	0
 像	tshiūnn	魚仔	hî-á	2	0	0	1	0	0	1	0	0	0
@@ -52101,7 +52101,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 到	kàu	較	khah	21	0	5	5	0	0	11	0	0	0
 到	kàu	今仔日	kin-ná-ji̍t	20	0	11	1	0	0	0	0	8	0
 到	kàu	現今	hiān-kim	20	0	10	2	0	0	8	0	0	0
-到	kàu	這陣	tsit-tsūn	20	0	7	5	0	1	7	0	0	0
+到	kàu	這陣	tsit tsūn	20	0	7	5	0	1	7	0	0	0
 到	kàu	門口	mn̂g-kháu	20	0	1	4	0	0	9	0	6	0
 到	kàu	久久	kú-kú	19	0	5	2	0	0	12	0	0	0
 到	kàu	拜六	pài-la̍k	19	0	7	5	0	0	7	0	0	0
@@ -52454,7 +52454,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 到	kàu	完	uân	5	0	1	3	0	0	1	0	0	0
 到	kàu	完成	uân-sîng	5	0	3	0	0	0	2	0	0	0
 到	kàu	客店	kheh-tiàm	5	0	0	2	0	0	2	0	1	0
-到	kàu	家內	ke-lāi	5	0	0	0	0	0	5	0	0	0
+到	kàu	家內	ke lāi	5	0	0	0	0	0	5	0	0	0
 到	kàu	對	tuì	5	0	0	1	0	0	3	0	1	0
 到	kàu	對面	tuì-bīn	5	0	1	2	0	0	2	0	0	0
 到	kàu	小	sió	5	0	1	2	0	0	1	0	1	0
@@ -70201,7 +70201,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 咱	lán	為著	uī-tio̍h	9	0	8	0	0	0	1	0	0	0
 咱	lán	真正	tsin-tsiànn	9	0	3	1	0	0	3	0	2	0
 咱	lán	趁	thàn	9	0	2	3	0	0	4	0	0	0
-咱	lán	這陣	tsit-tsūn	9	0	1	2	0	0	6	0	0	0
+咱	lán	這陣	tsit tsūn	9	0	1	2	0	0	6	0	0	0
 咱	lán	這馬	tsit-má	9	0	0	4	0	5	0	0	0	0
 咱	lán	不	m̄	8	0	0	8	0	0	0	0	0	0
 咱	lán	今年	kin-nî	8	0	4	1	0	0	3	0	0	0
@@ -70664,7 +70664,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 咱	lán	定著	tiānn-tio̍h	2	0	1	0	0	0	1	0	0	0
 咱	lán	家	ka	2	0	0	2	0	0	0	0	0	0
 咱	lán	家	ke	2	0	1	0	0	0	1	0	0	0
-咱	lán	家內	ke-lāi	2	0	0	1	0	0	1	0	0	0
+咱	lán	家內	ke lāi	2	0	0	1	0	0	1	0	0	0
 咱	lán	家治	ka-tī	2	0	0	2	0	0	0	0	0	0
 咱	lán	寄	kià	2	0	0	1	0	0	1	0	0	0
 咱	lán	實	si̍t	2	0	2	0	0	0	0	0	0	0
@@ -73619,8 +73619,8 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 嘛有	mā-ū	派	phài	2	2	0	0	0	0	0	0	0	0
 嘛有	mā-ū	發生	huat-sing	2	2	0	0	0	0	0	0	0	0
 嘛有	mā-ū	網友	bāng-iú	2	2	0	0	0	0	0	0	0	0
+嘛欲	mā beh	歇暝	hioh-mê	2	2	0	0	0	0	0	0	0	0
 嘛欲	mā bueh	佇	tī	2	2	0	0	0	0	0	0	0	0
-嘛欲	mā-beh	歇暝	hioh-mê	2	2	0	0	0	0	0	0	0	0
 嘩	hua	嘩	hua	4	0	0	4	0	0	0	0	0	0
 嘩	huā	嘩	huā	4	0	2	1	0	0	0	0	1	0
 嘩嘩滾	huā-huā-kún	的	ê	2	2	0	0	0	0	0	0	0	0
@@ -75350,7 +75350,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 因為	in-uī	字義	jī-gī	3	0	1	1	0	0	1	0	0	0
 因為	in-uī	學問	ha̍k-būn	3	0	1	1	0	0	1	0	0	0
 因為	in-uī	定定	tiānn-tiānn	3	2	0	0	0	1	0	0	0	0
-因為	in-uī	家內	ke-lāi	3	0	2	0	0	0	1	0	0	0
+因為	in-uī	家內	ke lāi	3	0	2	0	0	0	1	0	0	0
 因為	in-uī	家境	ka-kíng	3	2	1	0	0	0	0	0	0	0
 因為	in-uī	家長	ka-tiúnn	3	3	0	0	0	0	0	0	0	0
 因為	in-uī	寫	siá	3	0	0	1	0	0	0	0	2	0
@@ -75448,7 +75448,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 因為	in-uī	身軀	sing-khu	3	0	0	0	0	0	2	0	1	0
 因為	in-uī	身軀頂	sin-khu-tíng	3	3	0	0	0	0	0	0	0	0
 因為	in-uī	近	kīn	3	0	2	1	0	0	0	0	0	0
-因為	in-uī	這陣	tsit-tsūn	3	2	1	0	0	0	0	0	0	0
+因為	in-uī	這陣	tsit tsūn	3	2	1	0	0	0	0	0	0	0
 因為	in-uī	通行	thong-hîng	3	0	1	1	0	0	1	0	0	0
 因為	in-uī	通過	thong-kuè	3	0	0	0	0	0	0	0	3	0
 因為	in-uī	遊客	iû-kheh	3	3	0	0	0	0	0	0	0	0
@@ -92889,34 +92889,34 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 家伙	ke-hé	攏	lóng	2	0	1	0	0	0	1	0	0	0
 家伙	ke-hé	發達	huat-ta̍t	2	0	0	2	0	0	0	0	0	0
 家伙仔	ke-hué-á	攏	lóng	2	0	0	0	0	0	2	0	0	0
-家內	ke-lāi	的	ê	33	0	33	0	0	0	0	0	0	0
-家內	ke-lāi	無	bô	16	0	4	4	0	0	8	0	0	0
-家內	ke-lāi	佮	kap	10	0	5	0	0	0	5	0	0	0
-家內	ke-lāi	大細	tuā-suè	8	0	3	0	0	0	5	0	0	0
-家內	ke-lāi	真	tsin	8	0	2	1	0	0	5	0	0	0
-家內	ke-lāi	事	sū	7	0	0	3	0	0	4	0	0	0
-家內	ke-lāi	人	lâng	7	0	1	1	0	0	5	0	0	0
-家內	ke-lāi	有	ū	6	0	3	0	0	0	2	0	1	0
-家內	ke-lāi	著	tio̍h	6	0	3	0	0	0	3	0	0	0
-家內	ke-lāi	早暗	tsá-àm	4	0	2	1	0	0	1	0	0	0
-家內	ke-lāi	聽	thiann	4	0	0	1	0	0	3	0	0	0
-家內	ke-lāi	也	iā	3	0	1	0	0	0	2	0	0	0
-家內	ke-lāi	小可	sió-khuá	3	0	0	1	0	0	2	0	0	0
-家內	ke-lāi	就	tsiū	3	0	0	1	0	0	2	0	0	0
-家內	ke-lāi	常常	siông-siông	3	0	1	1	0	0	1	0	0	0
-家內	ke-lāi	攏	lóng	3	0	1	0	0	0	2	0	0	0
-家內	ke-lāi	毋	m̄	3	0	1	1	0	0	1	0	0	0
-家內	ke-lāi	袂	buē	3	0	1	0	0	0	2	0	0	0
-家內	ke-lāi	也	ia̍h	2	0	1	0	0	0	1	0	0	0
-家內	ke-lāi	事務	sū-bū	2	0	0	2	0	0	0	0	0	0
-家內	ke-lāi	大	tuā	2	0	0	0	0	0	2	0	0	0
-家內	ke-lāi	幸福	hīng-hok	2	0	0	2	0	0	0	0	0	0
-家內	ke-lāi	所	sóo	2	0	0	0	0	0	2	0	0	0
-家內	ke-lāi	某子	bóo-kiánn	2	0	0	1	0	0	1	0	0	0
-家內	ke-lāi	歸	kui	2	0	0	1	0	0	1	0	0	0
-家內	ke-lāi	父子	pē-kiánn	2	0	0	1	0	0	1	0	0	0
-家內	ke-lāi	若	nā	2	0	2	0	0	0	0	0	0	0
-家內	ke-lāi	過往	kuè-óng	2	0	0	1	0	0	1	0	0	0
+家內	ke lāi	的	ê	33	0	33	0	0	0	0	0	0	0
+家內	ke lāi	無	bô	16	0	4	4	0	0	8	0	0	0
+家內	ke lāi	佮	kap	10	0	5	0	0	0	5	0	0	0
+家內	ke lāi	大細	tuā-suè	8	0	3	0	0	0	5	0	0	0
+家內	ke lāi	真	tsin	8	0	2	1	0	0	5	0	0	0
+家內	ke lāi	事	sū	7	0	0	3	0	0	4	0	0	0
+家內	ke lāi	人	lâng	7	0	1	1	0	0	5	0	0	0
+家內	ke lāi	有	ū	6	0	3	0	0	0	2	0	1	0
+家內	ke lāi	著	tio̍h	6	0	3	0	0	0	3	0	0	0
+家內	ke lāi	早暗	tsá-àm	4	0	2	1	0	0	1	0	0	0
+家內	ke lāi	聽	thiann	4	0	0	1	0	0	3	0	0	0
+家內	ke lāi	也	iā	3	0	1	0	0	0	2	0	0	0
+家內	ke lāi	小可	sió-khuá	3	0	0	1	0	0	2	0	0	0
+家內	ke lāi	就	tsiū	3	0	0	1	0	0	2	0	0	0
+家內	ke lāi	常常	siông-siông	3	0	1	1	0	0	1	0	0	0
+家內	ke lāi	攏	lóng	3	0	1	0	0	0	2	0	0	0
+家內	ke lāi	毋	m̄	3	0	1	1	0	0	1	0	0	0
+家內	ke lāi	袂	buē	3	0	1	0	0	0	2	0	0	0
+家內	ke lāi	也	ia̍h	2	0	1	0	0	0	1	0	0	0
+家內	ke lāi	事務	sū-bū	2	0	0	2	0	0	0	0	0	0
+家內	ke lāi	大	tuā	2	0	0	0	0	0	2	0	0	0
+家內	ke lāi	幸福	hīng-hok	2	0	0	2	0	0	0	0	0	0
+家內	ke lāi	所	sóo	2	0	0	0	0	0	2	0	0	0
+家內	ke lāi	某子	bóo-kiánn	2	0	0	1	0	0	1	0	0	0
+家內	ke lāi	歸	kui	2	0	0	1	0	0	1	0	0	0
+家內	ke lāi	父子	pē-kiánn	2	0	0	1	0	0	1	0	0	0
+家內	ke lāi	若	nā	2	0	2	0	0	0	0	0	0	0
+家內	ke lāi	過往	kuè-óng	2	0	0	1	0	0	1	0	0	0
 家具	ka-khū	的	ê	4	4	0	0	0	0	0	0	0	0
 家具	ka-khū	賣場	bē-tiûnn	2	2	0	0	0	0	0	0	0	0
 家具	ka-kū	店	tiàm	2	2	0	0	0	0	0	0	0	0
@@ -93126,7 +93126,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 家己	ka-kī	嘛是	mā sī	3	3	0	0	0	0	0	0	0	0
 家己	ka-kī	大主大意	tuā-tsú-tuā-ì	3	0	0	2	0	1	0	0	0	0
 家己	ka-kī	安慰	an-uì	3	0	0	0	0	0	3	0	0	0
-家己	ka-kī	家內	ke-lāi	3	0	1	0	0	0	0	0	2	0
+家己	ka-kī	家內	ke lāi	3	0	1	0	0	0	0	0	2	0
 家己	ka-kī	審問	sím-mn̄g	3	0	0	0	0	0	1	0	2	0
 家己	ka-kī	屈低	khut-kē	3	0	0	0	0	0	0	0	3	0
 家己	ka-kī	想講	siūnn-kóng	3	0	0	0	0	0	0	0	3	0
@@ -95095,7 +95095,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 將	tsiong	基督教	ki-tok-kàu	6	0	5	0	0	0	1	0	0	0
 將	tsiong	天國	thian-kok	6	0	2	0	0	0	0	0	4	0
 將	tsiong	婦人人	hū-jîn-lâng	6	0	2	1	0	0	2	0	1	0
-將	tsiong	家內	ke-lāi	6	0	2	1	0	0	3	0	0	0
+將	tsiong	家內	ke lāi	6	0	2	1	0	0	3	0	0	0
 將	tsiong	布	pòo	6	0	2	1	0	0	3	0	0	0
 將	tsiong	彼得	pí-tik	6	0	1	0	0	0	5	0	0	0
 將	tsiong	歸	kui	6	0	1	3	0	0	2	0	0	0
@@ -96255,7 +96255,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 對	tuì	大路	tuā-lōo	7	0	0	3	1	0	3	0	0	0
 對	tuì	子	kiánn	7	0	0	4	0	0	3	0	0	0
 對	tuì	安	an	7	0	0	0	0	0	3	0	4	0
-對	tuì	家內	ke-lāi	7	0	3	0	0	0	4	0	0	0
+對	tuì	家內	ke lāi	7	0	3	0	0	0	4	0	0	0
 對	tuì	工場	kang-tiûnn	7	2	1	0	0	0	4	0	0	0
 對	tuì	後	āu	7	0	2	1	0	0	3	0	1	0
 對	tuì	後漢	hōo-hàn	7	0	2	2	0	0	3	0	0	0
@@ -105051,7 +105051,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 幫贊	pang-tsān	國家	kok-ka	5	0	2	1	0	0	2	0	0	0
 幫贊	pang-tsān	做	tsuè	4	0	1	1	0	0	2	0	0	0
 幫贊	pang-tsān	利益	lī-ik	4	0	1	0	0	0	3	0	0	0
-幫贊	pang-tsān	家內	ke-lāi	4	0	1	0	0	0	3	0	0	0
+幫贊	pang-tsān	家內	ke lāi	4	0	1	0	0	0	3	0	0	0
 幫贊	pang-tsān	家庭	ka-tîng	4	0	2	0	0	0	2	0	0	0
 幫贊	pang-tsān	對	tuì	4	0	4	0	0	0	0	0	0	0
 幫贊	pang-tsān	山地	san-tē	4	0	2	0	0	0	2	0	0	0
@@ -113845,7 +113845,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 恁	lín	娘	niâ	5	0	0	4	0	0	1	0	0	0
 恁	lín	娘	niû	5	0	0	5	0	0	0	0	0	0
 恁	lín	安心	an-sim	5	0	0	1	0	0	2	0	2	0
-恁	lín	家內	ke-lāi	5	0	1	0	0	0	4	0	0	0
+恁	lín	家內	ke lāi	5	0	1	0	0	0	4	0	0	0
 恁	lín	審判	sím-phuànn	5	0	0	0	0	0	0	0	5	0
 恁	lín	尊貴	tsun-kuì	5	0	1	0	0	0	1	0	3	0
 恁	lín	小妹	sió-bē	5	0	0	4	0	0	1	0	0	0
@@ -114041,7 +114041,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 恁	lín	迷惑	bê-hi̍k	3	0	0	0	0	0	0	0	3	0
 恁	lín	送交	sàng-kau	3	0	0	0	0	0	0	0	3	0
 恁	lín	送行	sòng-hîng	3	0	0	0	0	0	0	0	3	0
-恁	lín	這陣	tsit-tsūn	3	0	1	2	0	0	0	0	0	0
+恁	lín	這陣	tsit tsūn	3	0	1	2	0	0	0	0	0	0
 恁	lín	釘	tìng	3	0	0	0	0	0	0	0	3	0
 恁	lín	阿叔	a-tsik	3	0	1	2	0	0	0	0	0	0
 恁	lín	阿娘	a-niâ	3	0	0	3	0	0	0	0	0	0
@@ -119959,7 +119959,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 我	guá	親	tshin	12	0	1	9	0	1	1	0	0	0
 我	guá	贏	iânn	12	0	1	11	0	0	0	0	0	0
 我	guá	轉來	tńg-lâi	12	0	0	0	0	1	8	0	3	0
-我	guá	這陣	tsit-tsūn	12	0	2	3	1	2	4	0	0	0
+我	guá	這陣	tsit tsūn	12	0	2	3	1	2	4	0	0	0
 我	guá	了解	liáu-kái	11	0	0	7	0	0	4	0	0	0
 我	guá	今仔日	kin-ná-ji̍t	11	0	2	2	0	0	2	0	5	0
 我	guá	倒	tó	11	0	1	4	0	0	6	0	0	0
@@ -120312,7 +120312,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 我	guá	國校	kok-hāu	5	0	0	1	0	1	3	0	0	0
 我	guá	大大	tuā-tuā	5	0	4	0	0	0	1	0	0	0
 我	guá	大略	tāi-lio̍k	5	0	3	0	0	0	2	0	0	0
-我	guá	家內	ke-lāi	5	0	3	1	0	0	1	0	0	0
+我	guá	家內	ke lāi	5	0	3	1	0	0	1	0	0	0
 我	guá	專心	tsuan-sim	5	0	0	1	0	0	4	0	0	0
 我	guá	尋	tshuē	5	0	0	5	0	0	0	0	0	0
 我	guá	對面	tuì-bīn	5	0	1	2	0	0	2	0	0	0
@@ -122915,7 +122915,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 所以	sóo-í	婦人	hū-jîn	2	0	0	1	0	0	1	0	0	0
 所以	sóo-í	孔子	khóng-tsú	2	0	0	0	0	0	2	0	0	0
 所以	sóo-í	宣教師	suan-kàu-su	2	0	2	0	0	0	0	0	0	0
-所以	sóo-í	家內	ke-lāi	2	0	0	0	0	0	2	0	0	0
+所以	sóo-í	家內	ke lāi	2	0	0	0	0	0	2	0	0	0
 所以	sóo-í	實在	si̍t-tsāi	2	0	0	2	0	0	0	0	0	0
 所以	sóo-í	尊敬	tsun-kìng	2	0	1	0	0	0	1	0	0	0
 所以	sóo-í	少年人	siàu-liân-lâng	2	0	0	0	0	0	2	0	0	0
@@ -125642,7 +125642,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 抵著	tú-tio̍h	佇	tī	2	0	0	0	0	0	2	0	0	0
 抵著	tú-tio̍h	列國	lia̍t-kok	2	0	1	0	0	0	1	0	0	0
 抵著	tú-tio̍h	夫人	hu-jîn	2	0	1	0	0	0	1	0	0	0
-抵著	tú-tio̍h	家內	ke-lāi	2	0	1	0	0	0	1	0	0	0
+抵著	tú-tio̍h	家內	ke lāi	2	0	1	0	0	0	1	0	0	0
 抵著	tú-tio̍h	極	ki̍k	2	0	1	0	0	0	1	0	0	0
 抵著	tú-tio̍h	欲	beh	2	0	1	0	0	0	1	0	0	0
 抵著	tú-tio̍h	淡薄	tām-po̍h	2	0	1	0	0	0	1	0	0	0
@@ -131980,7 +131980,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 擔當	tam-tng	十字架	si̍p-jī-kè	2	0	1	0	0	0	1	0	0	0
 擔當	tam-tng	啊	ah	2	0	1	1	0	0	0	0	0	0
 擔當	tam-tng	執事	tsip-sū	2	0	1	0	0	0	1	0	0	0
-擔當	tam-tng	家內	ke-lāi	2	0	1	0	0	0	1	0	0	0
+擔當	tam-tng	家內	ke lāi	2	0	1	0	0	0	1	0	0	0
 擔當	tam-tng	我	guá	2	0	0	0	0	0	2	0	0	0
 擔當	tam-tng	手術	tshiú-su̍t	2	0	0	1	0	0	1	0	0	0
 擔當	tam-tng	救	kiù	2	0	1	0	0	0	1	0	0	0
@@ -134536,7 +134536,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 故鄉	kòo-hiong	佇	tī	6	0	0	4	0	1	1	0	0	0
 故鄉	kòo-hiong	你	lí	6	0	0	6	0	0	0	0	0	0
 故鄉	kòo-hiong	走	tsáu	6	0	0	6	0	0	0	0	0	0
-故鄉	kòo-hiong	這陣	tsit-tsūn	6	0	0	6	0	0	0	0	0	0
+故鄉	kòo-hiong	這陣	tsit tsūn	6	0	0	6	0	0	0	0	0	0
 故鄉	kòo-hiong	已經	í-king	5	0	1	1	0	0	3	0	0	0
 故鄉	kòo-hiong	來	lâi	4	0	0	3	0	0	1	0	0	0
 故鄉	kòo-hiong	去	khì	4	0	0	1	0	0	3	0	0	0
@@ -137098,7 +137098,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 料理	liāu-lí	教會	kàu-huē	19	0	15	0	0	0	4	0	0	0
 料理	liāu-lí	這	tsit	11	0	6	2	0	0	3	0	0	0
 料理	liāu-lí	的	ê	10	9	1	0	0	0	0	0	0	0
-料理	liāu-lí	家內	ke-lāi	9	0	4	2	0	0	3	0	0	0
+料理	liāu-lí	家內	ke lāi	9	0	4	2	0	0	3	0	0	0
 料理	liāu-lí	方式	hong-sik	7	5	0	1	0	1	0	0	0	0
 料理	liāu-lí	過	kuè	6	0	0	6	0	0	0	0	0	0
 料理	liāu-lí	家	ke	5	0	1	1	0	0	1	0	2	0
@@ -142420,7 +142420,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 是	sī	害死	hāi-sí	3	0	1	1	0	0	0	0	1	0
 是	sī	家	ke	3	0	0	1	0	0	2	0	0	0
 是	sī	家中	ka-tiong	3	0	0	2	0	0	1	0	0	0
-是	sī	家內	ke-lāi	3	0	1	1	0	0	1	0	0	0
+是	sī	家內	ke lāi	3	0	1	1	0	0	1	0	0	0
 是	sī	實腹	tsa̍t-pak	3	0	1	1	0	0	1	0	0	0
 是	sī	專工	tsuan-kang	3	0	0	1	0	1	1	0	0	0
 是	sī	小妹	sió-bē	3	0	0	2	0	0	1	0	0	0
@@ -144288,7 +144288,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 時	sî	出世	tshut-sì	6	0	0	2	0	0	3	0	1	0
 時	sî	卻	khiok	6	0	1	1	0	0	3	0	1	0
 時	sî	啦	lah	6	0	2	0	0	0	4	0	0	0
-時	sî	家內	ke-lāi	6	0	2	0	0	0	4	0	0	0
+時	sî	家內	ke lāi	6	0	2	0	0	0	4	0	0	0
 時	sî	就是	tsiū sī	6	0	2	0	0	0	3	0	1	0
 時	sî	差不多	tsha-put-to	6	0	1	0	0	0	2	0	3	0
 時	sî	忽然	hut-jiân	6	0	2	0	0	0	3	0	1	0
@@ -160496,7 +160496,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 欲	beh	孝敬	hàu-kìng	2	0	1	0	0	0	1	0	0	0
 欲	beh	安怎	an-tsuánn	2	0	0	2	0	0	0	0	0	0
 欲	beh	定婚	tīng-hun	2	0	0	1	0	0	1	0	0	0
-欲	beh	家內	ke-lāi	2	0	0	2	0	0	0	0	0	0
+欲	beh	家內	ke lāi	2	0	0	2	0	0	0	0	0	0
 欲	beh	實在	si̍t-tsāi	2	0	1	0	0	0	1	0	0	0
 欲	beh	封	hong	2	0	0	1	0	0	1	0	0	0
 欲	beh	尊重	tsun-tiōng	2	0	0	1	0	0	1	0	0	0
@@ -168588,7 +168588,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 治理	tī-lí	上帝	siōng-tè	3	0	0	0	0	0	0	0	3	0
 治理	tī-lí	台灣	tâi-uân	3	0	1	1	0	0	1	0	0	0
 治理	tī-lí	國家	kok-ka	3	0	1	0	0	0	2	0	0	0
-治理	tī-lí	家內	ke-lāi	2	0	1	0	0	0	1	0	0	0
+治理	tī-lí	家內	ke lāi	2	0	1	0	0	0	1	0	0	0
 治理	tī-lí	我	guá	2	0	1	0	0	0	1	0	0	0
 治理	tī-lí	本國	pún-kok	2	0	0	0	0	0	2	0	0	0
 治理	tī-lí	萬	bān	2	0	1	0	0	0	0	0	1	0
@@ -174592,7 +174592,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 為著	uī-tio̍h	天下	thinn-ē	3	0	3	0	0	0	0	0	0	0
 為著	uī-tio̍h	子兒	kiánn-jî	3	0	1	0	0	0	2	0	0	0
 為著	uī-tio̍h	宗教	tsong-kàu	3	0	3	0	0	0	0	0	0	0
-為著	uī-tio̍h	家內	ke-lāi	3	0	2	0	0	0	1	0	0	0
+為著	uī-tio̍h	家內	ke lāi	3	0	2	0	0	0	1	0	0	0
 為著	uī-tio̍h	對	tuì	3	0	2	0	0	0	1	0	0	0
 為著	uī-tio̍h	對敵	tuì-ti̍k	3	0	2	0	0	0	1	0	0	0
 為著	uī-tio̍h	小	sió	3	0	2	0	0	0	1	0	0	0
@@ -179454,7 +179454,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 照顧	tsiàu-kòo	囝兒	kiánn-jî	2	1	1	0	0	0	0	0	0	0
 照顧	tsiàu-kòo	孤兒	koo-jî	2	0	1	0	0	0	1	0	0	0
 照顧	tsiàu-kòo	學生	ha̍k-sing	2	0	1	0	0	0	1	0	0	0
-照顧	tsiàu-kòo	家內	ke-lāi	2	0	0	1	0	0	1	0	0	0
+照顧	tsiàu-kòo	家內	ke lāi	2	0	0	1	0	0	1	0	0	0
 照顧	tsiàu-kòo	小弟	sió-tī	2	0	0	0	0	1	1	0	0	0
 照顧	tsiàu-kòo	幫贊	pang-tsān	2	0	0	0	0	0	2	0	0	0
 照顧	tsiàu-kòo	庇佑	pì-iū	2	0	1	0	0	0	1	0	0	0
@@ -179504,7 +179504,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 煩惱	huân-ló	也	iā	4	0	1	1	0	0	2	0	0	0
 煩惱	huân-ló	來	lâi	4	0	1	1	0	0	2	0	0	0
 煩惱	huân-ló	子	kiánn	4	0	1	1	0	0	2	0	0	0
-煩惱	huân-ló	家內	ke-lāi	4	0	2	1	0	0	1	0	0	0
+煩惱	huân-ló	家內	ke lāi	4	0	2	1	0	0	1	0	0	0
 煩惱	huân-ló	攏	lóng	4	0	1	0	0	1	2	0	0	0
 煩惱	huân-ló	欲	beh	4	0	0	0	0	0	2	0	2	0
 煩惱	huân-ló	為	uī	4	0	0	4	0	0	0	0	0	0
@@ -184607,7 +184607,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 現時	hiān-sî	學生	ha̍k-sing	2	0	2	0	0	0	0	0	0	0
 現時	hiān-sî	官	kuann	2	0	1	0	0	0	1	0	0	0
 現時	hiān-sî	宜蘭	gî-lân	2	0	2	0	0	0	0	0	0	0
-現時	hiān-sî	家內	ke-lāi	2	0	0	1	0	0	1	0	0	0
+現時	hiān-sî	家內	ke lāi	2	0	0	1	0	0	1	0	0	0
 現時	hiān-sî	差不多	tsha-put-to	2	0	1	0	0	0	1	0	0	0
 現時	hiān-sî	怎樣	tsáinn-iūnn	2	0	1	0	0	0	0	0	1	0
 現時	hiān-sî	恁	lín	2	0	0	1	0	0	1	0	0	0
@@ -193728,7 +193728,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 的	ê	安全帽	an-tsuân-bō	6	6	0	0	0	0	0	0	0	0
 的	ê	宗教家	tsong-kàu-ka	6	0	6	0	0	0	0	0	0	0
 的	ê	宣	suan	6	0	6	0	0	0	0	0	0	0
-的	ê	家內	ke-lāi	6	0	5	1	0	0	0	0	0	0
+的	ê	家內	ke lāi	6	0	5	1	0	0	0	0	0	0
 的	ê	家具	ka-khū	6	6	0	0	0	0	0	0	0	0
 的	ê	家私	ke-si	6	0	4	0	0	2	0	0	0	0
 的	ê	容貌	iông-māu	6	0	6	0	0	0	0	0	0	0
@@ -212783,7 +212783,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 約束	iok-sok	力	la̍t	2	1	0	0	0	0	1	0	0	0
 約束	iok-sok	去	khì	2	0	0	1	0	0	1	0	0	0
 約束	iok-sok	啦	lah	2	0	1	0	0	0	1	0	0	0
-約束	iok-sok	家內	ke-lāi	2	0	1	0	0	0	1	0	0	0
+約束	iok-sok	家內	ke lāi	2	0	1	0	0	0	1	0	0	0
 約束	iok-sok	整理	tsíng-lí	2	0	0	1	0	0	1	0	0	0
 約束	iok-sok	本身	pún-sin	2	0	2	0	0	0	0	0	0	0
 約束	iok-sok	秋天	tshiu-thinn	2	0	0	2	0	0	0	0	0	0
@@ -216145,7 +216145,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 總是	tsóng-sī	宗教	tsong-kàu	2	0	2	0	0	0	0	0	0	0
 總是	tsóng-sī	官府	kuann-hú	2	0	2	0	0	0	0	0	0	0
 總是	tsóng-sī	宣教師	suan-kàu-su	2	0	1	0	0	0	1	0	0	0
-總是	tsóng-sī	家內	ke-lāi	2	0	1	0	0	0	1	0	0	0
+總是	tsóng-sī	家內	ke lāi	2	0	1	0	0	0	1	0	0	0
 總是	tsóng-sī	家庭	ka-tîng	2	0	0	1	0	0	1	0	0	0
 總是	tsóng-sī	寫	siá	2	0	0	0	0	0	2	0	0	0
 總是	tsóng-sī	尊敬	tsun-kìng	2	0	1	0	0	0	1	0	0	0
@@ -227211,7 +227211,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 苦勸	khóo-khǹg	眾人	tsìng-lâng	4	0	0	0	0	0	2	0	2	0
 苦勸	khóo-khǹg	佮	kap	3	0	2	0	0	0	1	0	0	0
 苦勸	khóo-khǹg	大家	tāi-ke	3	0	1	0	0	0	2	0	0	0
-苦勸	khóo-khǹg	家內	ke-lāi	3	0	2	0	0	0	1	0	0	0
+苦勸	khóo-khǹg	家內	ke lāi	3	0	2	0	0	0	1	0	0	0
 苦勸	khóo-khǹg	就	tsiū	3	0	0	0	0	0	3	0	0	0
 苦勸	khóo-khǹg	提	thê	3	0	1	1	0	0	1	0	0	0
 苦勸	khóo-khǹg	會友	huē-iú	3	0	3	0	0	0	0	0	0	0
@@ -230556,7 +230556,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 著	tio̍h	輕輕	khin-khin	3	0	0	1	1	0	1	0	0	0
 著	tio̍h	輕鬆	khin-sang	3	0	0	3	0	0	0	0	0	0
 著	tio̍h	轉	tsuán	3	0	1	2	0	0	0	0	0	0
-著	tio̍h	這陣	tsit-tsūn	3	0	0	2	0	0	1	0	0	0
+著	tio̍h	這陣	tsit tsūn	3	0	0	2	0	0	1	0	0	0
 著	tio̍h	連	liân	3	1	0	1	0	0	1	0	0	0
 著	tio̍h	進行	tsìn-hîng	3	0	2	1	0	0	0	0	0	0
 著	tio̍h	過	kè	3	0	0	0	0	0	2	0	1	0
@@ -237935,7 +237935,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 親像	tshin-tshiūnn	夢	bāng	5	0	1	3	0	0	1	0	0	0
 親像	tshin-tshiūnn	天星	thinn-tshinn	5	0	0	3	0	0	2	0	0	0
 親像	tshin-tshiūnn	孟子	bīng-tsú	5	0	2	1	0	0	2	0	0	0
-親像	tshin-tshiūnn	家內	ke-lāi	5	0	3	0	0	0	2	0	0	0
+親像	tshin-tshiūnn	家內	ke lāi	5	0	3	0	0	0	2	0	0	0
 親像	tshin-tshiūnn	心內	sim-lāi	5	0	0	1	0	0	4	0	0	0
 親像	tshin-tshiūnn	拜	pài	5	0	1	0	0	0	4	0	0	0
 親像	tshin-tshiūnn	斷線	tn̄g-suànn	5	0	0	4	0	0	1	0	0	0
@@ -244709,7 +244709,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 讀	tha̍k	好	hó	2	0	0	1	0	0	1	0	0	0
 讀	tha̍k	學	ha̍k	2	0	1	0	0	0	1	0	0	0
 讀	tha̍k	完	uân	2	0	0	1	0	0	1	0	0	0
-讀	tha̍k	家內	ke-lāi	2	0	0	1	0	0	1	0	0	0
+讀	tha̍k	家內	ke lāi	2	0	0	1	0	0	1	0	0	0
 讀	tha̍k	寫	siá	2	0	0	1	0	0	1	0	0	0
 讀	tha̍k	小學校	sió-ha̍k-hāu	2	0	2	0	0	0	0	0	0	0
 讀	tha̍k	就	tō	2	0	0	2	0	0	0	0	0	0
@@ -248591,7 +248591,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 趁	thàn	咱	lán	9	0	5	3	0	0	0	0	1	0
 趁	thàn	甲	kah	9	0	0	6	0	3	0	0	0	0
 趁	thàn	耶穌	iâ-soo	9	0	1	1	0	0	7	0	0	0
-趁	thàn	這陣	tsit-tsūn	9	0	0	2	0	1	6	0	0	0
+趁	thàn	這陣	tsit tsūn	9	0	0	2	0	1	6	0	0	0
 趁	thàn	鳳	hōng	9	0	0	6	0	2	1	0	0	0
 趁	thàn	一寡	tsi̍t-kuá	7	3	0	3	0	0	1	0	0	0
 趁	thàn	來	lâi	7	0	2	3	0	0	2	0	0	0
@@ -248740,7 +248740,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 趁著	thàn-tio̍h	暗暝	àm-mê	2	2	0	0	0	0	0	0	0	0
 趁著	thàn-tio̍h	的	ê	2	2	0	0	0	0	0	0	0	0
 趁著	thàn-tio̍h	返校日	huán-hāu-ji̍t	2	2	0	0	0	0	0	0	0	0
-趁著	thàn-tio̍h	這陣	tsit-tsūn	2	2	0	0	0	0	0	0	0	0
+趁著	thàn-tio̍h	這陣	tsit tsūn	2	2	0	0	0	0	0	0	0	0
 趁趁	thàn-thàn	較	khah	8	0	0	8	0	0	0	0	0	0
 趁錢	thàn-tsînn	飼	tshī	11	1	1	5	0	2	2	0	0	0
 趁錢	thàn-tsînn	的	ê	9	5	2	1	0	1	0	0	0	0
@@ -254048,7 +254048,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 逐人	ta̍k-lâng	受著	siū-tio̍h	2	0	1	0	0	0	1	0	0	0
 逐人	ta̍k-lâng	嘛	mā	2	0	1	0	0	0	1	0	0	0
 逐人	ta̍k-lâng	四散	sì-suànn	2	0	0	1	0	0	1	0	0	0
-逐人	ta̍k-lâng	家內	ke-lāi	2	0	1	0	0	0	1	0	0	0
+逐人	ta̍k-lâng	家內	ke lāi	2	0	1	0	0	0	1	0	0	0
 逐人	ta̍k-lâng	對	tuì	2	0	2	0	0	0	0	0	0	0
 逐人	ta̍k-lâng	應該	ing-kai	2	0	2	0	0	0	0	0	0	0
 逐人	ta̍k-lâng	拍算	phah-sǹg	2	0	2	0	0	0	0	0	0	0
@@ -255408,45 +255408,45 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 這號	tsit-lō	對	tuì	2	2	0	0	0	0	0	0	0	0
 這號	tsit-lō	物件	mi̍h-kiānn	2	0	0	0	0	2	0	0	0	0
 這過	tsit-kuè	的	ê	2	0	0	0	0	2	0	0	0	0
-這陣	tsit-tsūn	我	guá	10	0	0	5	0	1	3	1	0	0
-這陣	tsit-tsūn	無	bô	7	0	2	2	0	0	3	0	0	0
-這陣	tsit-tsūn	的	ê	6	1	1	0	0	4	0	0	0	0
-這陣	tsit-tsūn	伊	i	4	0	1	0	0	0	3	0	0	0
-這陣	tsit-tsūn	佇	tī	4	0	1	0	0	1	2	0	0	0
-這陣	tsit-tsūn	咧	teh	4	0	1	0	0	3	0	0	0	0
-這陣	tsit-tsūn	天氣	thinn-khì	4	3	1	0	0	0	0	0	0	0
-這陣	tsit-tsūn	人	lâng	3	0	0	0	0	2	1	0	0	0
-這陣	tsit-tsūn	來	lâi	3	0	1	1	0	0	1	0	0	0
-這陣	tsit-tsūn	心愛	sim-ài	3	0	0	3	0	0	0	0	0	0
-這陣	tsit-tsūn	抱	phō	3	0	1	1	0	0	1	0	0	0
-這陣	tsit-tsūn	是	sī	3	0	1	1	0	0	1	0	0	0
-這陣	tsit-tsūn	欲	beh	3	0	1	1	0	0	1	0	0	0
-這陣	tsit-tsūn	爸爸	pa-pa	3	0	0	3	0	0	0	0	0	0
-這陣	tsit-tsūn	閣	koh	3	3	0	0	0	0	0	0	0	0
-這陣	tsit-tsūn	高麗菜	ko-lê-tshài	3	3	0	0	0	0	0	0	0	0
-這陣	tsit-tsūn	予	hōo	2	0	0	1	0	0	1	0	0	0
-這陣	tsit-tsūn	入	ji̍p	2	0	0	1	0	0	1	0	0	0
-這陣	tsit-tsūn	共	kā	2	0	0	0	0	0	2	0	0	0
-這陣	tsit-tsūn	到底	tàu-té	2	0	0	2	0	0	0	0	0	0
-這陣	tsit-tsūn	嘛	mā	2	0	2	0	0	0	0	0	0	0
-這陣	tsit-tsūn	坐	tsē	2	0	0	1	0	0	1	0	0	0
-這陣	tsit-tsūn	已經	í-king	2	0	0	2	0	0	0	0	0	0
-這陣	tsit-tsūn	想	siūnn	2	0	0	1	0	0	1	0	0	0
-這陣	tsit-tsūn	所	sóo	2	0	1	1	0	0	0	0	0	0
-這陣	tsit-tsūn	才	tsiah	2	0	0	0	0	2	0	0	0	0
-這陣	tsit-tsūn	抵	tú	2	0	0	1	0	0	1	0	0	0
-這陣	tsit-tsūn	拄好	tú-hó	2	1	0	0	0	1	0	0	0	0
-這陣	tsit-tsūn	攏	lóng	2	0	2	0	0	0	0	0	0	0
-這陣	tsit-tsūn	有	ū	2	0	0	0	0	1	1	0	0	0
-這陣	tsit-tsūn	毋才	m̄-tsiah	2	0	0	0	0	2	0	0	0	0
-這陣	tsit-tsūn	油價	iû-kè	2	2	0	0	0	0	0	0	0	0
-這陣	tsit-tsūn	猶	iáu	2	0	1	0	0	0	1	0	0	0
-這陣	tsit-tsūn	當咧	tng-teh	2	0	0	0	0	2	0	0	0	0
-這陣	tsit-tsūn	聽講	thiann-kóng	2	0	0	1	0	0	1	0	0	0
-這陣	tsit-tsūn	藝壇	gē-tuânn	2	0	0	1	0	0	1	0	0	0
-這陣	tsit-tsūn	變做	piàn-tsò	2	0	0	1	1	0	0	0	0	0
-這陣	tsit-tsūn	這	tsit	2	0	1	0	0	0	1	0	0	0
-這陣	tsit-tsūn	𪜶	in	2	0	0	0	0	0	2	0	0	0
+這陣	tsit tsūn	我	guá	10	0	0	5	0	1	3	1	0	0
+這陣	tsit tsūn	無	bô	7	0	2	2	0	0	3	0	0	0
+這陣	tsit tsūn	的	ê	6	1	1	0	0	4	0	0	0	0
+這陣	tsit tsūn	伊	i	4	0	1	0	0	0	3	0	0	0
+這陣	tsit tsūn	佇	tī	4	0	1	0	0	1	2	0	0	0
+這陣	tsit tsūn	咧	teh	4	0	1	0	0	3	0	0	0	0
+這陣	tsit tsūn	天氣	thinn-khì	4	3	1	0	0	0	0	0	0	0
+這陣	tsit tsūn	人	lâng	3	0	0	0	0	2	1	0	0	0
+這陣	tsit tsūn	來	lâi	3	0	1	1	0	0	1	0	0	0
+這陣	tsit tsūn	心愛	sim-ài	3	0	0	3	0	0	0	0	0	0
+這陣	tsit tsūn	抱	phō	3	0	1	1	0	0	1	0	0	0
+這陣	tsit tsūn	是	sī	3	0	1	1	0	0	1	0	0	0
+這陣	tsit tsūn	欲	beh	3	0	1	1	0	0	1	0	0	0
+這陣	tsit tsūn	爸爸	pa-pa	3	0	0	3	0	0	0	0	0	0
+這陣	tsit tsūn	閣	koh	3	3	0	0	0	0	0	0	0	0
+這陣	tsit tsūn	高麗菜	ko-lê-tshài	3	3	0	0	0	0	0	0	0	0
+這陣	tsit tsūn	予	hōo	2	0	0	1	0	0	1	0	0	0
+這陣	tsit tsūn	入	ji̍p	2	0	0	1	0	0	1	0	0	0
+這陣	tsit tsūn	共	kā	2	0	0	0	0	0	2	0	0	0
+這陣	tsit tsūn	到底	tàu-té	2	0	0	2	0	0	0	0	0	0
+這陣	tsit tsūn	嘛	mā	2	0	2	0	0	0	0	0	0	0
+這陣	tsit tsūn	坐	tsē	2	0	0	1	0	0	1	0	0	0
+這陣	tsit tsūn	已經	í-king	2	0	0	2	0	0	0	0	0	0
+這陣	tsit tsūn	想	siūnn	2	0	0	1	0	0	1	0	0	0
+這陣	tsit tsūn	所	sóo	2	0	1	1	0	0	0	0	0	0
+這陣	tsit tsūn	才	tsiah	2	0	0	0	0	2	0	0	0	0
+這陣	tsit tsūn	抵	tú	2	0	0	1	0	0	1	0	0	0
+這陣	tsit tsūn	拄好	tú-hó	2	1	0	0	0	1	0	0	0	0
+這陣	tsit tsūn	攏	lóng	2	0	2	0	0	0	0	0	0	0
+這陣	tsit tsūn	有	ū	2	0	0	0	0	1	1	0	0	0
+這陣	tsit tsūn	毋才	m̄-tsiah	2	0	0	0	0	2	0	0	0	0
+這陣	tsit tsūn	油價	iû-kè	2	2	0	0	0	0	0	0	0	0
+這陣	tsit tsūn	猶	iáu	2	0	1	0	0	0	1	0	0	0
+這陣	tsit tsūn	當咧	tng-teh	2	0	0	0	0	2	0	0	0	0
+這陣	tsit tsūn	聽講	thiann-kóng	2	0	0	1	0	0	1	0	0	0
+這陣	tsit tsūn	藝壇	gē-tuânn	2	0	0	1	0	0	1	0	0	0
+這陣	tsit tsūn	變做	piàn-tsò	2	0	0	1	1	0	0	0	0	0
+這陣	tsit tsūn	這	tsit	2	0	1	0	0	0	1	0	0	0
+這陣	tsit tsūn	𪜶	in	2	0	0	0	0	0	2	0	0	0
 這霎	tsit-tia̍p	愛	ài	7	0	7	0	0	0	0	0	0	0
 這霎	tsit-tia̍p	佇	tī	5	0	5	0	0	0	0	0	0	0
 這霎	tsit-tia̍p	起	khí	5	0	5	0	0	0	0	0	0	0
@@ -257380,7 +257380,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 連累	liân-luī	濟濟	tsē-tsē	3	0	2	0	0	0	1	0	0	0
 連累	liân-luī	子兒	kiánn-jî	2	0	0	1	0	0	1	0	0	0
 連累	liân-luī	子孫	kiánn-sun	2	0	1	0	0	0	1	0	0	0
-連累	liân-luī	家內	ke-lāi	2	0	0	1	0	0	1	0	0	0
+連累	liân-luī	家內	ke lāi	2	0	0	1	0	0	1	0	0	0
 連累	liân-luī	我	guá	2	0	0	0	0	0	2	0	0	0
 連累	liân-luī	教會	kàu-huē	2	0	1	0	0	0	1	0	0	0
 連累	liân-luī	父母	pē-bú	2	0	1	0	0	0	1	0	0	0
@@ -260559,7 +260559,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 那準	ná-tsún	咧	teh	2	0	0	0	0	0	2	0	0	0
 那準	ná-tsún	夢見	bāng-kìnn	2	0	1	0	0	0	1	0	0	0
 那準	ná-tsún	大海	tuā-hái	2	0	1	0	0	0	1	0	0	0
-那準	ná-tsún	家內	ke-lāi	2	0	0	0	0	0	2	0	0	0
+那準	ná-tsún	家內	ke lāi	2	0	0	0	0	0	2	0	0	0
 那準	ná-tsún	捌	bat	2	0	0	0	0	0	2	0	0	0
 那準	ná-tsún	是	sī	2	0	1	0	0	0	1	0	0	0
 那準	ná-tsún	欲	beh	2	0	1	0	0	0	1	0	0	0
@@ -266983,7 +266983,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 閣	koh	完整	uân-tsíng	2	1	0	0	0	0	0	0	1	0
 閣	koh	害	hāi	2	0	1	0	0	0	1	0	0	0
 閣	koh	家	ke	2	0	1	0	0	0	1	0	0	0
-閣	koh	家內	ke-lāi	2	0	0	0	0	0	2	0	0	0
+閣	koh	家內	ke lāi	2	0	0	0	0	0	2	0	0	0
 閣	koh	實在	si̍t-tsāi	2	0	0	0	0	0	1	0	1	0
 閣	koh	實用	si̍t-iōng	2	2	0	0	0	0	0	0	0	0
 閣	koh	實腹	tsa̍t-pak	2	2	0	0	0	0	0	0	0	0
@@ -268307,7 +268307,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 阮	guán	孫	sun	2	0	0	0	0	1	1	0	0	0
 阮	guán	完全	uân-tsuân	2	0	0	0	0	0	1	0	1	0
 阮	guán	官府	kuann-hú	2	0	1	0	0	0	1	0	0	0
-阮	guán	家內	ke-lāi	2	0	0	0	0	0	2	0	0	0
+阮	guán	家內	ke lāi	2	0	0	0	0	0	2	0	0	0
 阮	guán	小	sió	2	0	0	1	0	0	1	0	0	0
 阮	guán	小可	sió-khuá	2	0	0	0	0	0	2	0	0	0
 阮	guán	小妹	sió-bē	2	0	0	0	0	0	2	0	0	0
@@ -271499,7 +271499,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 雖然	sui-jiân	只	tsí	3	1	0	1	0	0	1	0	0	0
 雖然	sui-jiân	名聲	miâ-siann	3	1	1	0	0	0	1	0	0	0
 雖然	sui-jiân	好	hó	3	2	0	1	0	0	0	0	0	0
-雖然	sui-jiân	家內	ke-lāi	3	0	1	0	0	0	2	0	0	0
+雖然	sui-jiân	家內	ke lāi	3	0	1	0	0	0	2	0	0	0
 雖然	sui-jiân	家己	ka-kī	3	1	2	0	0	0	0	0	0	0
 雖然	sui-jiân	年老	nî-lāu	3	0	1	0	0	0	1	0	1	0
 雖然	sui-jiân	所	sóo	3	0	1	0	0	0	2	0	0	0
@@ -276556,7 +276556,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 顧	kòo	共	kā	2	0	0	1	0	0	1	0	0	0
 顧	kòo	到	kah	2	0	0	2	0	0	0	0	0	0
 顧	kòo	去	khì	2	0	0	1	0	0	1	0	0	0
-顧	kòo	家內	ke-lāi	2	0	0	2	0	0	0	0	0	0
+顧	kòo	家內	ke lāi	2	0	0	2	0	0	0	0	0	0
 顧	kòo	張	tiunn	2	0	0	2	0	0	0	0	0	0
 顧	kòo	恁	lín	2	0	0	0	0	0	0	0	2	0
 顧	kòo	恰	khah	2	0	0	2	0	0	0	0	0	0
@@ -278427,7 +278427,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 養飼	iúnn-tshī	全家	tsuân-ke	2	0	0	1	0	0	1	0	0	0
 養飼	iúnn-tshī	命令	bīng-līng	2	2	0	0	0	0	0	0	0	0
 養飼	iúnn-tshī	嬰	inn	2	0	1	0	0	0	1	0	0	0
-養飼	iúnn-tshī	家內	ke-lāi	2	0	1	0	0	0	1	0	0	0
+養飼	iúnn-tshī	家內	ke lāi	2	0	1	0	0	0	1	0	0	0
 養飼	iúnn-tshī	家己	ka-kī	2	1	0	0	0	0	0	0	1	0
 養飼	iúnn-tshī	家己	ka-tī	2	0	0	1	0	0	1	0	0	0
 養飼	iúnn-tshī	石斑	tsio̍h-pan	2	2	0	0	0	0	0	0	0	0
@@ -281855,7 +281855,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 鼓舞	kóo-bú	台灣	tâi-uân	2	0	0	0	0	0	2	0	0	0
 鼓舞	kóo-bú	同	tông	2	0	1	0	0	0	1	0	0	0
 鼓舞	kóo-bú	吟詩	gîm-si	2	0	1	0	0	0	1	0	0	0
-鼓舞	kóo-bú	家內	ke-lāi	2	0	2	0	0	0	0	0	0	0
+鼓舞	kóo-bú	家內	ke lāi	2	0	2	0	0	0	0	0	0	0
 鼓舞	kóo-bú	家庭	ka-tîng	2	0	1	0	0	0	1	0	0	0
 鼓舞	kóo-bú	招呼	tsio-hoo	2	0	2	0	0	0	0	0	0	0
 鼓舞	kóo-bú	濟濟	tsuē-tsuē	2	0	2	0	0	0	0	0	0	0
@@ -282331,7 +282331,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 𪜶	in	阿爸	a-pa	16	0	2	2	0	0	12	0	0	0
 𪜶	in	三	sann	15	1	4	1	0	2	5	0	1	1
 𪜶	in	兄嫂	hiann-só	15	0	2	3	0	2	2	0	6	0
-𪜶	in	家內	ke-lāi	15	0	5	1	0	0	9	0	0	0
+𪜶	in	家內	ke lāi	15	0	5	1	0	0	9	0	0	0
 𪜶	in	按呢	án-ne	15	0	0	3	0	0	4	0	8	0
 𪜶	in	比	pí	15	0	4	2	0	0	6	0	3	0
 𪜶	in	祖公	tsóo-kong	15	0	9	2	0	0	4	0	0	0
@@ -283203,7 +283203,7 @@ prev_hanji	prev_tl	next_hanji	next_tl	count	icorpus_hanji	khinhoan_pojbh	kipsupi
 𪜶	in	這世人	tsit-sì-lâng	2	0	0	1	0	0	1	0	0	0
 𪜶	in	這擺	tsit-pái	2	0	1	0	0	0	1	0	0	0
 𪜶	in	這樣	tsit iūnn	2	0	1	0	0	0	1	0	0	0
-𪜶	in	這陣	tsit-tsūn	2	0	1	0	0	0	1	0	0	0
+𪜶	in	這陣	tsit tsūn	2	0	1	0	0	0	1	0	0	0
 𪜶	in	這馬	tsit-má	2	1	0	0	0	1	0	0	0	0
 𪜶	in	造就	tsō-tsiū	2	0	2	0	0	0	0	0	0	0
 𪜶	in	進入	tsìn-ji̍p	2	0	1	0	0	0	0	0	1	0
