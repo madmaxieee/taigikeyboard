@@ -7,9 +7,9 @@ package com.siansiansu.taigikeyboard.engine.proto;
 
 /**
  * <pre>
- * Commit the current preedit (if any) and atomically insert externally
- * supplied text in one document write. Non-Taigi input surfaces (emoji
- * palette, clipboard paste). Idle → behaves as plain insert.
+ * Commit the preedit as shown (if any) and append externally supplied text
+ * in one document write, without candidate acceptance or automatic spacing.
+ * External input surfaces (emoji palette, clipboard paste). Idle → plain insert.
  * </pre>
  *
  * Protobuf type {@code taigi.engine.CommitPreeditThenInsertExternal}
@@ -155,9 +155,9 @@ public  final class CommitPreeditThenInsertExternal extends
 
   /**
    * <pre>
-   * Commit the current preedit (if any) and atomically insert externally
-   * supplied text in one document write. Non-Taigi input surfaces (emoji
-   * palette, clipboard paste). Idle → behaves as plain insert.
+   * Commit the preedit as shown (if any) and append externally supplied text
+   * in one document write, without candidate acceptance or automatic spacing.
+   * External input surfaces (emoji palette, clipboard paste). Idle → plain insert.
    * </pre>
    *
    * Protobuf type {@code taigi.engine.CommitPreeditThenInsertExternal}

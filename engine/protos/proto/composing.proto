@@ -67,6 +67,7 @@ message ComposingRequest {
     TpsKey                          tps_key                              = 42;
     CommitAsShown                   commit_as_shown                      = 43;
     CommitAsTyped                   commit_as_typed                      = 44;
+    ConfirmCompositionThenInsert    confirm_composition_then_insert      = 45;
   }
 }
 
@@ -93,10 +94,23 @@ message DeleteBackward {}
 // pending tail, TPS separator markers dropped) to the document.
 message CommitRaw {}
 
-// Commit the current preedit (if any) and atomically insert externally
-// supplied text in one document write. Non-Taigi input surfaces (emoji
-// palette, clipboard paste). Idle → behaves as plain insert.
+// Commit the preedit as shown (if any) and append externally supplied text
+// in one document write, without candidate acceptance or automatic spacing.
+// External input surfaces (emoji palette, clipboard paste). Idle → plain insert.
 message CommitPreeditThenInsertExternal { string text = 1; }
+
+// Confirm the active composition and append a literal (desktop punctuation
+// keys). Accept the supplied candidate when present, finish any unconsumed
+// tail as shown, and append text with auto spacing in one document write.
+// Without a candidate, commit the preedit as shown. An accepted candidate
+// records normal usage; a final pick retains word/phrase learning. An unpicked
+// tail teaches no final word or phrase. A rejected candidate, an idle engine,
+// or empty text changes nothing. Width mapping is the caller's.
+message ConfirmCompositionThenInsert {
+  optional CommitContinuous candidate = 1;
+  string text = 2;
+  bool auto_space_enabled = 3;
+}
 
 // Clear all state (mode switch, teardown). User-initiated; emits the abort
 // trio `[ClearPreeditWithoutCommit, ClearCandidates,
@@ -294,7 +308,10 @@ message CommitPrediction {
 }
 
 // What a `CommitContinuous` (R5) or a `CommitPrediction` (D1) did — replaces
-// the platforms' effect scans.
+// the platforms' effect scans. ConfirmCompositionThenInsert also sets this: FINALIZED
+// means its whole composition and literal were written, IGNORED means neither
+// was written. Its document_text is the whole composition before the literal;
+// earns_auto_space is descriptive only (spacing has already been applied).
 message CommitResolution {
   CommitOutcome outcome   = 1;
   // What the pick wrote: a Continuous pick, into the composition — the
@@ -306,6 +323,10 @@ message CommitResolution {
   // FINALIZED && wrote_romanization && `document_text` does not end in `-`.
   // The platform still ANDs its live Auto-Space setting.
   bool earns_auto_space   = 4;
+  // ConfirmCompositionThenInsert already included its spacing in the document write.
+  // True when it left an auto space immediately before the caret; the host
+  // arms its punctuation swap only after that write succeeds.
+  bool leaves_trailing_auto_space = 5;
 }
 
 enum CommitOutcome {

@@ -22,7 +22,8 @@
 | `Start`, `Append`, `AppendHyphen`, `ReplaceLast` | Edit the pending `raw` at the caret; the display is re-derived |
 | `DeleteBackward` | See below |
 | `CommitRaw` | Enter: commit the whole composition |
-| `CommitPreeditThenInsertExternal` | Commit the composition, then an external text |
+| `CommitPreeditThenInsertExternal` | Commit the preedit as shown and append external text without candidate acceptance or auto spacing; idle inserts the text |
+| `ConfirmCompositionThenInsert` | Desktop: accept an optional candidate, finalize the whole composition and append a mapped literal with auto spacing in one write; rejected picks, idle state and empty literals change nothing |
 | `Reset` | Abort: drop the composition, nothing written |
 | `FetchAtPos` | Read-only candidate fetch |
 | `CommitContinuous` | Pick a candidate: nail a prefix or finalize the composition |

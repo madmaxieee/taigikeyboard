@@ -9,6 +9,7 @@
 mod common;
 
 mod composing_caret;
+mod confirm_composition_then_insert;
 mod continuous_abbrev;
 mod continuous_custom_priority;
 mod continuous_custom_reach;

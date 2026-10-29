@@ -36,6 +36,7 @@ public  final class ComposingRequest extends
     TPS_KEY(42),
     COMMIT_AS_SHOWN(43),
     COMMIT_AS_TYPED(44),
+    CONFIRM_COMPOSITION_THEN_INSERT(45),
     METHOD_NOT_SET(0);
     private final int value;
     private MethodCase(int value) {
@@ -67,6 +68,7 @@ public  final class ComposingRequest extends
         case 42: return TPS_KEY;
         case 43: return COMMIT_AS_SHOWN;
         case 44: return COMMIT_AS_TYPED;
+        case 45: return CONFIRM_COMPOSITION_THEN_INSERT;
         case 0: return METHOD_NOT_SET;
         default: return null;
       }
@@ -968,6 +970,56 @@ public  final class ComposingRequest extends
    */
   private void clearCommitAsTyped() {
     if (methodCase_ == 44) {
+      methodCase_ = 0;
+      method_ = null;
+    }
+  }
+
+  public static final int CONFIRM_COMPOSITION_THEN_INSERT_FIELD_NUMBER = 45;
+  /**
+   * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+   */
+  @java.lang.Override
+  public boolean hasConfirmCompositionThenInsert() {
+    return methodCase_ == 45;
+  }
+  /**
+   * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+   */
+  @java.lang.Override
+  public com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert getConfirmCompositionThenInsert() {
+    if (methodCase_ == 45) {
+       return (com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert) method_;
+    }
+    return com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert.getDefaultInstance();
+  }
+  /**
+   * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+   */
+  private void setConfirmCompositionThenInsert(com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert value) {
+    java.util.Objects.requireNonNull(value);
+    method_ = value;
+    methodCase_ = 45;
+  }
+  /**
+   * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+   */
+  private void mergeConfirmCompositionThenInsert(com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert value) {
+    java.util.Objects.requireNonNull(value);
+    if (methodCase_ == 45 &&
+        method_ != com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert.getDefaultInstance()) {
+      method_ = com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert.newBuilder((com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert) method_)
+          .mergeFrom(value).buildPartial();
+    } else {
+      method_ = value;
+    }
+    methodCase_ = 45;
+  }
+  /**
+   * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+   */
+  private void clearConfirmCompositionThenInsert() {
+    if (methodCase_ == 45) {
       methodCase_ = 0;
       method_ = null;
     }
@@ -1952,6 +2004,54 @@ public  final class ComposingRequest extends
       return this;
     }
 
+    /**
+     * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+     */
+    @java.lang.Override
+    public boolean hasConfirmCompositionThenInsert() {
+      return instance.hasConfirmCompositionThenInsert();
+    }
+    /**
+     * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+     */
+    @java.lang.Override
+    public com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert getConfirmCompositionThenInsert() {
+      return instance.getConfirmCompositionThenInsert();
+    }
+    /**
+     * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+     */
+    public Builder setConfirmCompositionThenInsert(com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert value) {
+      copyOnWrite();
+      instance.setConfirmCompositionThenInsert(value);
+      return this;
+    }
+    /**
+     * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+     */
+    public Builder setConfirmCompositionThenInsert(
+        com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert.Builder builderForValue) {
+      copyOnWrite();
+      instance.setConfirmCompositionThenInsert(builderForValue.build());
+      return this;
+    }
+    /**
+     * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+     */
+    public Builder mergeConfirmCompositionThenInsert(com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert value) {
+      copyOnWrite();
+      instance.mergeConfirmCompositionThenInsert(value);
+      return this;
+    }
+    /**
+     * <code>.taigi.engine.ConfirmCompositionThenInsert confirm_composition_then_insert = 45;</code>
+     */
+    public Builder clearConfirmCompositionThenInsert() {
+      copyOnWrite();
+      instance.clearConfirmCompositionThenInsert();
+      return this;
+    }
+
     // @@protoc_insertion_point(builder_scope:taigi.engine.ComposingRequest)
   }
   @java.lang.Override
@@ -1986,11 +2086,12 @@ public  final class ComposingRequest extends
             com.siansiansu.taigikeyboard.engine.proto.TpsKey.class,
             com.siansiansu.taigikeyboard.engine.proto.CommitAsShown.class,
             com.siansiansu.taigikeyboard.engine.proto.CommitAsTyped.class,
+            com.siansiansu.taigikeyboard.engine.proto.ConfirmCompositionThenInsert.class,
           };
           java.lang.String info =
-              "\u0000\u0010\u0001\u0000\n,\u0010\u0000\u0000\u0000\n<\u0000\u000b<\u0000\f<\u0000" +
+              "\u0000\u0011\u0001\u0000\n-\u0011\u0000\u0000\u0000\n<\u0000\u000b<\u0000\f<\u0000" +
               "\r<\u0000\u000e<\u0000\u0010<\u0000\u0012<\u0000\u0013<\u0000\u001f<\u0000 <\u0000" +
-              "\"<\u0000(<\u0000)<\u0000*<\u0000+<\u0000,<\u0000";
+              "\"<\u0000(<\u0000)<\u0000*<\u0000+<\u0000,<\u0000-<\u0000";
           return newMessageInfo(DEFAULT_INSTANCE, info, objects);
       }
       case GET_DEFAULT_INSTANCE: {

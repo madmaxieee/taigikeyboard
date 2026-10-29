@@ -21,8 +21,9 @@ final class TaigiInputControllerMenuTests: XCTestCase {
     /// How many times a row asked for the settings window.
     private var settingsShownCount = 0
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    @MainActor
+    override func setUp() async throws {
+        try await super.setUp()
         suiteName = "TaigiInputControllerMenuTests.\(UUID().uuidString)"
         userDefaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
         controller = try TestFixtures.makeInputController()
@@ -45,12 +46,13 @@ final class TaigiInputControllerMenuTests: XCTestCase {
         KeyboardShortcuts.reset(ShortcutAction.allCases.map(\.name))
     }
 
-    override func tearDown() {
+    @MainActor
+    override func tearDown() async throws {
         for (action, shortcut) in savedShortcuts {
             KeyboardShortcuts.setShortcut(shortcut, for: action.name)
         }
         userDefaults.removePersistentDomain(forName: suiteName)
-        super.tearDown()
+        try await super.tearDown()
     }
 
     private func menu() throws -> NSMenu {

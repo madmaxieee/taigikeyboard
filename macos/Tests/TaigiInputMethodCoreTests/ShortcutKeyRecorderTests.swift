@@ -16,8 +16,9 @@ final class ShortcutKeyRecorderTests: XCTestCase {
     private var window: NSWindow!
     private var field: ShortcutKeyRecorderField!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    @MainActor
+    override func setUp() async throws {
+        try await super.setUp()
         suiteName = "ShortcutKeyRecorderTests.\(UUID().uuidString)"
         userDefaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
         field = ShortcutKeyRecorderField()
@@ -33,12 +34,13 @@ final class ShortcutKeyRecorderTests: XCTestCase {
         window.contentView?.addSubview(field)
     }
 
-    override func tearDown() {
+    @MainActor
+    override func tearDown() async throws {
         window.contentView?.subviews.forEach { $0.removeFromSuperview() }
         window = nil
         field = nil
         userDefaults.removePersistentDomain(forName: suiteName)
-        super.tearDown()
+        try await super.tearDown()
     }
 
     private func chord(_ key: String, _ modifiers: NSEvent.ModifierFlags = []) throws -> ComposingKeyChord {

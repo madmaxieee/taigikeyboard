@@ -16,8 +16,8 @@ pub use protos::engine::CommitScript;
 use protos::engine::{
     composing_request, request, response, Append, CaretDirection as WireCaretDirection,
     CommitAsShown, CommitAsTyped, CommitContinuous, CommitPreeditThenInsertExternal, CommitRaw,
-    ComposingRequest, ComposingResponse, DeleteBackward, FetchAtPos, MoveCaret, Reset, TelexKey,
-    TpsKey,
+    ComposingRequest, ComposingResponse, ConfirmCompositionThenInsert, DeleteBackward, FetchAtPos,
+    MoveCaret, Reset, TelexKey, TpsKey,
 };
 
 use crate::keys::CaretDirection;
@@ -276,22 +276,52 @@ pub fn commit_continuous(
     generation: u64,
 ) -> Option<ContinuousCommitResult> {
     let response = composing_response(
-        composing_request::Method::CommitContinuous(CommitContinuous {
-            consumed_bytes: args.consumed_bytes,
-            syllable_count: args.syllable_count,
-            canonical_text: args.canonical_text.to_owned(),
-            association_tl: args.association_tl.to_owned(),
-            hanji: args.hanji.filter(|h| !h.is_empty()).map(str::to_owned),
-            script: args.script as i32,
-            roman: args.roman.to_owned(),
-        }),
+        composing_request::Method::CommitContinuous(args.to_wire()),
         "composingCommitContinuous",
         generation,
         Some(app_config(settings)),
     )?;
     Some(ContinuousCommitResult {
         transition: ComposingTransition::decode(&response),
-        // Always set on this path; a default reads as UNSPECIFIED → ignored.
+        commit: response.commit.unwrap_or_default(),
+    })
+}
+
+impl CommitContinuousArgs<'_> {
+    fn to_wire(&self) -> CommitContinuous {
+        CommitContinuous {
+            consumed_bytes: self.consumed_bytes,
+            syllable_count: self.syllable_count,
+            canonical_text: self.canonical_text.to_owned(),
+            association_tl: self.association_tl.to_owned(),
+            hanji: self.hanji.filter(|h| !h.is_empty()).map(str::to_owned),
+            script: self.script as i32,
+            roman: self.roman.to_owned(),
+        }
+    }
+}
+
+/// Finalizes the preedit, optionally accepting a candidate first, and
+/// appends the literal and auto space in one engine transition.
+pub fn confirm_composition_then_insert(
+    candidate: Option<&CommitContinuousArgs<'_>>,
+    text: &str,
+    auto_space_enabled: bool,
+    settings: &EngineSettings,
+    generation: u64,
+) -> Option<ContinuousCommitResult> {
+    let response = composing_response(
+        composing_request::Method::ConfirmCompositionThenInsert(ConfirmCompositionThenInsert {
+            candidate: candidate.map(CommitContinuousArgs::to_wire),
+            text: text.to_owned(),
+            auto_space_enabled,
+        }),
+        "composingConfirmCompositionThenInsert",
+        generation,
+        Some(app_config(settings)),
+    )?;
+    Some(ContinuousCommitResult {
+        transition: ComposingTransition::decode(&response),
         commit: response.commit.unwrap_or_default(),
     })
 }

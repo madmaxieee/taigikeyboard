@@ -1011,8 +1011,8 @@ mod tests {
     }
 
     /// trace: the default display is Hanji-first, whose punctuation is full
-    /// width: `,` mid-composition commits `l` and writes `，` with the auto
-    /// space in one write, then arms. ⌃`,` types no other width (USER
+    /// width: `,` confirms the highlighted 來 and writes `，` in one write,
+    /// without a romanization space. ⌃`,` types no other width (USER
     /// 2026-10-07): under TL it is the host's chord, like ⌘ below — `l` is
     /// committed as typed, no mark, no space, the key handed back.
     #[test]
@@ -1022,7 +1022,7 @@ mod tests {
         typist.type_text("l");
         let reply = typist.key(typed(","), list(Some(0)));
         assert!(reply.handled && !reply.is_composing);
-        assert_eq!(effects(&reply), vec![insert("l， "), closed(), arm()]);
+        assert_eq!(effects(&reply), vec![insert("來，"), closed()]);
 
         typist.type_text("l");
         let chorded = typist.key(chord(",", CONTROL, None), list(Some(0)));

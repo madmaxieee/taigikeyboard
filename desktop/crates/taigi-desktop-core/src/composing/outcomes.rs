@@ -44,6 +44,15 @@ impl CandidateFetchOutcome {
     }
 }
 
+/// The commit-and-insert key either wrote the whole composition and literal,
+/// or changed nothing. Its spacing is already part of that one write.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ConfirmCompositionThenInsertOutcome {
+    Unavailable,
+    Ignored,
+    Finalized { leaves_trailing_auto_space: bool },
+}
+
 /// What committing a candidate did, as the engine reported it
 /// (`ComposingResponse.commit`) — never read off the composing mirror: a
 /// generation mismatch silently resets the engine to Idle before the intent

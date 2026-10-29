@@ -498,6 +498,7 @@ pub fn resolution(
         document_text: text.into(),
         wrote_romanization: roman,
         earns_auto_space: space,
+        leaves_trailing_auto_space: false,
     }
 }
 

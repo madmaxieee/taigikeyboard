@@ -26,6 +26,8 @@ final class ParityDecisionTests: XCTestCase {
         try super.setUpWithError()
         restoreStandardSettingsAtTeardown()
         InstalledLexicon.installOnce()
+        // These event-classification and spacing cases confirm the literal row, not a dictionary word.
+        UserDefaults.standard.set(true, forKey: SettingsStore.Keys.isLiteralRomanCandidateEnabled.name)
     }
 
     /// E2 (C3), settled P11c: one key event carrying two characters,
@@ -197,6 +199,7 @@ final class ParityDecisionTests: XCTestCase {
     private func composedSession() throws -> Session {
         let session = try idleSession()
         try session.type("taigi")
+        XCTAssertEqual(session.presenter.cells.first?.text, "taigi")
         return session
     }
 

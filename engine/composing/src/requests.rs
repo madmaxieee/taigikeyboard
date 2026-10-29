@@ -22,7 +22,9 @@
 //! the same shadow → lattice path TL/POJ already walk; the legacy
 //! `build_keys_tps` `tl:`-folded path is retired).
 
-use crate::api::{CaretDirection, CommitScript, ComposingError, Engine, Intent, Phase, UserRows};
+use crate::api::{
+    CaretDirection, CommitScript, ComposingError, ContinuousPick, Engine, Intent, Phase, UserRows,
+};
 use crate::continuous::{assemble_candidates, retain_first_by_key, roman_reading_eq, ListShape};
 use crate::derived::buffer_input_mode;
 use lexicon::{
@@ -54,6 +56,19 @@ pub fn decode_intent(req: &ComposingRequest) -> Result<Intent, ComposingError> {
         Method::CommitPreeditThenInsertExternal(m) => {
             Intent::CommitPreeditThenInsertExternal { text: m.text }
         }
+        Method::ConfirmCompositionThenInsert(m) => Intent::ConfirmCompositionThenInsert {
+            candidate: m.candidate.map(|pick| ContinuousPick {
+                script: commit_script(pick.script()),
+                roman: pick.roman,
+                canonical_text: pick.canonical_text,
+                association_tl: pick.association_tl,
+                hanji: pick.hanji,
+                consumed_bytes: pick.consumed_bytes as usize,
+                syllable_count: clamp_syllable_count(pick.syllable_count),
+            }),
+            text: m.text,
+            auto_space_enabled: m.auto_space_enabled,
+        },
         Method::Reset(_) => Intent::Reset,
         // The user rows are the engine's own reads (`UserRows`); a platform
         // sends none.

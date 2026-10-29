@@ -10,7 +10,9 @@ use std::sync::Arc;
 use super::cell_content::CandidateScript;
 use super::clock::Clock;
 use super::next_word::NextWordPort;
-use super::outcomes::{CandidateCommitOutcome, CandidateFetchOutcome};
+use super::outcomes::{
+    CandidateCommitOutcome, CandidateFetchOutcome, ConfirmCompositionThenInsertOutcome,
+};
 use super::presentation::{leads_with_literal_roman, presentation, PresentedCandidate};
 use crate::engine::{self, CommitContinuousArgs, ComposingTransition, ContinuousCandidate, Effect};
 use crate::keys::CaretDirection;
@@ -287,9 +289,44 @@ impl ComposingManager {
         self.finish_commit(transition, &settings, executor)
     }
 
+    /// Accepts the resolved highlighted cell, when present, and appends the
+    /// mapped literal in one engine transition. The engine handles a partial
+    /// pick's tail and auto-space placement; the caller only updates the list
+    /// and arms the host swap after a successful write.
+    pub fn confirm_composition_then_insert(
+        &mut self,
+        candidate: Option<(&ContinuousCandidate, CandidateScript)>,
+        text: &str,
+        auto_space_enabled: bool,
+        executor: &mut dyn ComposingEffectExecutor,
+    ) -> ConfirmCompositionThenInsertOutcome {
+        let settings = self.composition_settings();
+        let args = candidate.map(|(candidate, script)| Self::candidate_args(candidate, script));
+        let Some(committed) = engine::confirm_composition_then_insert(
+            args.as_ref(),
+            text,
+            auto_space_enabled,
+            &settings,
+            self.current_generation,
+        ) else {
+            return ConfirmCompositionThenInsertOutcome::Unavailable;
+        };
+        let finalized = committed.commit.outcome() == protos::engine::CommitOutcome::Finalized;
+        let leaves_trailing_auto_space = committed.commit.leaves_trailing_auto_space;
+        self.finish_commit(Some(committed.transition), &settings, executor);
+        if finalized {
+            self.note_character_typed_outside_composition(text);
+            ConfirmCompositionThenInsertOutcome::Finalized {
+                leaves_trailing_auto_space,
+            }
+        } else {
+            ConfirmCompositionThenInsertOutcome::Ignored
+        }
+    }
+
     /// Applies a commit's answer and returns the text it wrote. A commit that
     /// teaches next word nothing — `NextWordClearForNewComposing` with no
-    /// `NextWordWordSelected`: commit-then-insert always, a TPS composition
+    /// `NextWordWordSelected`: an external insert without a final pick, a TPS composition
     /// holding a word the user did not pick (H7), commit as typed — leaves the
     /// context of the commit BEFORE it, which the next commit would pair
     /// itself with; the context is forgotten, under-learning one pair rather
@@ -405,18 +442,7 @@ impl ComposingManager {
             candidate.consumed_span_end
         );
         let Some(committed) = engine::commit_continuous(
-            &CommitContinuousArgs {
-                script: match script {
-                    CandidateScript::Primary => engine::CommitScript::Lead,
-                    CandidateScript::Alternate => engine::CommitScript::Other,
-                },
-                roman: &candidate.roman,
-                canonical_text: &candidate.display_text,
-                association_tl: &candidate.canonical_tl,
-                hanji: candidate.hanji.as_deref(),
-                consumed_bytes: candidate.consumed_span_end,
-                syllable_count: candidate.syllable_count,
-            },
+            &Self::candidate_args(candidate, script),
             &settings,
             self.current_generation,
         ) else {
@@ -429,6 +455,24 @@ impl ComposingManager {
         let outcome = CandidateCommitOutcome::from_resolution(&committed.commit, asks_refetch);
         self.apply(Some(committed.transition), &settings, executor);
         outcome
+    }
+
+    fn candidate_args(
+        candidate: &ContinuousCandidate,
+        script: CandidateScript,
+    ) -> CommitContinuousArgs<'_> {
+        CommitContinuousArgs {
+            script: match script {
+                CandidateScript::Primary => engine::CommitScript::Lead,
+                CandidateScript::Alternate => engine::CommitScript::Other,
+            },
+            roman: &candidate.roman,
+            canonical_text: &candidate.display_text,
+            association_tl: &candidate.canonical_tl,
+            hanji: candidate.hanji.as_deref(),
+            consumed_bytes: candidate.consumed_span_end,
+            syllable_count: candidate.syllable_count,
+        }
     }
 
     /// The text `transition` wrote to the document, read off the effects —

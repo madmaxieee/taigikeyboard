@@ -8,7 +8,10 @@ package com.siansiansu.taigikeyboard.engine.proto;
 /**
  * <pre>
  * What a `CommitContinuous` (R5) or a `CommitPrediction` (D1) did — replaces
- * the platforms' effect scans.
+ * the platforms' effect scans. ConfirmCompositionThenInsert also sets this: FINALIZED
+ * means its whole composition and literal were written, IGNORED means neither
+ * was written. Its document_text is the whole composition before the literal;
+ * earns_auto_space is descriptive only (spacing has already been applied).
  * </pre>
  *
  * Protobuf type {@code taigi.engine.CommitResolution}
@@ -221,6 +224,50 @@ public  final class CommitResolution extends
     earnsAutoSpace_ = false;
   }
 
+  public static final int LEAVES_TRAILING_AUTO_SPACE_FIELD_NUMBER = 5;
+  private boolean leavesTrailingAutoSpace_;
+  /**
+   * <pre>
+   * ConfirmCompositionThenInsert already included its spacing in the document write.
+   * True when it left an auto space immediately before the caret; the host
+   * arms its punctuation swap only after that write succeeds.
+   * </pre>
+   *
+   * <code>bool leaves_trailing_auto_space = 5;</code>
+   * @return The leavesTrailingAutoSpace.
+   */
+  @java.lang.Override
+  public boolean getLeavesTrailingAutoSpace() {
+    return leavesTrailingAutoSpace_;
+  }
+  /**
+   * <pre>
+   * ConfirmCompositionThenInsert already included its spacing in the document write.
+   * True when it left an auto space immediately before the caret; the host
+   * arms its punctuation swap only after that write succeeds.
+   * </pre>
+   *
+   * <code>bool leaves_trailing_auto_space = 5;</code>
+   * @param value The leavesTrailingAutoSpace to set.
+   */
+  private void setLeavesTrailingAutoSpace(boolean value) {
+
+    leavesTrailingAutoSpace_ = value;
+  }
+  /**
+   * <pre>
+   * ConfirmCompositionThenInsert already included its spacing in the document write.
+   * True when it left an auto space immediately before the caret; the host
+   * arms its punctuation swap only after that write succeeds.
+   * </pre>
+   *
+   * <code>bool leaves_trailing_auto_space = 5;</code>
+   */
+  private void clearLeavesTrailingAutoSpace() {
+
+    leavesTrailingAutoSpace_ = false;
+  }
+
   public static com.siansiansu.taigikeyboard.engine.proto.CommitResolution parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -307,7 +354,10 @@ public  final class CommitResolution extends
   /**
    * <pre>
    * What a `CommitContinuous` (R5) or a `CommitPrediction` (D1) did — replaces
-   * the platforms' effect scans.
+   * the platforms' effect scans. ConfirmCompositionThenInsert also sets this: FINALIZED
+   * means its whole composition and literal were written, IGNORED means neither
+   * was written. Its document_text is the whole composition before the literal;
+   * earns_auto_space is descriptive only (spacing has already been applied).
    * </pre>
    *
    * Protobuf type {@code taigi.engine.CommitResolution}
@@ -532,6 +582,52 @@ public  final class CommitResolution extends
       return this;
     }
 
+    /**
+     * <pre>
+     * ConfirmCompositionThenInsert already included its spacing in the document write.
+     * True when it left an auto space immediately before the caret; the host
+     * arms its punctuation swap only after that write succeeds.
+     * </pre>
+     *
+     * <code>bool leaves_trailing_auto_space = 5;</code>
+     * @return The leavesTrailingAutoSpace.
+     */
+    @java.lang.Override
+    public boolean getLeavesTrailingAutoSpace() {
+      return instance.getLeavesTrailingAutoSpace();
+    }
+    /**
+     * <pre>
+     * ConfirmCompositionThenInsert already included its spacing in the document write.
+     * True when it left an auto space immediately before the caret; the host
+     * arms its punctuation swap only after that write succeeds.
+     * </pre>
+     *
+     * <code>bool leaves_trailing_auto_space = 5;</code>
+     * @param value The leavesTrailingAutoSpace to set.
+     * @return This builder for chaining.
+     */
+    public Builder setLeavesTrailingAutoSpace(boolean value) {
+      copyOnWrite();
+      instance.setLeavesTrailingAutoSpace(value);
+      return this;
+    }
+    /**
+     * <pre>
+     * ConfirmCompositionThenInsert already included its spacing in the document write.
+     * True when it left an auto space immediately before the caret; the host
+     * arms its punctuation swap only after that write succeeds.
+     * </pre>
+     *
+     * <code>bool leaves_trailing_auto_space = 5;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearLeavesTrailingAutoSpace() {
+      copyOnWrite();
+      instance.clearLeavesTrailingAutoSpace();
+      return this;
+    }
+
     // @@protoc_insertion_point(builder_scope:taigi.engine.CommitResolution)
   }
   @java.lang.Override
@@ -552,10 +648,11 @@ public  final class CommitResolution extends
             "documentText_",
             "wroteRomanization_",
             "earnsAutoSpace_",
+            "leavesTrailingAutoSpace_",
           };
           java.lang.String info =
-              "\u0000\u0004\u0000\u0000\u0001\u0004\u0004\u0000\u0000\u0000\u0001\f\u0002\u0208" +
-              "\u0003\u0007\u0004\u0007";
+              "\u0000\u0005\u0000\u0000\u0001\u0005\u0005\u0000\u0000\u0000\u0001\f\u0002\u0208" +
+              "\u0003\u0007\u0004\u0007\u0005\u0007";
           return newMessageInfo(DEFAULT_INSTANCE, info, objects);
       }
       case GET_DEFAULT_INSTANCE: {

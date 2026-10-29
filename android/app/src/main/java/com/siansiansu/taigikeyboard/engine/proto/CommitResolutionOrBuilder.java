@@ -65,4 +65,16 @@ public interface CommitResolutionOrBuilder extends
    * @return The earnsAutoSpace.
    */
   boolean getEarnsAutoSpace();
+
+  /**
+   * <pre>
+   * ConfirmCompositionThenInsert already included its spacing in the document write.
+   * True when it left an auto space immediately before the caret; the host
+   * arms its punctuation swap only after that write succeeds.
+   * </pre>
+   *
+   * <code>bool leaves_trailing_auto_space = 5;</code>
+   * @return The leavesTrailingAutoSpace.
+   */
+  boolean getLeavesTrailingAutoSpace();
 }
