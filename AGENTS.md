@@ -42,6 +42,7 @@ emoji/             # Emoji data generator (own instructions file)
 | Before… | Read |
 |---|---|
 | your first change | `docs/contributing/known-pitfalls.md` |
+| reviewing a diff, or filling a PR's Risk tier | `REVIEW.md` |
 | changing files on a platform | that platform's guide in `docs/contributing/` (index: `docs/contributing/README.md`) |
 | adding / renaming / deleting an `i18n/*.json` key from platform code | `docs/contributing/i18n.md` |
 | adding or changing a framework / OS API call (KeyboardKit, `UITextDocumentProxy`, `InputMethodService`, Compose, DataStore) | `docs/contributing/doc-lookup.md` — verify against current docs, never from memory |

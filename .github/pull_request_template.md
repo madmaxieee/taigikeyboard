@@ -13,6 +13,14 @@
 - [ ] Dictionary (`dictionary/`)
 - [ ] Docs / CI only
 
+## Risk
+
+<!-- Tier from REVIEW.md § Risk tiers (High / Normal / Low) and what could break. -->
+
+## How to revert
+
+<!-- `git revert <merge>` is enough? Or does it need a data migration rollback, a dictionary rebuild, or a version bump? -->
+
 ## Test plan
 
 <!-- Commands per platform: docs/BUILDING.md § 4. -->
