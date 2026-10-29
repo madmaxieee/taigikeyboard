@@ -19511,6 +19511,8 @@ hanzi,tl,kautian_main,kautian_alt_reading,kautian_accent_mask,kautian_name,frequ
 譚,tânn,False,False,0,False,50,tâⁿ,tann5,tann5,ㄉㆩˊ,,tann,tann,ㄉㆩ,,,,,,False,False,False,False,False,True,False,False,False,False,False,False,False
 譟,sò,False,False,0,True,50,sò,so3,so3,ㄙㄛ˪,,so,so,ㄙㄛ,,,,,,True,False,False,False,False,False,False,False,False,False,False,False,False
 譟,tshò,False,False,0,True,50,chhò,tsho3,chho3,ㄘㄛ˪,,tsho,chho,ㄘㄛ,,,,,,True,False,False,False,False,True,False,False,False,False,False,False,False
+譩,i,False,False,0,True,50,i,i1,i1,ㄧ,,i,i,ㄧ,,,,,,True,False,False,False,False,False,False,False,False,False,False,False,False
+譩,ì,False,False,0,True,50,ì,i3,i3,ㄧ˪,,i,i,ㄧ,,,,,,True,False,False,False,False,False,False,False,False,False,False,False,False
 譭,huí,False,False,0,True,50,húi,hui2,hui2,ㄏㄨㄧˋ,,hui,hui,ㄏㄨㄧ,,,,,,True,False,False,False,False,False,False,False,False,False,False,False,False
 譮,huē,False,False,0,True,50,hōe,hue7,hoe7,ㄏㄨㆤ˫,,hue,hoe,ㄏㄨㆤ,,,,,,True,False,False,False,False,False,False,False,False,False,False,False,False
 譮,hāi,False,False,0,True,50,hāi,hai7,hai7,ㄏㄞ˫,,hai,hai,ㄏㄞ,,,,,,True,False,False,False,False,False,False,False,False,False,False,False,False
@@ -20675,6 +20677,7 @@ hanzi,tl,kautian_main,kautian_alt_reading,kautian_accent_mask,kautian_name,frequ
 鈮,nî,False,False,0,False,50,nî,ni5,ni5,ㄋㄧˊ,,ni,ni,ㄋㄧ,,,,,,False,False,False,False,False,False,False,False,False,True,False,False,False
 鈰,tshī,False,False,0,False,50,chhī,tshi7,chhi7,ㄑㄧ˫,,tshi,chhi,ㄑㄧ,,,,,,False,False,False,False,False,False,False,False,False,True,False,False,False
 鈰,tshǐ,False,False,0,False,50,chhǐ,tshi6,chhi6,ㄑㄧˇ,,tshi,chhi,ㄑㄧ,,,,,,False,False,False,False,False,False,False,False,False,True,False,False,False
+鈱,bîn,False,False,0,True,50,bîn,bin5,bin5,ㆠㄧㄣˊ,,bin,bin,ㆠㄧㄣ,,,,,,True,False,False,False,False,False,False,False,False,False,False,False,False
 鈶,sīr,False,False,0,False,50,sīr,sir7,sir7,ㄙㆨ˫,,sir,sir,ㄙㆨ,,,,,,False,False,False,False,False,False,False,False,False,True,False,False,False
 鈶,sū,False,False,0,True,50,sū,su7,su7,ㄙㄨ˫,,su,su,ㄙㄨ,,,,,,True,False,False,False,False,False,False,False,False,False,False,False,False
 鈶,sǐr,False,False,0,False,50,sǐr,sir6,sir6,ㄙㆨˇ,,sir,sir,ㄙㆨ,,,,,,False,False,False,False,False,False,False,False,False,True,False,False,False
