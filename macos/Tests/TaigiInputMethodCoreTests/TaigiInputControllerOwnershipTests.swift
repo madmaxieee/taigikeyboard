@@ -2,6 +2,8 @@ import InputMethodKit
 @testable import TaigiInputMethodCore
 import XCTest
 
+// INVARIANT_MACOS_INPUT_SESSION_OWNERSHIP (behavioral-invariants.md §61):
+// activation is eligibility; a delivered key selects the owner.
 @MainActor
 final class TaigiInputControllerOwnershipTests: XCTestCase {
     /// Device trace: session 2 activates, session 3 activates, then the host
