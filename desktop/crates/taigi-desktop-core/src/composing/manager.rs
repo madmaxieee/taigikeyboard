@@ -7,6 +7,8 @@
 
 use std::sync::Arc;
 
+use protos::engine::{CommitOutcome, CommitResolution};
+
 use super::cell_content::CandidateScript;
 use super::clock::Clock;
 use super::next_word::NextWordPort;
@@ -244,13 +246,13 @@ impl ComposingManager {
 
     /// Commits the composition as rendered: `CommitRaw` for TL and POJ, and
     /// for a TPS composition `CommitAsShown` — the Hanji conversion on screen
-    /// (`desktop-tps-hanji-conversion-roadmap.md` B2). Answers the text the
-    /// commit wrote, or `None` for a commit that never reached the engine or
-    /// wrote nothing — what auto-space earns its trailing space from.
+    /// (`desktop-tps-hanji-conversion-roadmap.md` B2). Answers the engine's
+    /// resolution — the text written and whether it earns the auto space —
+    /// or `None` for a commit that never reached the engine or wrote nothing.
     pub fn commit_composition(
         &mut self,
         executor: &mut dyn ComposingEffectExecutor,
-    ) -> Option<String> {
+    ) -> Option<CommitResolution> {
         log::debug!("commitComposition");
         let settings = self.composition_settings();
         let commit = if self.is_tps_composition() {
@@ -258,8 +260,9 @@ impl ComposingManager {
         } else {
             engine::commit_raw
         };
-        let transition = commit(&settings, self.current_generation);
-        self.finish_commit(transition, &settings, executor)
+        let committed = commit(&settings, self.current_generation)?;
+        self.finish_commit(committed.transition, &settings, executor);
+        (committed.commit.outcome() == CommitOutcome::Finalized).then_some(committed.commit)
     }
 
     /// Commits a TPS composition as typed (`CommitAsTyped`): the glyphs of
@@ -270,23 +273,10 @@ impl ComposingManager {
     ) -> Option<String> {
         log::debug!("commitCompositionAsTyped");
         let settings = self.composition_settings();
-        let transition = engine::commit_as_typed(&settings, self.current_generation);
-        self.finish_commit(transition, &settings, executor)
-    }
-
-    /// Commits the composition and appends `text` after it in the same engine
-    /// step, so one keystroke reaches the host as one document mutation. A
-    /// TPS composition is written as shown, as `commit_composition` writes it.
-    pub fn commit_composition_then_insert(
-        &mut self,
-        text: &str,
-        executor: &mut dyn ComposingEffectExecutor,
-    ) -> Option<String> {
-        log::debug!("commitCompositionThenInsert");
-        let settings = self.composition_settings();
-        let transition =
-            engine::commit_preedit_then_insert_external(text, &settings, self.current_generation);
-        self.finish_commit(transition, &settings, executor)
+        let transition = engine::commit_as_typed(&settings, self.current_generation)?;
+        let committed = Self::committed_text(&transition);
+        self.finish_commit(transition, &settings, executor);
+        committed
     }
 
     /// Accepts the resolved highlighted cell, when present, and appends the
@@ -311,9 +301,9 @@ impl ComposingManager {
         ) else {
             return ConfirmCompositionThenInsertOutcome::Unavailable;
         };
-        let finalized = committed.commit.outcome() == protos::engine::CommitOutcome::Finalized;
+        let finalized = committed.commit.outcome() == CommitOutcome::Finalized;
         let leaves_trailing_auto_space = committed.commit.leaves_trailing_auto_space;
-        self.finish_commit(Some(committed.transition), &settings, executor);
+        self.finish_commit(committed.transition, &settings, executor);
         if finalized {
             self.note_character_typed_outside_composition(text);
             ConfirmCompositionThenInsertOutcome::Finalized {
@@ -324,7 +314,7 @@ impl ComposingManager {
         }
     }
 
-    /// Applies a commit's answer and returns the text it wrote. A commit that
+    /// Applies a commit's answer. A commit that
     /// teaches next word nothing — `NextWordClearForNewComposing` with no
     /// `NextWordWordSelected`: an external insert without a final pick, a TPS composition
     /// holding a word the user did not pick (H7), commit as typed — leaves the
@@ -333,26 +323,22 @@ impl ComposingManager {
     /// than learning a wrong one. TL and POJ's `CommitRaw` always teaches.
     fn finish_commit(
         &mut self,
-        transition: Option<ComposingTransition>,
+        transition: ComposingTransition,
         settings: &EngineSettings,
         executor: &mut dyn ComposingEffectExecutor,
-    ) -> Option<String> {
-        let committed = Self::committed_text(transition.as_ref());
-        let teaches_nothing = transition.as_ref().is_some_and(|transition| {
-            transition
+    ) {
+        let teaches_nothing = transition
+            .effects
+            .contains(&Effect::NextWordClearForNewComposing)
+            && !transition
                 .effects
-                .contains(&Effect::NextWordClearForNewComposing)
-                && !transition
-                    .effects
-                    .iter()
-                    .any(|effect| matches!(effect, Effect::NextWordWordSelected { .. }))
-        });
-        self.apply(transition, settings, executor);
+                .iter()
+                .any(|effect| matches!(effect, Effect::NextWordWordSelected { .. }));
+        self.apply(Some(transition), settings, executor);
         if teaches_nothing {
             self.next_word
                 .forget_context(self.clock.now_ms(), settings, self.current_generation);
         }
-        committed
     }
 
     /// Whether the composition in flight was begun under TPS — the one
@@ -478,8 +464,8 @@ impl ComposingManager {
     /// The text `transition` wrote to the document, read off the effects —
     /// the mirror carries the display rendering, which the output settings
     /// can make differ from the document string.
-    fn committed_text(transition: Option<&ComposingTransition>) -> Option<String> {
-        transition?
+    fn committed_text(transition: &ComposingTransition) -> Option<String> {
+        transition
             .effects
             .iter()
             .filter_map(|effect| match effect {

@@ -71,7 +71,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn every_mapped_pair_follows_the_moe_table() {
+    fn every_mapped_pair_maps_to_its_full_width_mark() {
         // trace: the 26 rows of `MAP`, the MOE table plus `~` and backslash.
         for (half, full) in MAP {
             assert_eq!(

@@ -2,9 +2,7 @@
 
 use phonetics::api::is_attaching_punctuation;
 
-fn should_append_space(text: &str) -> bool {
-    !text.is_empty() && !text.ends_with('-')
-}
+use crate::commit_text::should_append_space;
 
 /// The literal and spacing appended to a finalized composition.
 #[derive(Clone, Debug, PartialEq, Eq)]

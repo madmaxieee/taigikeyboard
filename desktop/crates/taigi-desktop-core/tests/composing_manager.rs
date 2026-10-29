@@ -13,7 +13,8 @@ use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
 
 use taigi_desktop_core::composing::{
     CandidateCommitOutcome, CandidateFetchOutcome, CandidateScript, Clock, ComposingEffectExecutor,
-    ComposingManager, ComposingSessionCoordinator, ContextToken, NextWordPort, TpsKeyOutcome,
+    ComposingManager, ComposingSessionCoordinator, ConfirmCompositionThenInsertOutcome,
+    ContextToken, NextWordPort, TpsKeyOutcome,
 };
 use taigi_desktop_core::dictionary_artifacts::DictionaryArtifacts;
 use taigi_desktop_core::engine::{self, ContinuousCandidate, Effect};
@@ -209,6 +210,13 @@ fn rig() -> Rig {
 }
 
 impl Rig {
+    /// The text `commit_composition` wrote, when it finalized.
+    fn commit_composition(&mut self) -> Option<String> {
+        self.manager
+            .commit_composition(&mut self.recorder)
+            .map(|commit| commit.document_text)
+    }
+
     fn type_text(&mut self, text: &str) {
         for character in text.chars() {
             self.manager
@@ -384,10 +392,7 @@ fn a_tps_commit_writes_the_shown_hanji_after_the_dictionaries_change() {
     rig.switch_dictionaries_off();
     // trace, read by running: committed under the switches in force the
     // engine is not shown the held conversion and writes `ㄍㄚㄅㄚ˫`.
-    assert_eq!(
-        rig.manager.commit_composition(&mut rig.recorder).as_deref(),
-        Some("家罷")
-    );
+    assert_eq!(rig.commit_composition().as_deref(), Some("家罷"));
 }
 
 /// A list opened before the dictionary switches changed — a settings reload
@@ -409,10 +414,7 @@ fn a_tps_pick_after_the_dictionaries_change_keeps_the_words_before_it() {
         (CandidateCommitOutcome::Nailed { refetch: false }, None)
     );
     assert_eq!(rig.manager.display_text(), "家罷");
-    assert_eq!(
-        rig.manager.commit_composition(&mut rig.recorder).as_deref(),
-        Some("家罷")
-    );
+    assert_eq!(rig.commit_composition().as_deref(), Some("家罷"));
 }
 
 /// Hanji conversion H7 / H8: a TPS commit holding a word the user did not
@@ -424,10 +426,7 @@ fn a_tps_commit_forgets_the_context_unless_every_word_was_picked() {
     let _lock = engine_lock();
     let mut rig = rig();
     rig.type_tps(&GA_BA);
-    assert_eq!(
-        rig.manager.commit_composition(&mut rig.recorder).as_deref(),
-        Some("家罷")
-    );
+    assert_eq!(rig.commit_composition().as_deref(), Some("家罷"));
     assert_eq!(rig.memory.reported(), ["∅"]);
 
     rig.type_tps(&["ㄏ", "ㄛ", "ˋ"]);
@@ -449,10 +448,7 @@ fn a_tps_commit_forgets_the_context_unless_every_word_was_picked() {
         (CandidateCommitOutcome::Nailed { refetch: false }, None)
     );
     assert!(rig.manager.is_composing());
-    assert_eq!(
-        rig.manager.commit_composition(&mut rig.recorder).as_deref(),
-        Some("好")
-    );
+    assert_eq!(rig.commit_composition().as_deref(), Some("好"));
     assert_eq!(rig.memory.reported(), ["∅", "∅", "好", "好"]);
 }
 
@@ -603,8 +599,14 @@ fn commit_composition_writes_the_composition_and_ends_it() {
     let _lock = engine_lock();
     let mut rig = rig();
     rig.type_text("gua2");
-    let committed = rig.manager.commit_composition(&mut rig.recorder);
-    assert_eq!(committed.as_deref(), Some("guá"));
+    let committed = rig
+        .manager
+        .commit_composition(&mut rig.recorder)
+        .expect("finalized");
+    assert_eq!(committed.document_text, "guá");
+    // trace: engine `finalized_composition_resolution` — TL romanization,
+    // no trailing hyphen.
+    assert!(committed.earns_auto_space);
     assert!(!rig.manager.is_composing());
     assert_eq!(rig.manager.raw_input(), "");
     assert_eq!(rig.recorder.committed(), ["guá"]);
@@ -615,10 +617,15 @@ fn commit_then_insert_reaches_the_host_as_one_write_and_drops_the_context() {
     let _lock = engine_lock();
     let mut rig = rig();
     rig.type_text("gua2");
-    let committed = rig
+    let outcome = rig
         .manager
-        .commit_composition_then_insert(" ", &mut rig.recorder);
-    assert_eq!(committed.as_deref(), Some("guá "));
+        .confirm_composition_then_insert(None, " ", false, &mut rig.recorder);
+    assert_eq!(
+        outcome,
+        ConfirmCompositionThenInsertOutcome::Finalized {
+            leaves_trailing_auto_space: false
+        }
+    );
     assert_eq!(
         rig.recorder.committed(),
         ["guá "],
@@ -995,13 +1002,16 @@ fn a_new_session_and_a_mid_composition_punctuation_both_forget_the_context() {
 
     // Punctuation committed mid-composition drops the context rather than
     // letting the next commit skip a word.
+    // trace: `confirm_composition_then_insert` — no pick, so `finish_commit`
+    // forgets the context (∅), then the literal is reported as typed outside
+    // the composition (`note_character_typed_outside_composition`).
     rig.type_text("gua2");
     rig.manager
-        .commit_composition_then_insert(".", &mut rig.recorder);
+        .confirm_composition_then_insert(None, ".", false, &mut rig.recorder);
     rig.type_text("bun5");
     let bun = rig.candidate("文");
     rig.commit(&bun, CandidateScript::Primary);
-    assert_eq!(rig.memory.reported(), vec!["∅", "文"]);
+    assert_eq!(rig.memory.reported(), vec!["∅", ".", "文"]);
 }
 
 // MARK: - ported from the macOS suites
@@ -1278,10 +1288,7 @@ fn a_switch_across_tps_leaves_the_composition_behind() {
     // mode the composition began in.
     rig.manager.fetch_candidates();
     assert!(rig.manager.is_left_by_mode_change(InputMode::Tl));
-    assert_eq!(
-        rig.manager.commit_composition(&mut rig.recorder).as_deref(),
-        Some("家罷")
-    );
+    assert_eq!(rig.commit_composition().as_deref(), Some("家罷"));
     assert!(!rig.manager.is_left_by_mode_change(InputMode::Tl));
 
     // The other way: a romanization composition under TPS.
@@ -1290,7 +1297,7 @@ fn a_switch_across_tps_leaves_the_composition_behind() {
         .edit(|document| document.set_choice(&keys::INPUT_MODE, InputMode::Tps));
     assert!(rig.manager.is_left_by_mode_change(InputMode::Tps));
     assert_eq!(
-        rig.manager.commit_composition(&mut rig.recorder).as_deref(),
+        rig.commit_composition().as_deref(),
         Some("tsia\u{30d}h-pn\u{304}g")
     );
 

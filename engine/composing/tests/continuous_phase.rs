@@ -13,9 +13,9 @@
 use composing::CommitScript;
 use composing::{Engine, Intent, NailedSegment, Phase};
 use protos::engine::effect::Kind;
-use protos::engine::Effect;
+use protos::engine::{CommitOutcome, Effect};
 
-use crate::common::{config, config_tl, effect_kinds, engine_in_continuous};
+use crate::common::{config, config_tl, effect_kinds, engine_in_continuous, resolution};
 
 fn assert_kinds<'a, K>(effects: &'a [Effect], expected: K)
 where
@@ -760,6 +760,53 @@ fn commit_raw_under_continuous_commits_derived_display_and_fires_nextword() {
     assert_eq!(nw.roman, "lí");
     assert!(nw.trigger_prediction);
     assert_eq!(e.snapshot_state().phase, Phase::Idle);
+}
+
+#[test]
+fn commit_raw_answers_the_auto_space_verdict_of_what_it_wrote() {
+    // trace: `finalized_composition_resolution` — "li2" writes "lí",
+    // romanization off the TPS layout, no trailing hyphen → earns the space;
+    // "tsua-" ends in a hyphen → none; the TPS layout writes no romanization
+    // → none.
+    let mut e = engine_in_continuous("li2");
+    let resp = e.apply(Intent::CommitRaw, &config_tl());
+    assert_eq!(
+        resp.commit,
+        Some(resolution(CommitOutcome::Finalized, "lí", true, true))
+    );
+
+    let mut e = engine_in_continuous("tsua");
+    e.apply(Intent::AppendHyphen, &config_tl());
+    let resp = e.apply(Intent::CommitRaw, &config_tl());
+    assert_eq!(
+        resp.commit,
+        Some(resolution(CommitOutcome::Finalized, "tsua-", true, false))
+    );
+
+    let tps = config("tps");
+    let mut e = Engine::new();
+    e.apply(
+        Intent::Start {
+            text: "ㄍㄨㄚˋ".to_string(),
+        },
+        &tps,
+    );
+    let resp = e.apply(Intent::CommitRaw, &tps);
+    assert_eq!(
+        resp.commit,
+        Some(resolution(
+            CommitOutcome::Finalized,
+            "ㄍㄨㄚˋ",
+            false,
+            false
+        ))
+    );
+
+    assert_eq!(
+        e.apply(Intent::CommitRaw, &tps).commit,
+        None,
+        "idle: no commit"
+    );
 }
 
 // Enter commits the permissive rendering but learns the tail under the same

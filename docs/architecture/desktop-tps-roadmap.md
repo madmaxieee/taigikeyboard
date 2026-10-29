@@ -105,7 +105,7 @@ Sites in `desktop/crates/taigi-desktop-core/src/` that assume a romanization and
 | `composing/intent_executor.rs:149-159` | No `Other` commit, no Shift-slot flip |
 | `settings/document.rs:267-278` | Full-width punctuation effective value is on |
 | `keys/bindings.rs:96-99` | Slot labels are `1`–`9` |
-| `policies/auto_space.rs:39-47` | `raw_preedit_writes_romanization(Tps) = false` |
+| engine `composing/src/commit_text.rs` `finalized_composition_resolution` | `CommitAsShown` under the TPS layout earns no auto space |
 | `engine/bridge.rs:115-123` | `tps_or_maps_to_er = true`, the mobile default (`ios/.../Settings/SharedSettings.swift:88`); the cell's `TlDisplayToTps` call passes the same value, so a cell and its commit agree |
 
 ### D5 — Shortcuts and mode changes (U2)

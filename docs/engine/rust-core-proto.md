@@ -98,7 +98,7 @@ Each slice dispatches on its own `oneof method` and answers through `oneof resul
 | 31–32, 34 | Continuous input | `FetchAtPos` (read-only), `CommitContinuous`, `CommitPrediction` (a NextWord prediction tap) |
 | 40–44 | Desktop keys | `TelexKey`, `MoveCaret`, `TpsKey`, `CommitAsShown`, `CommitAsTyped` |
 
-`ComposingResponse`: `preedit` (1: `raw_input`, `display_text`, `caret_utf16`), ordered `effect` list (2), `is_composing` (4), `continuous` (5, `FetchAtPos` only), `commit` (6, `CommitResolution` for a `CommitContinuous` or `CommitPrediction`: outcome, document text, `wrote_romanization`, `earns_auto_space`).
+`ComposingResponse`: `preedit` (1: `raw_input`, `display_text`, `caret_utf16`), ordered `effect` list (2), `is_composing` (4), `continuous` (5, `FetchAtPos` only), `commit` (6, `CommitResolution` for a `CommitContinuous`, `CommitPrediction`, `ConfirmCompositionThenInsert`, or a finalizing `CommitRaw` / `CommitAsShown`: outcome, document text, `wrote_romanization`, `earns_auto_space`).
 
 `Effect.oneof kind`:
 

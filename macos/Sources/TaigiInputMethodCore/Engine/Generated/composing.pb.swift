@@ -713,7 +713,10 @@ public nonisolated struct Taigi_Engine_CommitPrediction: Sendable {
 }
 
 /// What a `CommitContinuous` (R5) or a `CommitPrediction` (D1) did — replaces
-/// the platforms' effect scans. ConfirmCompositionThenInsert also sets this: FINALIZED
+/// the platforms' effect scans. `CommitRaw` and `CommitAsShown` set it when
+/// they finalize: document_text is the whole composition written, and
+/// earns_auto_space is the literal commit's auto-space verdict.
+/// ConfirmCompositionThenInsert also sets this: FINALIZED
 /// means its whole composition and literal were written, IGNORED means neither
 /// was written. Its document_text is the whole composition before the literal;
 /// earns_auto_space is descriptive only (spacing has already been applied).
@@ -900,8 +903,9 @@ public nonisolated struct Taigi_Engine_ComposingResponse: Sendable {
   /// Clears the value of `continuous`. Subsequent reads from it will return its default value.
   public mutating func clearContinuous() {self._continuous = nil}
 
-  /// R5 — set by every `CommitContinuous` and `CommitPrediction`; absent for
-  /// every other request.
+  /// R5 — set by every `CommitContinuous` and `CommitPrediction`, by
+  /// `ConfirmCompositionThenInsert`, and by a `CommitRaw` / `CommitAsShown`
+  /// that finalizes; absent for every other request.
   public var commit: Taigi_Engine_CommitResolution {
     get {_commit ?? Taigi_Engine_CommitResolution()}
     set {_commit = newValue}

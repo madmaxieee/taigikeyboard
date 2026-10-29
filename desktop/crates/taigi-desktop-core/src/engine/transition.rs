@@ -162,11 +162,12 @@ pub struct ContinuousFetchResult {
     pub candidates: Option<Vec<ContinuousCandidate>>,
 }
 
-/// Result of a candidate commit whose document text the engine resolved:
-/// the transition to replay, and what the commit did
-/// (`ComposingResponse.commit` — outcome and auto-space verdict).
+/// Result of a commit whose document text the engine resolved — a candidate
+/// pick, a literal commit, a confirm-then-insert: the transition to replay,
+/// and what the commit did (`ComposingResponse.commit` — outcome and
+/// auto-space verdict).
 #[derive(Clone, Debug, PartialEq)]
-pub struct ContinuousCommitResult {
+pub struct CommitResult {
     pub transition: ComposingTransition,
     pub commit: CommitResolution,
 }

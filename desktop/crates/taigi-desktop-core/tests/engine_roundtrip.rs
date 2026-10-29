@@ -383,13 +383,14 @@ fn poj_mode_renders_poj_display_and_keeps_canonical_tl() {
 }
 
 #[test]
-fn commit_preedit_then_insert_external_is_one_effect() {
+fn confirm_composition_then_insert_is_one_effect() {
     let _engine = engine();
     let settings = EngineSettings::default();
     let generation = fresh_generation();
     compose("gua2", &settings, generation);
-    let commit =
-        engine::commit_preedit_then_insert_external(" ", &settings, generation).expect("commit");
+    let commit = engine::confirm_composition_then_insert(None, " ", false, &settings, generation)
+        .expect("commit")
+        .transition;
     assert!(!commit.is_composing);
     let commits: Vec<_> = commit
         .effects
