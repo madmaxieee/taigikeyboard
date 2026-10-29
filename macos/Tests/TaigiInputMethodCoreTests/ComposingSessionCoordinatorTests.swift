@@ -53,4 +53,85 @@ final class ComposingSessionCoordinatorTests: XCTestCase {
         XCTAssertEqual(tokens.map(\.value), tokens.map(\.value).sorted())
         XCTAssertEqual(Set(tokens).count, 3)
     }
+
+    func testResume_handsTheEngineToASoleWaitingSessionOnly() {
+        let coordinator = TestFixtures.makeCoordinator()
+        let first = RecordingInputSession(coordinator: coordinator)
+        let second = RecordingInputSession(coordinator: coordinator)
+        coordinator.registerActiveSession(first, for: first.token)
+        coordinator.registerActiveSession(second, for: second.token)
+
+        coordinator.resumeWaitingSession()
+        XCTAssertEqual(first.ownershipTakes + second.ownershipTakes, 0, "two waiting sessions: a key must choose")
+
+        coordinator.unregisterActiveSession(first.token)
+        coordinator.resumeWaitingSession()
+        XCTAssertEqual(first.ownershipTakes, 0)
+        XCTAssertEqual(second.ownershipTakes, 1)
+        XCTAssertTrue(coordinator.owns(second.token))
+    }
+
+    func testResume_leavesALiveOwnerAlone() {
+        let coordinator = TestFixtures.makeCoordinator()
+        let owner = RecordingInputSession(coordinator: coordinator)
+        coordinator.registerActiveSession(owner, for: owner.token)
+        owner.takeInputOwnership()
+        let waiting = RecordingInputSession(coordinator: coordinator)
+        coordinator.registerActiveSession(waiting, for: waiting.token)
+
+        coordinator.resumeWaitingSession()
+
+        XCTAssertTrue(coordinator.hasActiveOwner)
+        XCTAssertEqual(waiting.ownershipTakes, 0, "an extra activation must not take a live owner's engine")
+    }
+
+    /// IMK can drop a controller without `inputControllerWillClose`; its weak
+    /// entry must not count as a live owner or block the sole-waiting rule.
+    func testADeallocatedOwner_isNoLiveOwner() {
+        let coordinator = TestFixtures.makeCoordinator()
+        do {
+            let owner = RecordingInputSession(coordinator: coordinator)
+            coordinator.registerActiveSession(owner, for: owner.token)
+            owner.takeInputOwnership()
+        }
+        let waiting = RecordingInputSession(coordinator: coordinator)
+        coordinator.registerActiveSession(waiting, for: waiting.token)
+
+        XCTAssertFalse(coordinator.hasActiveOwner)
+        coordinator.resumeWaitingSession()
+        XCTAssertEqual(waiting.ownershipTakes, 1)
+    }
+
+    func testReregisteringAToken_replacesItsEarlierTarget() {
+        let coordinator = TestFixtures.makeCoordinator()
+        let earlier = RecordingInputSession(coordinator: coordinator)
+        let later = RecordingInputSession(coordinator: coordinator, token: earlier.token)
+        coordinator.registerActiveSession(earlier, for: earlier.token)
+        coordinator.registerActiveSession(later, for: later.token)
+
+        coordinator.resumeWaitingSession()
+
+        XCTAssertEqual(earlier.ownershipTakes, 0)
+        XCTAssertEqual(later.ownershipTakes, 1, "one token is one session, however often it activates")
+    }
+}
+
+/// Takes ownership the way the controller does: by claiming its own token.
+@MainActor
+private final class RecordingInputSession: InputSessionTarget {
+    let token: ComposingSessionToken
+    private let coordinator: ComposingSessionCoordinator
+    private(set) var ownershipTakes = 0
+
+    init(coordinator: ComposingSessionCoordinator, token: ComposingSessionToken = ComposingSessionToken()) {
+        self.coordinator = coordinator
+        self.token = token
+    }
+
+    func takeInputOwnership() {
+        ownershipTakes += 1
+        coordinator.claim(token)
+    }
+
+    func performShortcutAction(_: ShortcutAction) {}
 }

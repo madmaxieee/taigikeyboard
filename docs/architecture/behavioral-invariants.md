@@ -75,6 +75,7 @@ The cross-platform behavior contract every Rust slice and platform change must p
 58. [A desktop user-data list sends its filter as typed, reloads after every write, and selects only what is on screen](#58--a-desktop-user-data-list-sends-its-filter-as-typed-reloads-after-every-write-and-selects-only-what-is-on-screen)
 59. [Under TPS the desktop preedit shows the Hanji conversion, and only a pick teaches](#59--under-tps-the-desktop-preedit-shows-the-hanji-conversion-and-only-a-pick-teaches)
 60. [The desktop input indicator shows the script and what a commit writes](#60--the-desktop-input-indicator-shows-the-script-and-what-a-commit-writes)
+61. [On macOS an activation makes a session eligible; a delivered key makes it the owner](#61--on-macos-an-activation-makes-a-session-eligible-a-delivered-key-makes-it-the-owner)
 - [Change protocol](#change-protocol) · [Cross-references](#cross-references)
 
 ---
@@ -1285,6 +1286,20 @@ Each desktop shows the input state as script × output, each platform by its own
 - **Per platform.** Windows: the taskbar button's `GetIcon` loads the mode's DLL icon (`mode_icons.rs`, ids 2–7; mozc `tip_lang_bar_menu.cc:98-111`) and `GetText` its symbol; a switch made here pushes `OnUpdate`, and so does `OnSetThreadFocus`, for a change the settings app or another host made. Fcitx5: `subModeIconImpl` returns the hicolor icon name (`taigikeyboard-tl-hanji` …), as fcitx5-mozc does, and `subModeLabelImpl` the symbol (drawn only under Prefer Text Icon). IBus: the `InputMode` menu root carries the symbol and the icon. Every shortcut that changes the state redraws it — the script switches, the display cycle and the swap. macOS: one static menu-bar icon (`ComponentInputModeDict` not adopted); the swap flashes the output script (`outputScriptHanji` / `outputScriptRoman`) when it changes what a commit writes and no candidate list is on screen.
 
 **Tests**: desktop-core `mode_indicator.rs` (`invariant_desktop_mode_indicator_every_setting_combination_maps_to_its_indicator`, `english_overrides_every_setting`, `icon_assets_exist_for_every_indicator`); Linux `chrome.rs::the_swap_redraws_the_indicator_and_is_inert_under_roman_only`, IBus `wire.rs::property_and_prop_list_have_the_ibus_signatures`; Windows `lang_bar.rs::every_indicator_has_its_own_icon_resource_after_the_app_icon`; macOS `TaigiInputControllerShortcutTests.testTheTranslateSwap_withNoList_announcesWhatACommitNowWrites`, `TaigiInputControllerCandidateTests.testTogglingTranslateSwapped_rerendersTheBarInPlace`. Dogfood S99.
+
+## §61 — On macOS an activation makes a session eligible; a delivered key makes it the owner
+
+### `INVARIANT_MACOS_INPUT_SESSION_OWNERSHIP`
+
+IMK can activate a second controller (a system client) while it keeps delivering keys to the first, so `activateServer` is not exclusive focus. One process-wide engine has one owner (`ComposingSessionCoordinator`); the rules below decide who it is. macOS only: Windows TSF and Linux Fcitx5 / IBus take focus from their own exclusive focus events.
+
+- **Activation registers eligibility.** `activateServer` registers the controller (`registerActiveSession`) and takes the engine only when no live owner exists or it already owns it. Otherwise it waits: the owner keeps its composition, candidate bar, symbol picker and TPS key panel. A waiting controller still receives keyboard-layout overrides, so macOS translates its first key correctly.
+- **A delivered key selects the owner.** `handle(_:client:)` on an active, non-owning controller with a client takes ownership first (`takeInputOwnership`: engine `Activate`, shortcut target, panels handed over), then processes the key. The handover drops the previous owner's composition in the engine; the region is cleared on that controller's own teardown.
+- **A retired controller cannot reclaim.** Teardown (`deactivateServer`, `inputControllerWillClose`) revokes eligibility before anything else; a late key to it passes through unhandled.
+- **A sole waiting session resumes.** After the owner's teardown releases the engine, `resumeWaitingSession` hands it to the one remaining active controller, so panels and hotkeys work before the first key. With several waiting, none is chosen until a key arrives — the global hotkeys act on nothing until then. A deallocated controller (weakly held) never counts as a live owner.
+- **Reentrant teardown yields.** A commit during teardown can reactivate the same controller; the teardown then stops (`tenure` changed) and neither releases the engine nor drops the new tenure's observers or marked-region bookkeeping. Activation still makes no synchronous document query (Chromium deadlock; cf. `references/azooKey-Desktop/azooKeyMac/InputController/azooKeyMacInputController.swift:173`).
+
+**Tests**: macOS `TaigiInputControllerOwnershipTests` (extra activation keeps the typing session, key handover, no late reclaim, sole vs several waiting shortcut targets, auxiliary close), `ComposingSessionCoordinatorTests` (`testResume_handsTheEngineToASoleWaitingSessionOnly`, `testResume_leavesALiveOwnerAlone`, `testADeallocatedOwner_isNoLiveOwner`, `testReregisteringAToken_replacesItsEarlierTarget`), `TaigiInputControllerTests` (`testReactivationDuringDeactivationCommit_keepsAcceptingInput`, `testTypingDuringReactivation_preservesTheNewMarkedRegionUntilHandover`), `TaigiInputControllerKeyboardLayoutTests.testAWaitingSession_receivesLayoutChangesBeforeItsFirstKey`. Dogfood S128.
 
 ---
 
