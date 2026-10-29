@@ -14806,6 +14806,8 @@ tsiàm,譖,False,False,0,True,50,chiàm,tsiam3,chiam3,ㄐㄧㆰ˪,,tsiam,chiam,�
 tsiâu,譙,False,False,0,True,50,chiâu,tsiau5,chiau5,ㄐㄧㄠˊ,,tsiau,chiau,ㄐㄧㄠ,,,,,,True,False
 sò,譟,False,False,0,True,50,sò,so3,so3,ㄙㄛ˪,,so,so,ㄙㄛ,,,,,,True,False
 tshò,譟,False,False,0,True,50,chhò,tsho3,chho3,ㄘㄛ˪,,tsho,chho,ㄘㄛ,,,,,,True,False
+i,譩,False,False,0,True,50,i,i1,i1,ㄧ,,i,i,ㄧ,,,,,,True,False
+ì,譩,False,False,0,True,50,ì,i3,i3,ㄧ˪,,i,i,ㄧ,,,,,,True,False
 huí,譭,False,False,0,True,50,húi,hui2,hui2,ㄏㄨㄧˋ,,hui,hui,ㄏㄨㄧ,,,,,,True,False
 huē,譮,False,False,0,True,50,hōe,hue7,hoe7,ㄏㄨㆤ˫,,hue,hoe,ㄏㄨㆤ,,,,,,True,False
 hāi,譮,False,False,0,True,50,hāi,hai7,hai7,ㄏㄞ˫,,hai,hai,ㄏㄞ,,,,,,True,False
@@ -15670,6 +15672,7 @@ kun,鈞,True,False,0,True,50,kun,kun1,kun1,ㄍㄨㄣ,,kun,kun,ㄍㄨㄣ,,,,,,Tru
 bián,鈣,False,False,0,True,50,bián,bian2,bian2,ㆠㄧㄢˋ,,bian,bian,ㆠㄧㄢ,,,,,,True,False
 thài,鈦,False,False,0,True,50,thài,thai3,thai3,ㄊㄞ˪,,thai,thai,ㄊㄞ,,,,,,True,False
 lik,鈪,False,False,0,True,50,lek,lik4,lek4,ㄌㄧㆻ,,lik,lek,ㄌㄧㆻ,,,,,,True,False
+bîn,鈱,False,False,0,True,50,bîn,bin5,bin5,ㆠㄧㄣˊ,,bin,bin,ㆠㄧㄣ,,,,,,True,False
 sū,鈶,False,False,0,True,50,sū,su7,su7,ㄙㄨ˫,,su,su,ㄙㄨ,,,,,,True,False
 pua̍h,鈸,True,False,0,True,50,poa̍h,puah8,poah8,ㄅㄨㄚㆷ̇,,puah,poah,ㄅㄨㄚㆷ,,,,,,True,False
 pua̍t,鈸,True,False,0,True,50,poa̍t,puat8,poat8,ㄅㄨㄚㆵ̇,,puat,poat,ㄅㄨㄚㆵ,,,,,,True,False
