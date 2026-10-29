@@ -21,8 +21,8 @@ use ranking::FrequencyMap;
 use test_support::engine_install_lock;
 
 use crate::common::{
-    commit_text, config, config_converting, converted_words, effect_kinds, frequency_map, selected,
-    Fetch, Selected, NOW_MS,
+    commit_text, config, config_converting, converted_words, effect_kinds, frequency_map,
+    resolution, selected, Fetch, Selected, NOW_MS,
 };
 use crate::tps_hanji_conversion::{
     caret_utf16, composing_engine, display, install_fixture_with, nailed, pick, raw_input, step,
@@ -338,6 +338,12 @@ fn commit_as_shown_writes_the_preedit_and_teaches_nothing_unpicked() {
     );
     assert!(!applied.response.is_composing);
     assert_eq!((applied.learned, applied.usage), (None, None));
+    // trace: `finalized_composition_resolution` — the TPS layout writes no
+    // romanization, so no auto space.
+    assert_eq!(
+        applied.response.commit,
+        Some(resolution(CommitOutcome::Finalized, "死絲", false, false))
+    );
 }
 
 // A pending tail is the walker's, never picked: the same. trace: "ㄒㄧˋㄒㄧ"

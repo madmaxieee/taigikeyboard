@@ -182,6 +182,31 @@ fn lead(roman: &str, hanji: Option<&str>, scripts: &OutputScripts) -> ResolvedCo
     }
 }
 
+/// Whether written text takes a trailing space at all: a trailing hyphen
+/// (a syllable about to be continued) suppresses it. The engine's one copy;
+/// the desktops read it through `CommitResolution.earns_auto_space`, the
+/// phones still keep their own for raw-preedit commits.
+pub(crate) fn should_append_space(text: &str) -> bool {
+    !text.is_empty() && !text.ends_with('-')
+}
+
+/// The resolution of a commit that finalized the whole composition as the
+/// preedit renders it (`CommitRaw`, `CommitAsShown`, and
+/// `ConfirmCompositionThenInsert` with no final pick): romanization unless
+/// the TPS layout drew it.
+pub(crate) fn finalized_composition_resolution(
+    text: String,
+    config: &AppConfig,
+) -> CommitResolution {
+    commit_resolution(
+        CommitOutcome::Finalized,
+        Some(ResolvedCommit {
+            text,
+            wrote_romanization: !config.is_tps_layout(),
+        }),
+    )
+}
+
 /// The wire answer for an R5 commit: `resolved` is what the pick wrote,
 /// unless `outcome` says nothing changed. The auto-space verdict is the
 /// platforms' `shouldAppendAutoSpace` minus the live setting, on a final
@@ -198,7 +223,7 @@ pub(crate) fn commit_resolution(
     };
     let earns_auto_space = outcome == CommitOutcome::Finalized
         && resolved.wrote_romanization
-        && !resolved.text.ends_with('-');
+        && should_append_space(&resolved.text);
     CommitResolution {
         outcome: outcome as i32,
         document_text: resolved.text,

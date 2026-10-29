@@ -353,9 +353,10 @@ internal fun predictionPick(word: TaigiWord): RustEngineBridge.PredictionPick =
         canonicalTl = word.additionalInfo[TaigiWord.MetadataKeys.CANONICAL_TL] ?: "",
     )
 
-// CROSS-PLATFORM INVARIANT — one name on all five platforms: ios
-// `ActionHandler.rawPreeditWritesRomanization`, desktop-core (macOS / Windows / Linux)
-// `policies::raw_preedit_writes_romanization`.
+// CROSS-PLATFORM INVARIANT — ios `ActionHandler.rawPreeditWritesRomanization`;
+// the desktops (macOS / Windows / Linux) read the engine's verdict instead
+// (`CommitRaw` / `CommitAsShown` `CommitResolution.earns_auto_space`,
+// `engine/composing/src/commit_text.rs` `finalized_composition_resolution`).
 
 /**
  * Whether the layout in use composes romanization — TL and POJ do, TPS

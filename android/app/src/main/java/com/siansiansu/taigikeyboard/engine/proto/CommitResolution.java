@@ -8,7 +8,10 @@ package com.siansiansu.taigikeyboard.engine.proto;
 /**
  * <pre>
  * What a `CommitContinuous` (R5) or a `CommitPrediction` (D1) did — replaces
- * the platforms' effect scans. ConfirmCompositionThenInsert also sets this: FINALIZED
+ * the platforms' effect scans. `CommitRaw` and `CommitAsShown` set it when
+ * they finalize: document_text is the whole composition written, and
+ * earns_auto_space is the literal commit's auto-space verdict.
+ * ConfirmCompositionThenInsert also sets this: FINALIZED
  * means its whole composition and literal were written, IGNORED means neither
  * was written. Its document_text is the whole composition before the literal;
  * earns_auto_space is descriptive only (spacing has already been applied).
@@ -354,7 +357,10 @@ public  final class CommitResolution extends
   /**
    * <pre>
    * What a `CommitContinuous` (R5) or a `CommitPrediction` (D1) did — replaces
-   * the platforms' effect scans. ConfirmCompositionThenInsert also sets this: FINALIZED
+   * the platforms' effect scans. `CommitRaw` and `CommitAsShown` set it when
+   * they finalize: document_text is the whole composition written, and
+   * earns_auto_space is the literal commit's auto-space verdict.
+   * ConfirmCompositionThenInsert also sets this: FINALIZED
    * means its whole composition and literal were written, IGNORED means neither
    * was written. Its document_text is the whole composition before the literal;
    * earns_auto_space is descriptive only (spacing has already been applied).

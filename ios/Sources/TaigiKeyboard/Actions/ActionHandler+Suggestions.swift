@@ -158,9 +158,10 @@ extension ActionHandler {
     /// commit that writes the composition AS TYPED (the raw-input candidate,
     /// Return while composing), none of which goes through a candidate's
     /// rendering.
-    // CROSS-PLATFORM INVARIANT — one name on all five platforms: android
-    // `rawPreeditWritesRomanization`, desktop-core (macOS / Windows / Linux)
-    // `policies::raw_preedit_writes_romanization`.
+    // CROSS-PLATFORM INVARIANT — android `rawPreeditWritesRomanization`; the
+    // desktops (macOS / Windows / Linux) read the engine's verdict instead
+    // (`CommitRaw` / `CommitAsShown` `CommitResolution.earns_auto_space`,
+    // `engine/composing/src/commit_text.rs` `finalized_composition_resolution`).
     static func rawPreeditWritesRomanization(isTPSLayout: Bool) -> Bool {
         !isTPSLayout
     }

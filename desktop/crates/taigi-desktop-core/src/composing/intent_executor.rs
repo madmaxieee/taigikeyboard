@@ -127,11 +127,10 @@ pub fn perform_intent(
             // The preedit as rendered, whichever script the candidate list
             // led with: the romanization as typed under TL and POJ, the
             // Hanji conversion as shown under TPS.
-            let committed = manager.commit_composition(surface);
+            let earns_auto_space = manager
+                .commit_composition(surface)
+                .is_some_and(|commit| commit.earns_auto_space);
             close_list(list, surface);
-            let earns_auto_space = committed.is_some_and(|text| {
-                raw_preedit_wrote_romanization(settings) && policies::should_append_space(&text)
-            });
             append_auto_space(earns_auto_space, settings, surface);
             true
         }
@@ -468,19 +467,13 @@ fn append_auto_space(
 }
 
 /// The gate every auto-space site reads: Auto-Space live, and the commit's
-/// own verdict — the engine's `earns_auto_space` for a candidate, the input
-/// mode for the preedit as typed.
+/// own verdict — the engine's `earns_auto_space` for a candidate and for
+/// the preedit as rendered.
 fn auto_space_gate(settings: &SettingsDocument, wrote_romanization: bool) -> bool {
     policies::is_gate_active(
         settings.bool(&keys::IS_AUTO_SPACE_ENABLED),
         wrote_romanization,
     )
-}
-
-/// Whether committing the preedit AS TYPED writes romanization. One key
-/// read, not a whole `engine_settings()` snapshot: this runs per keystroke.
-fn raw_preedit_wrote_romanization(settings: &SettingsDocument) -> bool {
-    policies::raw_preedit_writes_romanization(settings.choice(&keys::INPUT_MODE))
 }
 
 /// The full-width mark this input method writes for `text`, or `None` when

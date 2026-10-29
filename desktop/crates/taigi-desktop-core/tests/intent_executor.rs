@@ -306,7 +306,7 @@ fn ideographic_comma_keys_follow_the_output_mode_idle_and_composing() {
                 assert_eq!(
                     rig.calls(),
                     if hanji_first {
-                        vec!["insert \"、\""]
+                        vec![format!("insert \"{mark}\"")]
                     } else {
                         vec![]
                     }

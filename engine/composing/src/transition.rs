@@ -32,7 +32,9 @@ use crate::api::{
     CommitScript, ContinuousPick, ConversionFrequency, EngineState, Intent, NailedSegment, Phase,
     Usage,
 };
-use crate::commit_text::{commit_resolution, resolve_commit_text};
+use crate::commit_text::{
+    commit_resolution, finalized_composition_resolution, resolve_commit_text,
+};
 use crate::conversion::{next_raw_span, PreviousTail};
 use crate::derived::{
     buffer_input_mode, derived_display, display_caret_utf16, learning_text,
@@ -774,7 +776,8 @@ fn commit_raw(state: &mut EngineState, config: &AppConfig) -> ComposingResponse 
 ///
 /// See `docs/engine/continuous-commit-and-display.md` §10.3 commit contract
 /// (Enter commits the whole composition) and §10.7 "Enter after segments
-/// already nailed" row.
+/// already nailed" row. Answers the commit's `CommitResolution`, whose
+/// `earns_auto_space` the platform's literal commit reads.
 fn commit_raw_continuous(
     state: &mut EngineState,
     raw: String,
@@ -817,7 +820,7 @@ fn commit_raw_continuous(
         // empty raw implies a nailed segment exists).
         next_word_nailed_terminal(&nailed)
     };
-    finalize(state, combined, terminal_nextword)
+    finalize_composition(state, combined, terminal_nextword, config)
 }
 
 /// `Intent::CommitPreeditThenInsertExternal` from Idle — a plain insert
@@ -1074,6 +1077,20 @@ fn finalize(state: &mut EngineState, text: String, terminal: Effect) -> Composin
     exit_to_idle(state, effects)
 }
 
+/// [`finalize`] for a commit that writes the whole composition as rendered,
+/// answering its `CommitResolution` (the auto-space verdict).
+fn finalize_composition(
+    state: &mut EngineState,
+    text: String,
+    terminal: Effect,
+    config: &AppConfig,
+) -> ComposingResponse {
+    let resolution = finalized_composition_resolution(text.clone(), config);
+    let mut response = finalize(state, text, terminal);
+    response.commit = Some(resolution);
+    response
+}
+
 /// A pick under a Hanji conversion the request asks for (H4): the list it
 /// came from started at the word before the caret
 /// (`crate::conversion::word_list_start`, `start`), so what the preedit shows before that start
@@ -1149,7 +1166,8 @@ fn nail_pick_keeping_composition(
 /// next-word sequence — only when nothing is pending and the user picked
 /// every segment (B4, H7); otherwise it teaches nothing and answers
 /// `NextWordClearForNewComposing`, after which the platform forgets its
-/// next-word context. Records no usage.
+/// next-word context. Records no usage; answers the commit's
+/// `CommitResolution` (the auto-space verdict).
 fn commit_as_shown(state: &mut EngineState, config: &AppConfig) -> Applied {
     let Phase::Continuous { raw, nailed, .. } = &state.phase else {
         return noop(state, config).into();
@@ -1164,7 +1182,7 @@ fn commit_as_shown(state: &mut EngineState, config: &AppConfig) -> Applied {
         (next_word_clear_for_new_composing(), None)
     };
     Applied {
-        response: finalize(state, text, terminal),
+        response: finalize_composition(state, text, terminal, config),
         learned,
         usage: None,
     }
@@ -1304,13 +1322,7 @@ fn confirm_composition_then_insert(
             &committed,
             auto_space_enabled && !config.is_tps_layout(),
         );
-        let mut resolution = commit_resolution(
-            CommitOutcome::Finalized,
-            Some(crate::commit_text::ResolvedCommit {
-                text: committed,
-                wrote_romanization: !config.is_tps_layout(),
-            }),
-        );
+        let mut resolution = finalized_composition_resolution(committed, config);
         resolution.leaves_trailing_auto_space = insert.leaves_trailing_auto_space;
         // Preserve a partial pick's learning handshake, without exposing its
         // transient preedit or refetch request to the host.
@@ -1350,6 +1362,9 @@ fn confirm_composition_then_insert(
                         &committed.text,
                         auto_space_enabled && resolution.earns_auto_space,
                     );
+                    // The pick's resolution names its own segment; the write
+                    // is the whole composition, which `document_text` reports
+                    // (`composing.proto` `CommitResolution`).
                     resolution.document_text = committed.text.clone();
                     resolution.leaves_trailing_auto_space = insert.leaves_trailing_auto_space;
                     committed.text.push_str(&insert.text);

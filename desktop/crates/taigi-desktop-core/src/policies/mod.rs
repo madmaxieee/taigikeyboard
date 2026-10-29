@@ -7,5 +7,5 @@
 mod auto_space;
 mod full_width;
 
-pub use auto_space::{is_gate_active, raw_preedit_writes_romanization, should_append_space};
+pub use auto_space::is_gate_active;
 pub use full_width::{full_width_mapped, is_punctuation_chord_key};
